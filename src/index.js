@@ -1,10 +1,17 @@
-const { app, BrowserWindow,ipcMain } = require('electron');
+const {
+  app,
+  BrowserWindow,
+  ipcMain
+} = require('electron');
 const path = require('path');
-const { electron } = require('process');
+const {
+  electron
+} = require('process');
 
 const ipc = require('electron').ipcMain;
 const getWeb = require('./getWeb');
 const parser = require('./parser');
+const makeJson = require('./makeJson');
 const iconv = require("iconv-lite");
 const screen = require('electron').screen;
 
@@ -20,12 +27,15 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 
 const createWindow = () => {
   // Create the browser window.
-  const { width, height } = screen.getPrimaryDisplay().workAreaSize
+  const {
+    width,
+    height
+  } = screen.getPrimaryDisplay().workAreaSize
   console.log(width + "x" + height);
   const mainWindow = new BrowserWindow({
     width: 1400,
     height: 850,
-    minWidth:1400,
+    minWidth: 1400,
     minHeight: 850,
     show: false,
     backgroundColor: '#2b2a33',
@@ -35,7 +45,9 @@ const createWindow = () => {
       webviewTag: true
     }
   });
-  mainWindow.once('ready-to-show', () => {  mainWindow.show()})
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+  })
   win = mainWindow;
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, './index2.html'));
@@ -71,57 +83,62 @@ app.on('activate', () => {
 
 
 
-ipc.on('getMyClass',async function(e){
+ipc.on('getMyClass', async function (e) {
   console.log("mainGetMyClass");
-  var response =  getWeb.loginAndGetClass();
+  var response = getWeb.loginAndGetClass();
   console.log(response);
   console.log('success');
   var myClass = parser.myClassParser(response);
   var allMyClass;
-  myClass.then(success => {
-    allMyClass=success;
-    //for (let i=0;i<allMyClass.length;i++) {
-    for (let i=0;i<1;i++) {
-      console.log("parser RE "+allMyClass[i].id);
-      response = getWeb.getMyClassDate(allMyClass[i].id);
-      /*
-      response.then(success => {
-        console.log("get RE "+success.data);
-      })
-      .catch(fail => {
-        console.log(fail);
-      });*/
-      var addClassTime = parser.myClassDateParser(response);
-      addClassTime.then(success => {
-        allMyClass[i].time=success;
-        console.log(success[0]);
-      })
-      .catch(fail => {
-        console.log(fail);
+  myClass.then(async function (success) {
+      return new Promise((resolve, reject) => {
+        allMyClass = success;
+        for (let i = 0; i < allMyClass.length; i++) {
+          //for (let i = 0; i < 2; i++) {
+          console.log("parser RE " + allMyClass[i]["id"]);
+          response = getWeb.getMyClassDate(allMyClass[i]["id"]);
+          var addClassTime = parser.myClassDateParser(response);
+          addClassTime.then(async function (success){
+              allMyClass[i]["time"]=success
+              return new Promise((resolve, reject) => {
+                console.log("111111");
+                resolve();
+              })
+            }).then(success => {
+              if (i == allMyClass.length - 1) {
+                resolve();
+              }
+            })
+            .catch(fail => {
+              console.log(fail);
+            });
+        }
       });
-    }
-  })
-  .catch(fail => {
-    console.log(fail);
-  });
-    
-    
-    //myClass[i] = parser.myClassDateParser(response,myClass[i]);
-    
+    }).then(success => {
+      console.log("2222222");
+      makeJson.myClassToJson(allMyClass);
+    })
+    .catch(fail => {
+      console.log(fail);
+    });
+
+
+  //myClass[i] = parser.myClassDateParser(response,myClass[i]);
+
   //}
-  
+
 
   //parser.myClassParser(iconv.decode(Buffer.from(success.data), "big5"));
   //console.log('!!'+iconv.decode(Buffer.from(s), "big5"));
   //win.webContents.send('myClass',iconv.decode(Buffer.from(Data), "big5"));*/
 })
 
-ipc.on('login',async function(e,data){
-  
-    console.log(data);
-    var resoult = await getWeb.login(data);
-    console.log('!!'+resoult);
-    win.webContents.send('loginRe',resoult);
+ipc.on('login', async function (e, data) {
+
+  console.log(data);
+  var resoult = await getWeb.login(data);
+  console.log('!!' + resoult);
+  win.webContents.send('loginRe', resoult);
 })
 
 
