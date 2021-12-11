@@ -90,33 +90,30 @@ ipc.on('getMyClass', async function (e) {
   console.log('success');
   var myClass = parser.myClassParser(response);
   var allMyClass;
+  let allPromise = [];
   myClass.then(async function (success) {
-      return new Promise((resolve, reject) => {
-        allMyClass = success;
-        for (let i = 0; i < allMyClass.length; i++) {
-          //for (let i = 0; i < 2; i++) {
+      allMyClass = success;
+      for (let i = 0; i < allMyClass.length; i++) {
+        //for (let i = 0; i < 2; i++) {
+        allPromise.push(new Promise(function (resolve, reject) {
           console.log("parser RE " + allMyClass[i]["id"]);
           response = getWeb.getMyClassDate(allMyClass[i]["id"]);
           var addClassTime = parser.myClassDateParser(response);
-          addClassTime.then(async function (success){
-              allMyClass[i]["time"]=success
-              return new Promise((resolve, reject) => {
-                console.log("111111");
-                resolve();
-              })
-            }).then(success => {
-              if (i == allMyClass.length - 1) {
-                resolve();
-              }
+          addClassTime.then(async function (success) {
+              allMyClass[i]["time"] = success
+              console.log("111111");
+              resolve();
             })
             .catch(fail => {
               console.log(fail);
             });
-        }
-      });
+        }))
+      }
     }).then(success => {
-      console.log("2222222");
-      makeJson.myClassToJson(allMyClass);
+      Promise.all(allPromise).then(function (values) {
+        console.log("2222222");
+        makeJson.myClassToJson(allMyClass);
+      });
     })
     .catch(fail => {
       console.log(fail);
