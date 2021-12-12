@@ -44,9 +44,14 @@ const main_farm = document.getElementById("main_farm");
 const getMyClass = document.getElementById("getMyClass");
 
 async function showMyClass() {
-    var table = document.createElement("table");
-    
     const fs = require('fs');
+    main_farm.innerHTML = ""
+    var table = document.createElement("table");
+
+    var switchLabel = document.createElement("label");
+    var switchInput = document.createElement("input");
+    var switchSpan = document.createElement("span");
+
     var tableHead=["動作","課程代碼","課程名稱","教師","類別","學分","已選/上限","附註"]
     var tableKey=["ln","id","name","teacher","type","point","student","ps"]
 
@@ -77,11 +82,19 @@ async function showMyClass() {
             }
         }
     })
+
+    switchLabel.setAttribute('class','switch');
+    switchInput.setAttribute('type','checkbox');
+    switchSpan.setAttribute('class','slider round');
+    switchLabel.appendChild(switchInput);
+    switchLabel.appendChild(switchSpan);
+
     main_farm.appendChild(table);
+    main_farm.appendChild(switchLabel);
 }
 
 getMyClass.addEventListener('click',async function(){
-    ipc.send('getMyClass');
+    //ipc.send('getMyClass');
     //console.log('getMyClass');
     showMyClass();
 })
