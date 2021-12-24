@@ -94,10 +94,16 @@ async function showMyClass() {
 }
 
 getMyClass.addEventListener('click',async function(){
-    //ipc.send('getMyClass');
+    ipc.send('getMyClass');
     //console.log('getMyClass');
-    showMyClass();
+    
 })
+
+ipc.on("readyToShow", function (evt, myClass){
+    console.log("show");
+    showMyClass();
+});
+
 menu.addEventListener('click',async function(){
     sidebar.classList.toggle("active");
     console.log("open");
@@ -107,4 +113,6 @@ ipc.on('myClass', function (evt, myClass) {
     console.log(myClass);
     main_farm.innerHTML = myClass;
 });
+
+
 

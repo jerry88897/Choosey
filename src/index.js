@@ -113,6 +113,7 @@ ipc.on('getMyClass', async function (e) {
       Promise.all(allPromise).then(function (values) {
         console.log("2222222");
         makeJson.myClassToJson(allMyClass);
+        win.webContents.send("readyToShow");
       });
     })
     .catch(fail => {
