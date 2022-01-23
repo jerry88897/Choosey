@@ -15,8 +15,8 @@ const wave =document.getElementById("wave")
 //
 //})
 login.addEventListener('click',async function(){
-    var Id = document.getElementById('id').value;
-    var Ps = document.getElementById('ps').value;
+    let Id = document.getElementById('id').value;
+    let Ps = document.getElementById('ps').value;
     ipc.send('login',{id: Id,ps:Ps});
     console.log({id: Id,ps:Ps});
 })
@@ -38,22 +38,180 @@ ipc.on('loginRe', function (evt, resoult) {
 
 
 //2
+const fs = require('fs');
 const menu = document.getElementById("menu");
 const sidebar = document.getElementById("sidebar");
 const main_farm = document.getElementById("main_farm");
 const getMyClass = document.getElementById("getMyClass");
+const preSelectClass = document.getElementById("preSelectClass");
 
-async function showMyClass() {
-    const fs = require('fs');
+let tableSwitch 
+let myClassTableType=false
+async function cleanFrame() {
     main_farm.innerHTML = ""
-    var table = document.createElement("table");
+}
+async function preSelect() {
+    await cleanFrame()
+    let preSelectList={
+        "isLock":false,
+        "preSelectBlock":[]
+    }
+    let tableHead=["分組","啟用","發送時刻(秒)","酬載1","酬載2"]
+    let table = document.createElement("table");
+    table.className="preTable"
+    tr = table.insertRow(-1);
+    tr.className="ptr"
 
-    var switchLabel = document.createElement("label");
-    var switchInput = document.createElement("input");
-    var switchSpan = document.createElement("span");
+    for (let i=0;i<5;i++) {
+        let th = document.createElement("th");      // TABLE HEADER.
+        th.setAttribute('id','mheader');
+        th.innerHTML = tableHead[i];
+        tr.appendChild(th);
+    }
+console.log(1)
+    fs.readFile('./src/data/preSelect.json', function (err, preSelectListSaved) {
+        return new Promise(function(resolve, reject) {
+            if (err) {
+                console.log("no PRS make new file");
+                for (let i=0;i<5;i++) {
+                    let preSelectBlock ={
+                        "id":0,
+                        "enable":false,
+                        "trigger":0,
+                        "list":["",""]
+                    } 
+                    preSelectBlock.id=i;
+                    preSelectList.preSelectBlock.push(preSelectBlock);
+                }
+                fs.writeFile('./src/data/preSelect.json', JSON.stringify(preSelectList), function (err) {
+                    if (err)
+                        console.log(err);
+                    else
+                        console.log('make new file complete.');
+                });
+                resolve("make new");
+            }else{
+                console.log("load PRS");
+                //將二進制數據轉換為字串符
+                preSelectListSaved = preSelectListSaved.toString();
+                //將字符串轉換為 JSON 對象
+                preSelectList = JSON.parse(preSelectListSaved);
+                console.log(2)
+                resolve("success");
+            }
+        });
+    }).then(success => {
+        
+    })
+    console.log(3)
+    for(let i=0;i<5;i++){
+        tr = table.insertRow(-1);
+        tr.className="ptr"
 
-    var tableHead=["動作","課程代碼","課程名稱","教師","類別","學分","已選/上限","附註"]
-    var tableKey=["ln","id","name","teacher","type","point","student","ps"]
+        let td = document.createElement("td");
+        td.className="ptd"
+        td.innerHTML=i+1;
+        tr.appendChild(td);
+
+        td = document.createElement("td");
+        td.className="ptd"
+        let checkbox=document.createElement("input");
+        checkbox.setAttribute("type","checkbox");
+        checkbox.id="checkbox"+i;
+        if(preSelectList.preSelectBlock[i].enable==true){
+            checkbox.setAttribute("checked");
+        }
+        td.appendChild(checkbox);
+        tr.appendChild(td);
+
+        td = document.createElement("td");
+        td.className="ptd"
+        let timeSelect=document.createElement("input");
+        timeSelect.id="timeSelect"+i;
+        timeSelect.setAttribute("type","number");
+        timeSelect.setAttribute("min",-120);
+        timeSelect.setAttribute("max",120);
+        timeSelect.setAttribute("step",0.01);
+        timeSelect.setAttribute("value",preSelectList.preSelectBlock[i].trigger);
+        timeSelect.className="preTime"
+        td.appendChild(timeSelect);
+        tr.appendChild(td);
+
+        for(let j=0;j<2;j++){
+            let td = document.createElement("td");
+            td.className="ptd"
+            let textarea=document.createElement("textarea");
+            textarea.id="textarea"+(i*2+j);
+            textarea.className="preTextrea"
+            textarea.setAttribute("max-rows",5)
+            textarea.innerHTML=preSelectList.preSelectBlock[i].list[j];
+            td.appendChild(textarea);
+            tr.appendChild(td);
+        }
+    }
+    let save = document.createElement("button");
+    save.setAttribute("type","button");
+    save.className="saveBTN";
+
+    console.log(preSelectList.isLock)
+    console.log(preSelectList)
+
+    if(preSelectList.isLock==false){
+        save.innerHTML="保存並鎖定"
+    }else{
+        save.innerHTML="解除鎖定"
+    }
+    
+    main_farm.appendChild(table);
+    main_farm.appendChild(save);
+
+    save.addEventListener('click',async function(){
+        if(preSelectList.isLock==false){
+            save.innerHTML="解除鎖定"
+            preSelectList.isLock=true;
+            for(let i=0;i<5;i++){
+                preSelectList.preSelectBlock[i].enable=document.getElementById("checkbox"+i).checked;
+                document.getElementById("checkbox"+i).disabled = true;
+                preSelectList.preSelectBlock[i].trigger=document.getElementById("timeSelect"+i).value;
+                document.getElementById("timeSelect"+i).disabled = true;
+                preSelectList.preSelectBlock[i].list[0]=document.getElementById("textarea"+(i*2)).value;
+                document.getElementById("textarea"+(i*2)).disabled = true;
+                document.getElementById("textarea"+(i*2)).className = "preTextreaDark";
+                preSelectList.preSelectBlock[i].list[1]=document.getElementById("textarea"+(i*2+1)).value;
+                document.getElementById("textarea"+(i*2+1)).disabled = true;
+                document.getElementById("textarea"+(i*2+1)).className = "preTextreaDark";
+            }
+            fs.writeFile('./src/data/preSelect.json', JSON.stringify(preSelectList), function (err) {
+                if (err)
+                    console.log(err);
+                else
+                    console.log('save file complete.');
+            });
+        }else{
+            save.innerHTML="保存並鎖定"
+            preSelectList.isLock=false;
+            for(let i=0;i<5;i++){
+                document.getElementById("checkbox"+i).disabled = false;
+                document.getElementById("timeSelect"+i).disabled = false;
+                document.getElementById("textarea"+(i*2)).disabled = false;
+                document.getElementById("textarea"+(i*2)).className = "preTextrea";
+                document.getElementById("textarea"+(i*2+1)).disabled = false;
+                document.getElementById("textarea"+(i*2+1)).className = "preTextrea";
+            }
+        }
+    })
+
+}
+async function showMyClass() {
+    await cleanFrame()
+    let table = document.createElement("table");
+    table.className="mtable"
+    let switchLabel = document.createElement("label");
+    let switchInput = document.createElement("input");
+    let switchSpan = document.createElement("span");
+
+    let tableHead=["動作","課程代碼","課程名稱","教師","類別","學分","已選/上限","附註"]
+    let tableKey=["ln","id","name","teacher","type","point","student","ps"]
 
 
     fs.readFile('./src/data/myClass.json', function (err, myClass) {
@@ -62,21 +220,24 @@ async function showMyClass() {
         }
         console.log("start");
     //將二進制數據轉換為字串符
-        var myclass = myClass.toString();
+        let myclass = myClass.toString();
     //將字符串轉換為 JSON 對象
         myclass = JSON.parse(myclass);
-        var tr = table.insertRow(-1);                   // TABLE ROW.
+        let tr = table.insertRow(-1);                   // TABLE ROW.
+        tr.className="mtr"
 
         for (let key of tableHead) {
-            var th = document.createElement("th");      // TABLE HEADER.
-            th.setAttribute('id','header');
+            let th = document.createElement("th");      // TABLE HEADER.
+            th.setAttribute('id','mheader');
             th.innerHTML = key;
             tr.appendChild(th);
         }
         for(let element of myclass){
             tr = table.insertRow(-1);
+            tr.className="mtr"
             for(let key of tableKey){
-                var td = document.createElement("td");
+                let td = document.createElement("td");
+                td.className="mtd"
                 td.innerHTML = element[key];
                 tr.appendChild(td);
             }
@@ -85,18 +246,33 @@ async function showMyClass() {
 
     switchLabel.setAttribute('class','switch');
     switchInput.setAttribute('type','checkbox');
+    switchInput.setAttribute('checked',myClassTableType);
+    tableSwitch =switchInput;
     switchSpan.setAttribute('class','slider round');
     switchLabel.appendChild(switchInput);
     switchLabel.appendChild(switchSpan);
 
     main_farm.appendChild(table);
     main_farm.appendChild(switchLabel);
+    
 }
 
+preSelectClass.addEventListener('click',async function(){
+    preSelect();
+})
 getMyClass.addEventListener('click',async function(){
-    ipc.send('getMyClass');
+    //ipc.send('getMyClass');
     //console.log('getMyClass');
-    
+    showMyClass();
+    tableSwitch.addEventListener('click',async function(){
+        console.log(tableSwitch.checked);
+        myClassTableType=tableSwitch.checked;
+        if(myClassTableType==false){
+            
+        }else{
+
+        }
+    })
 })
 
 ipc.on("readyToShow", function (evt, myClass){
