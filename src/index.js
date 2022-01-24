@@ -131,6 +131,10 @@ ipc.on('getMyClass', async function (e) {
   //win.webContents.send('myClass',iconv.decode(Buffer.from(Data), "big5"));*/
 })
 
+ipc.on('updatePreSelect', async function (e, data) {
+  console.log(data);
+})
+
 ipc.on('login', async function (e, data) {
 
   console.log(data);

@@ -1,3 +1,4 @@
+const { getElementById } = require("domutils");
 const electron = require("electron");
 const ipc = electron.ipcRenderer
 
@@ -47,6 +48,7 @@ const sidebar = document.getElementById("sidebar");
 const main_farm = document.getElementById("main_farm");
 const getMyClass = document.getElementById("getMyClass");
 const preSelectClass = document.getElementById("preSelectClass");
+const setting = document.getElementById("setting");
 
 let tableSwitch
 let myClassTableType = false
@@ -208,12 +210,16 @@ async function preSelect() {
                 fs.writeFile('./src/data/preSelect.json', JSON.stringify(preSelectList), function (err) {
                     if (err)
                         console.log(err);
-                    else
+                    else{
+                        ipc.send('updatePreSelect',true);
                         console.log('save file complete.');
+                    }
+                        
                 });
             } else {
                 save.innerHTML = "保存並鎖定"
                 preSelectList.isLock = false;
+                ipc.send('updatePreSelect',false);
                 for (var i = 0; i < preInput.length; i++) {
                     preInput[i].disabled = false;
                 }
@@ -280,6 +286,97 @@ async function showMyClass() {
 
 }
 
+async function showSetting() {
+    await cleanFrame()
+    let tableHead = ["項目", "設定"]
+    let settingName=["選課開始時間"]
+    let settingType=["datetime-local"]
+    let table = document.createElement("table");
+    table.className = "sTable"
+    tr = table.insertRow(-1);
+    tr.className = "str"
+    let setting={
+        "選課開始時間":"2022-01-27T10:00"
+    }
+    let settingPromise = new Promise(function (resolve, reject) {
+        console.log(1)
+        fs.readFile('./src/data/setting.json', function (err, settingSaved) {
+            if (err) {
+                console.log("no setting make new file");
+                fs.writeFile('./src/data/setting.json', JSON.stringify(setting), function (err) {
+                    if (err) {
+                        console.log(err);
+                        reject(err);
+                    } else {
+                        console.log('make new setting file complete.');
+                        resolve("make new save");
+                    }
+                });
+
+            } else {
+                console.log("load setting");
+                //將二進制數據轉換為字串符
+                settingSaved = settingSaved.toString();
+                //將字符串轉換為 JSON 對象
+                setting = JSON.parse(settingSaved);
+                console.log(2)
+                resolve("success");
+            }
+        })
+    });
+
+    for (let i = 0; i < 2; i++) {
+        let th = document.createElement("th"); // TABLE HEADER.
+        th.setAttribute('id', 'mheader');
+        th.innerHTML = tableHead[i];
+        tr.appendChild(th);
+    }
+    settingPromise.then(function (success) {
+        for (let i = 0; i < settingName.length; i++) {
+            tr = table.insertRow(-1);
+            tr.className = "ptr"
+
+            let td = document.createElement("td");
+            td.className = "ptd"
+            td.innerHTML = settingName[i];
+            tr.appendChild(td);
+
+            td = document.createElement("td");
+            td.className = "ptd"
+            let input = document.createElement("input");
+            input.setAttribute("type", settingType[i]);
+            input.className = "preInput"
+            input.value=setting[settingName[i]];
+            input.id = settingType[i] + i;
+
+            td.appendChild(input);
+            tr.appendChild(td);
+        }
+
+        let save = document.createElement("button");
+        save.setAttribute("type", "button");
+        save.className = "saveBTN";
+        save.innerHTML="保存"
+
+        main_farm.appendChild(table);
+        main_farm.appendChild(save);
+
+        save.addEventListener('click', async function () {
+            
+            for (let i = 0; i < settingName.length; i++) {
+                setting[settingName[i]]=document.getElementById(settingType[i] + i).value;
+            }
+            fs.writeFile('./src/data/setting.json', JSON.stringify(setting), function (err) {
+                if (err)
+                    console.log(err);
+                else
+                    console.log('save file complete.');
+            });
+        })
+
+    })
+}
+
 preSelectClass.addEventListener('click', async function () {
     preSelect();
 })
@@ -296,6 +393,10 @@ getMyClass.addEventListener('click', async function () {
 
         }
     })
+})
+
+setting.addEventListener('click', async function () {
+    showSetting();
 })
 
 ipc.on("readyToShow", function (evt, myClass) {
