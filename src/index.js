@@ -11,6 +11,7 @@ const {
 const ipc = require('electron').ipcMain;
 const getWeb = require('./getWeb');
 const parser = require('./parser');
+const timer = require('./timer');
 const makeJson = require('./makeJson');
 const iconv = require("iconv-lite");
 const screen = require('electron').screen;
@@ -131,8 +132,12 @@ ipc.on('getMyClass', async function (e) {
   //win.webContents.send('myClass',iconv.decode(Buffer.from(Data), "big5"));*/
 })
 
-ipc.on('updatePreSelect', async function (e, data) {
-  console.log(data);
+ipc.on('updatePreSelect', async function (e,data) {
+  if(data["engage"]==true){
+    timer.setPreSelectTimer();
+  }else{
+    timer.deletPreSelectTimer();
+  }
 })
 
 ipc.on('login', async function (e, data) {

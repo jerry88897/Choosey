@@ -211,7 +211,7 @@ async function preSelect() {
                     if (err)
                         console.log(err);
                     else{
-                        ipc.send('updatePreSelect',true);
+                        ipc.send('updatePreSelect',{engage:true});
                         console.log('save file complete.');
                     }
                         
@@ -219,7 +219,7 @@ async function preSelect() {
             } else {
                 save.innerHTML = "保存並鎖定"
                 preSelectList.isLock = false;
-                ipc.send('updatePreSelect',false);
+                ipc.send('updatePreSelect',{engage:false});
                 for (var i = 0; i < preInput.length; i++) {
                     preInput[i].disabled = false;
                 }
@@ -227,6 +227,14 @@ async function preSelect() {
                     document.getElementById("textarea" + (i * 2)).className = "preTextrea";
                     document.getElementById("textarea" + (i * 2 + 1)).className = "preTextrea";
                 }
+                fs.writeFile('./src/data/preSelect.json', JSON.stringify(preSelectList), function (err) {
+                    if (err)
+                        console.log(err);
+                    else{
+                        console.log('save file complete.');
+                    }
+                        
+                });
             }
         })
     })
