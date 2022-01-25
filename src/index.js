@@ -134,7 +134,7 @@ ipc.on('getMyClass', async function (e) {
 
 ipc.on('updatePreSelect', async function (e,data) {
   if(data["engage"]==true){
-    timer.setPreSelectTimer();
+    timer.setPreSelectTimer(getWeb);
   }else{
     timer.deletPreSelectTimer();
   }

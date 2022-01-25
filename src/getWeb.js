@@ -17,6 +17,9 @@ module.exports = {
     },
     getMyClassDate: function (classId) {
         return getMyClassDate(classId);
+    },
+    getCookie: function () {
+        return cookie;
     }
 }
 
@@ -87,7 +90,7 @@ async function loginAndGetMyClass() {
         }
     }, { withCredentials: true })
         .then(function (myClass) {
-            //console.log(myClass.data);
+            console.log(cookie);
             MyClass = myClass;
         })
         .catch(function (error) {

@@ -1,4 +1,6 @@
-const { getElementById } = require("domutils");
+const {
+    getElementById
+} = require("domutils");
 const electron = require("electron");
 const ipc = electron.ipcRenderer
 
@@ -52,6 +54,7 @@ const setting = document.getElementById("setting");
 
 let tableSwitch
 let myClassTableType = false
+let countDownTimer
 async function cleanFrame() {
     main_farm.innerHTML = ""
 }
@@ -129,7 +132,7 @@ async function preSelect() {
             checkbox.className = "preInput"
             checkbox.id = "checkbox" + i;
             if (preSelectList.preSelectBlock[i].enable == true) {
-                checkbox.setAttribute("checked");
+                checkbox.setAttribute("checked", true);
             }
             td.appendChild(checkbox);
             tr.appendChild(td);
@@ -210,16 +213,20 @@ async function preSelect() {
                 fs.writeFile('./src/data/preSelect.json', JSON.stringify(preSelectList), function (err) {
                     if (err)
                         console.log(err);
-                    else{
-                        ipc.send('updatePreSelect',{engage:true});
+                    else {
+                        ipc.send('updatePreSelect', {
+                            engage: true
+                        });
                         console.log('save file complete.');
                     }
-                        
+
                 });
             } else {
                 save.innerHTML = "保存並鎖定"
                 preSelectList.isLock = false;
-                ipc.send('updatePreSelect',{engage:false});
+                ipc.send('updatePreSelect', {
+                    engage: false
+                });
                 for (var i = 0; i < preInput.length; i++) {
                     preInput[i].disabled = false;
                 }
@@ -230,10 +237,10 @@ async function preSelect() {
                 fs.writeFile('./src/data/preSelect.json', JSON.stringify(preSelectList), function (err) {
                     if (err)
                         console.log(err);
-                    else{
+                    else {
                         console.log('save file complete.');
                     }
-                        
+
                 });
             }
         })
@@ -259,7 +266,11 @@ async function showMyClass() {
         //將二進制數據轉換為字串符
         let myclass = myClass.toString();
         //將字符串轉換為 JSON 對象
-        myclass = JSON.parse(myclass);
+        try {
+            myclass = JSON.parse(myclass);
+        } catch (error) {
+
+        }
         let tr = table.insertRow(-1); // TABLE ROW.
         tr.className = "mtr"
 
@@ -294,17 +305,68 @@ async function showMyClass() {
 
 }
 
+async function updateTime() {
+    let setting
+    let settingPromise = new Promise(function (resolve, reject) {
+        console.log(1)
+        fs.readFile('./src/data/setting.json', function (err, settingSaved) {
+            if (err) {
+                reject("no file");
+            } else {
+                console.log("load setting");
+                //將二進制數據轉換為字串符
+                settingSaved = settingSaved.toString();
+                //將字符串轉換為 JSON 對象
+                setting = JSON.parse(settingSaved);
+                resolve("success");
+            }
+        })
+    });
+    settingPromise.then(function (success) {
+        let sDay = Date.parse(setting["選課開始時間"])
+        if (sDay > Date.now()) {
+            if (typeof (countDownTimer) != undefined) {
+                clearInterval(countDownTimer)
+            }
+            countDownTimer = setInterval(function () {
+                let leftDay
+                let leftHour
+                let leftMinute
+                let leftSecond
+                let leftTime = sDay - Date.now()
+                leftDay = Math.floor(leftTime / (24 * 3600 * 1000))
+                leftTime -= leftDay * (24 * 3600 * 1000)
+                leftHour = Math.floor((leftTime) / (3600 * 1000))
+                leftTime -= leftHour * (3600 * 1000)
+                leftMinute = Math.floor((leftTime) / (60 * 1000))
+                leftTime -= leftMinute * (60 * 1000)
+                leftSecond = Math.floor((leftTime) / (1000))
+                document.getElementById("leftDay").innerHTML = leftDay;
+                document.getElementById("leftHour").innerHTML = leftHour;
+                document.getElementById("leftMinute").innerHTML = leftMinute;
+                document.getElementById("leftSecond").innerHTML = leftSecond;
+                console.log(leftDay+"d"+leftHour+"h"+leftMinute+"m"+leftSecond+"s")
+            }, 1000)
+        } else {
+            if (typeof (countDownTimer) != undefined) {
+                clearInterval(countDownTimer)
+                countDownTimer = undefined
+            }
+        }
+    })
+}
+
 async function showSetting() {
     await cleanFrame()
     let tableHead = ["項目", "設定"]
-    let settingName=["選課開始時間"]
-    let settingType=["datetime-local"]
+    let settingName = ["選課開始時間"]
+    let settingType = ["datetime-local"]
     let table = document.createElement("table");
     table.className = "sTable"
     tr = table.insertRow(-1);
     tr.className = "str"
-    let setting={
-        "選課開始時間":"2022-01-27T10:00"
+    let setting = {
+        "選課開始時間": "2022-01-27T10:30"
     }
     let settingPromise = new Promise(function (resolve, reject) {
         console.log(1)
@@ -354,7 +416,7 @@ async function showSetting() {
             let input = document.createElement("input");
             input.setAttribute("type", settingType[i]);
             input.className = "preInput"
-            input.value=setting[settingName[i]];
+            input.value = setting[settingName[i]];
             input.id = settingType[i] + i;
 
             td.appendChild(input);
@@ -364,22 +426,31 @@ async function showSetting() {
         let save = document.createElement("button");
         save.setAttribute("type", "button");
         save.className = "saveBTN";
-        save.innerHTML="保存"
+        save.innerHTML = "保存"
 
         main_farm.appendChild(table);
         main_farm.appendChild(save);
 
         save.addEventListener('click', async function () {
-            
+
             for (let i = 0; i < settingName.length; i++) {
-                setting[settingName[i]]=document.getElementById(settingType[i] + i).value;
+                setting[settingName[i]] = document.getElementById(settingType[i] + i).value;
             }
-            fs.writeFile('./src/data/setting.json', JSON.stringify(setting), function (err) {
-                if (err)
-                    console.log(err);
-                else
-                    console.log('save file complete.');
-            });
+            let savePromise = new Promise(function (resolve, reject) {
+                fs.writeFile('./src/data/setting.json', JSON.stringify(setting), function (err) {
+                    if (err) {
+                        console.log(err);
+                        reject();
+                    } else {
+                        resolve();
+                        console.log('save file complete.');
+                    }
+                });
+            })
+            savePromise.then(function (success) {
+                updateTime();
+            })
+            
         })
 
     })
@@ -388,11 +459,17 @@ async function showSetting() {
 preSelectClass.addEventListener('click', async function () {
     preSelect();
 })
+
+
+window.onload = function () {
+    updateTime();
+}
+
 getMyClass.addEventListener('click', async function () {
-    //ipc.send('getMyClass');
-    //console.log('getMyClass');
+    ipc.send('getMyClass');
+    console.log('getMyClass');
     showMyClass();
-    tableSwitch.addEventListener('click', async function () {
+    /*tableSwitch.addEventListener('click', async function () {
         console.log(tableSwitch.checked);
         myClassTableType = tableSwitch.checked;
         if (myClassTableType == false) {
@@ -400,7 +477,7 @@ getMyClass.addEventListener('click', async function () {
         } else {
 
         }
-    })
+    })*/
 })
 
 setting.addEventListener('click', async function () {
