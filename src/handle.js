@@ -65,10 +65,18 @@ async function preSelect() {
         "preSelectBlock": []
     }
     let tableHead = ["分組", "啟用", "發送時刻(秒)", "酬載1", "酬載2"]
+    let tableHead2 = ["分組", "啟用", "發送間隔(秒)", "酬載1", "酬載2"]
     let table = document.createElement("table");
     table.className = "preTable"
     tr = table.insertRow(-1);
     tr.className = "ptr"
+
+    for (let i = 0; i < 5; i++) {
+        let th = document.createElement("th"); // TABLE HEADER.
+        th.setAttribute('id', 'mheader');
+        th.innerHTML = tableHead[i];
+        tr.appendChild(th);
+    }
 
     let preSelectPromise = new Promise(function (resolve, reject) {
         console.log(1)
@@ -107,16 +115,21 @@ async function preSelect() {
         })
     });
 
-    for (let i = 0; i < 5; i++) {
-        let th = document.createElement("th"); // TABLE HEADER.
-        th.setAttribute('id', 'mheader');
-        th.innerHTML = tableHead[i];
-        tr.appendChild(th);
-    }
+
     preSelectPromise.then(function (success) {
         console.log(3)
         console.log(success)
         for (let i = 0; i < 5; i++) {
+            if (i==4) {
+                tr = table.insertRow(-1);
+                tr.className = "ptr"
+                for (let i = 0; i < 5; i++) {
+                    let th = document.createElement("th"); // TABLE HEADER.
+                    th.setAttribute('id', 'mheader');
+                    th.innerHTML = tableHead2[i];
+                    tr.appendChild(th);
+                }
+            }
             tr = table.insertRow(-1);
             tr.className = "ptr"
 
@@ -166,10 +179,13 @@ async function preSelect() {
         save.setAttribute("type", "button");
         save.className = "saveBTN";
 
+        
         console.log(preSelectList.isLock)
 
         main_farm.appendChild(table);
         main_farm.appendChild(save);
+
+        document.getElementById("textarea9").style.visibility="hidden";
 
         let preInput = document.querySelectorAll('.preInput');
         console.log(preInput)
@@ -334,18 +350,27 @@ async function updateTime() {
                 let leftMinute
                 let leftSecond
                 let leftTime = sDay - Date.now()
-                leftDay = Math.floor(leftTime / (24 * 3600 * 1000))
-                leftTime -= leftDay * (24 * 3600 * 1000)
-                leftHour = Math.floor((leftTime) / (3600 * 1000))
-                leftTime -= leftHour * (3600 * 1000)
-                leftMinute = Math.floor((leftTime) / (60 * 1000))
-                leftTime -= leftMinute * (60 * 1000)
-                leftSecond = Math.floor((leftTime) / (1000))
-                document.getElementById("leftDay").innerHTML = leftDay;
-                document.getElementById("leftHour").innerHTML = leftHour;
-                document.getElementById("leftMinute").innerHTML = leftMinute;
-                document.getElementById("leftSecond").innerHTML = leftSecond;
-                console.log(leftDay+"d"+leftHour+"h"+leftMinute+"m"+leftSecond+"s")
+                if (leftTime > 0) {
+                    leftDay = Math.floor(leftTime / (24 * 3600 * 1000))
+                    leftTime -= leftDay * (24 * 3600 * 1000)
+                    leftHour = Math.floor((leftTime) / (3600 * 1000))
+                    leftTime -= leftHour * (3600 * 1000)
+                    leftMinute = Math.floor((leftTime) / (60 * 1000))
+                    leftTime -= leftMinute * (60 * 1000)
+                    leftSecond = Math.floor((leftTime) / (1000))
+                    document.getElementById("leftDay").innerHTML = leftDay;
+                    document.getElementById("leftHour").innerHTML = leftHour;
+                    document.getElementById("leftMinute").innerHTML = leftMinute;
+                    document.getElementById("leftSecond").innerHTML = leftSecond;
+                } else {
+                    document.getElementById("leftDay").innerHTML = "-";
+                    document.getElementById("leftHour").innerHTML = "-";
+                    document.getElementById("leftMinute").innerHTML = "-";
+                    document.getElementById("leftSecond").innerHTML = "-";
+                    clearInterval(countDownTimer)
+                    countDownTimer = undefined
+                }
+                console.log(leftDay + "d" + leftHour + "h" + leftMinute + "m" + leftSecond + "s")
             }, 1000)
         } else {
             if (typeof (countDownTimer) != undefined) {
@@ -388,7 +413,11 @@ async function showSetting() {
                 //將二進制數據轉換為字串符
                 settingSaved = settingSaved.toString();
                 //將字符串轉換為 JSON 對象
-                setting = JSON.parse(settingSaved);
+                try {
+                    setting = JSON.parse(settingSaved);
+                } catch (error) {
+
+                }
                 console.log(2)
                 resolve("success");
             }
@@ -450,7 +479,7 @@ async function showSetting() {
             savePromise.then(function (success) {
                 updateTime();
             })
-            
+
         })
 
     })
@@ -468,7 +497,7 @@ window.onload = function () {
 getMyClass.addEventListener('click', async function () {
     ipc.send('getMyClass');
     console.log('getMyClass');
-    showMyClass();
+    //showMyClass();
     /*tableSwitch.addEventListener('click', async function () {
         console.log(tableSwitch.checked);
         myClassTableType = tableSwitch.checked;

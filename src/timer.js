@@ -2,6 +2,7 @@ const fs = require('fs');
 const sender = require('./sendSelect');
 
 let allTimer = []
+let resendTimer
 let preSelectList
 let setting
 module.exports = {
@@ -45,45 +46,61 @@ async function setPreSelectTimer(getWeb) {
             }
         })
     })
-    Promise.all([readPreSelect,readSetting]).then(() => {
+    Promise.all([readPreSelect, readSetting]).then(() => {
         console.log("setting time");
-        let sDay =Date.parse(setting["選課開始時間"])
-        let leftDay
-        let leftHour
-        let leftMinute
-        let leftSecond
-        let leftTime = sDay-Date.now()
-        for(let i=0;i<5;i++){
-            if(preSelectList["preSelectBlock"][i].enable==true){
+        let sDay = Date.parse(setting["選課開始時間"])
+        let leftTime = sDay - Date.now()
+        for (let i = 0; i < 4; i++) {
+            if (preSelectList["preSelectBlock"][i].enable == true) {
                 console.log("set")
-                allTimer.push(setTimeout(function(){
+                allTimer.push(setTimeout(function () {
                     console.log(i)
                     sender.setCookie(getWeb.getCookie())
-                    //sender.sendFastSelect(preSelectList["preSelectBlock"][i]["list"][0].replace(/[\r\n]+/gm,"%0D%0A"));
-                    //sender.sendFastSelect(preSelectList["preSelectBlock"][i]["list"][1].replace(/[\r\n]+/gm,"%0D%0A"));
-                    console.log("send"+preSelectList["preSelectBlock"][i]["list"][0].replace(/[\r\n]+/gm,"%0D%0A"))
+                    if (preSelectList["preSelectBlock"][i]["list"][0].length > 2) {
+                        console.log("send" + preSelectList["preSelectBlock"][i]["list"][0].replace(/[\r\n]+/gm, "%0D%0A"))
+                        sender.sendFastSelect(preSelectList["preSelectBlock"][i]["list"][0].replace(/[\r\n]+/gm,"%0D%0A"));
+                    }
+                    if (preSelectList["preSelectBlock"][i]["list"][1].length > 2) {
+                        console.log("send" + preSelectList["preSelectBlock"][i]["list"][1].replace(/[\r\n]+/gm, "%0D%0A"))
+                        sender.sendFastSelect(preSelectList["preSelectBlock"][i]["list"][1].replace(/[\r\n]+/gm,"%0D%0A"));
+                    }
 
-                }, leftTime+preSelectList["preSelectBlock"][i].trigger*1000))
+                }, leftTime + preSelectList["preSelectBlock"][i].trigger * 1000))
             }
         }
-        
-        leftDay = Math.floor(leftTime/(24*3600*1000))
-        leftTime-=leftDay*(24*3600*1000)
-        leftHour =Math.floor((leftTime)/(3600*1000))
-        leftTime-=leftHour*(3600*1000)
-        leftMinute =Math.floor((leftTime)/(60*1000))
-        leftTime-=leftMinute*(60*1000)
-        leftSecond =Math.floor((leftTime)/(1000))
-        console.log(leftDay+"d"+leftHour+"h"+leftMinute+"m"+leftSecond+"s")
-        let tem = getWeb.getCookie()
-        console.log(tem)
-        
+        if (preSelectList["preSelectBlock"][4].enable == true) {
+            console.log("set")
+            allTimer.push(setTimeout(function () {
+                resendTimer = setInterval(function () {
+                    sender.setCookie(getWeb.getCookie())
+                    console.log("send" + preSelectList["preSelectBlock"][4]["list"][0].replace(/[\r\n]+/gm, "%0D%0A"))
+                    let senderPromise = sender.sendFastSelectResend(preSelectList["preSelectBlock"][4]["list"][0].replace(/[\r\n]+/gm,"%0D%0A",),preSelectList["preSelectBlock"][4].trigger * 1000);
+                    senderPromise.then(function () {
+                        clearInterval(resendTimer);
+                        console.log("accecp")
+                    })
+                    .catch(fail => {
+                        console.log("try again")
+                    });
+                }, preSelectList["preSelectBlock"][4].trigger * 1000)
+            }, leftTime))
 
+        }
     });
 }
 
 async function deletPreSelectTimer() {
-
-
+    await clearTimer();
+   
+    try {
+        clearInterval(resendTimer)
+    } catch (error) {
+        
+    }
+    allTimer = []
 }
-
+async function clearTimer() {
+    for (let i = 0; i < allTimer.length; i++) {
+        clearTimeout(allTimer[i]);
+    }
+}

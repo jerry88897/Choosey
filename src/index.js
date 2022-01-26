@@ -51,7 +51,7 @@ const createWindow = () => {
   })
   win = mainWindow;
   // and load the index.html of the app.
-  mainWindow.loadFile(path.join(__dirname, './index2.html'));
+  mainWindow.loadFile(path.join(__dirname, './index.html'));
 
   // Open the DevTools.
   //mainWindow.webContents.openDevTools();
@@ -146,6 +146,13 @@ ipc.on('login', async function (e, data) {
   var resoult = await getWeb.login(data);
   console.log('!!' + resoult);
   win.webContents.send('loginRe', resoult);
+  setInterval(function () {
+    getWeb.passCheck();
+  },3*60*1000)
+})
+ipc.on('loadPage2', async function (e) {
+  win.loadFile(path.join(__dirname, './index2.html'));
+
 })
 
 

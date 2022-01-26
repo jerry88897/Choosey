@@ -1,0 +1,255 @@
+@font-face {
+  font-family: "NotoSansTC-Medium";
+  src: url(./fonts/NotoSansTC-Medium.otf);
+}
+@font-face {
+  font-family: "NotoSansTC-Regular";
+  src: url(./fonts/NotoSansTC-Regular.otf);
+}
+@font-face {
+  font-family: "NotoSansTC-Light";
+  src: url(./fonts/NotoSansTC-Light.otf);
+}
+
+:root{
+  --first-color: #9873ff;
+  --button-color: #6b35ff;
+  --input-color: #80868B;
+  --border-color: #DADCE0;
+
+  --body-font:"NotoSansTC-Light",-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --normal-font-size: 1.1rem;
+  --small-font-size: .9rem;
+}
+
+::before,::after{
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "NotoSansTC-Light",-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  margin: auto;
+  max-width: 38rem;
+  padding: 2rem;
+  background-color: #2b2a33;
+  overflow: hidden;
+}
+
+.login_title{
+  font-family: "NotoSansTC-Light",-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: whitesmoke;
+  text-align: center;
+  font-size: 32px;
+  font-weight:100;
+  z-index: 1;
+  margin-top: 2%;
+}
+.login_title_small{
+  font-family: "NotoSansTC-Light",-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: whitesmoke;
+  text-align: center;
+  font-weight:50;
+  font-size: 18.72px;
+  z-index: 1;
+  padding-top: 8px;
+}
+.loginBox{
+  border-radius: 8px;
+  box-shadow: 10px 10px 15px 1px rgba(33, 35, 37, 0.733);
+  background-color: #0a0a0a9a;
+  display: flex;
+  flex-shrink: 0;
+  margin: 0 auto;
+  min-height: 0;
+  transition: .2s;
+  width: 450px;
+  height: 502px;
+  position: relative;
+  z-index: 2;
+  justify-content: center;
+  align-items: center;
+}
+
+.l-form{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  z-index: 5;
+  animation: flyin 2s forwards;
+}
+.form{
+  box-shadow: 10px 10px 15px 1px rgba(33, 35, 37, 0.733);
+  background-color: #0a0a0a9a;
+  width: 360px;
+  padding: 48px 40px 36px;
+  border-radius: 1rem;
+  z-index: 2;
+}
+.form_div{
+  position: relative;
+  height: 48px;
+  margin-bottom: 1.5rem;
+}
+.form_input{
+  position: absolute;
+  color: whitesmoke;
+  top: 0;
+  left: 0;
+  width: 90%;
+  height: 50%;
+  font-size: var(--normal-font-size);
+  border: 1px solid var(--border-color);
+  border-radius: .3rem;
+  outline: none;
+  padding: 1rem;
+  background: none;
+  z-index: 1;
+  margin-top: 1.5rem;
+  
+}
+.form_label{
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  padding: 0 .25rem;
+  background-color: #17171a;
+  color: var(--input-color);
+  font-size: var(--normal-font-size);
+  transition: .3s;
+  margin-top: 1.5rem;
+}
+.form_button{
+  display: block;
+  margin-left: auto;
+  width: 37px;
+  padding: .75rem 2rem;
+  outline: none;
+  border: none;
+  background-color: var(--button-color);
+  color: #fff;
+  font-size: var(--normal-font-size);
+  border-radius: .5rem;
+  cursor: pointer;
+  transition: .3s;
+  margin-top: 3.5rem;
+  user-select: none;
+}
+.form_button:hover{
+  box-shadow: 0px 0px 15px 0.1px rgba(255, 255, 255, 0.322);
+}
+.form_button:active{
+  background-color: #5128c2;
+}
+
+/*Input focus move up label*/
+.form_input:focus + .form_label{
+  top: -.5rem;
+  left: .8rem;
+  color: var(--first-color);
+  font-size: var(--small-font-size);
+  font-weight: 500;
+  z-index: 10;
+}
+
+/*Input focus sticky top label*/
+.form_input:not(:placeholder-shown).form_input:not(:focus)+ .form_label{
+  top: -.5rem;
+  left: .8rem;
+  font-size: var(--small-font-size);
+  font-weight: 500;
+  z-index: 10;
+}
+
+/*Input focus*/
+.form_input:focus{
+  border: 2px solid var(--first-color);
+}
+
+.waveBox {
+  background:radial-gradient(ellipse at center, rgba(255,254,234,1) 0%, rgba(255,254,234,1) 35%, #B7E8EB 100%);
+  overflow: hidden;
+  z-index: -3;
+}
+
+
+.ocean { 
+  height: 5%;
+  width:100%;
+  position:absolute;
+  bottom:-400px;
+  left:0px;
+  background: #653b94ff;
+  animation: up 2s forwards;
+  z-index: -3;
+}
+
+.wave {
+  background: url(./images/wave.svg) repeat-x; 
+  position: absolute;
+  top: -198px;
+  width: 6400px;
+  height: 198px;
+  animation: wave 20s cubic-bezier( 0.36, 0.45, 0.63, 0.53) infinite;
+  transform: translate3d(0, 0, 0);
+  z-index: -3;
+}
+
+.wave:nth-of-type(2) {
+  top: -175px;
+  animation: wave 15s cubic-bezier( 0.36, 0.45, 0.63, 0.53) -.125s infinite, swell 7s ease -1.25s infinite;
+  opacity: 1;
+}
+
+
+
+
+@keyframes up {
+  0% {
+    bottom: -400px;
+  }
+  100% {
+    bottom: 0px;
+  }
+}
+
+@keyframes flyin {
+  0% {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+
+@keyframes flyout {
+  0% {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+}
+
+@keyframes down {
+  0% {
+    bottom: 0px;
+  }
+  100% {
+    bottom: -400px;
+  }
+}
+
+@keyframes wave {
+  0% {
+    margin-left: 0;
+  }
+  100% {
+    margin-left: -1600px;
+  }
+}
+
