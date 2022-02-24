@@ -43,11 +43,13 @@ const createWindow = () => {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
+      devTools: !app.isPackaged,
       webviewTag: true
     }
   });
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()
+    
   })
   win = mainWindow;
   // and load the index.html of the app.
@@ -55,13 +57,24 @@ const createWindow = () => {
 
   // Open the DevTools.
   //mainWindow.webContents.openDevTools();
+  
+
 };
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
-
+app.on('ready', () => {
+  createWindow();
+  
+  // Register a shortcut listener for Ctrl + Shift + I
+  //globalShortcut.register('Control+Shift+I', () => {
+      // When the user presses Ctrl + Shift + I, this function will get called
+      // You can modify this function to do other things, but if you just want
+      // to disable the shortcut, you can just return false
+      //return false;
+  //});
+});
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
@@ -115,6 +128,9 @@ ipc.on('getMyClass', async function (e) {
         console.log("2222222");
         makeJson.myClassToJson(allMyClass);
         win.webContents.send("readyToShow");
+        var currentPath = process.cwd();
+        console.log('@@'+currentPath);
+        win.webContents.send('appLocat',currentPath);
       });
     })
     .catch(fail => {
@@ -152,7 +168,6 @@ ipc.on('login', async function (e, data) {
 })
 ipc.on('loadPage2', async function (e) {
   win.loadFile(path.join(__dirname, './index2.html'));
-
 })
 
 

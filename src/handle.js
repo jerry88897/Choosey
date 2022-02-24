@@ -518,12 +518,16 @@ ipc.on("readyToShow", function (evt, myClass) {
     showMyClass();
 });
 
-menu.addEventListener('click', async function () {
-    sidebar.classList.toggle("active");
-    console.log("open");
-})
+// menu.addEventListener('click', async function () {
+//     sidebar.classList.toggle("active");
+//     console.log("open");
+// })
 
 ipc.on('myClass', function (evt, myClass) {
     console.log(myClass);
     main_farm.innerHTML = myClass;
+});
+
+ipc.on('appLocat', function (evt, appLocat) {
+    console.log(appLocat);
 });
