@@ -14,6 +14,7 @@ const parser = require('./parser');
 const timer = require('./timer');
 const makeJson = require('./makeJson');
 const iconv = require("iconv-lite");
+const { Console } = require('console');
 const screen = require('electron').screen;
 
 
@@ -126,8 +127,17 @@ ipc.on('getMyClass', async function (e) {
     }).then(success => {
       Promise.all(allPromise).then(function (values) {
         console.log("2222222");
-        makeJson.myClassToJson(allMyClass);
-        win.webContents.send("readyToShow");
+        let makeFilePromise = makeJson.myClassToJson(allMyClass);
+        makeFilePromise.then(async function (success) {
+          win.webContents.send("readyToShow");
+          console.log("readyToShow");
+        })
+        .catch(fail => {
+          console.log(fail);
+        });
+        
+
+
         var currentPath = process.cwd();
         console.log('@@'+currentPath);
         win.webContents.send('appLocat',currentPath);

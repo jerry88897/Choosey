@@ -1,7 +1,7 @@
 .mtable{
     position: absolute;
     left: 50%;
-    top: 50%;
+    top: 40%;
     transform: translate(-50%,-50%);
     border-collapse: collapse;
     width: 800px;
@@ -13,10 +13,11 @@
 
 .mtr{
     transition: all .2s ease-in;
+    height: auto;
     cursor: pointer;
 }
 .mth,.mtd{
-    padding: 12px;
+    padding: 7px;
     text-align: left;
     border-bottom: 1px solid #ddd;
 }

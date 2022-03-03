@@ -265,6 +265,7 @@ async function preSelect() {
 async function showMyClass() {
     await cleanFrame()
     let table = document.createElement("table");
+    let tHead = document.createElement("thead");
     table.className = "mtable"
     let switchLabel = document.createElement("label");
     let switchInput = document.createElement("input");
@@ -294,8 +295,9 @@ async function showMyClass() {
             let th = document.createElement("th"); // TABLE HEADER.
             th.setAttribute('id', 'mheader');
             th.innerHTML = key;
-            tr.appendChild(th);
+            tHead.appendChild(th);
         }
+        table.appendChild(tHead);
         for (let element of myclass) {
             tr = table.insertRow(-1);
             tr.className = "mtr"
@@ -303,6 +305,7 @@ async function showMyClass() {
                 let td = document.createElement("td");
                 td.className = "mtd"
                 td.innerHTML = element[key];
+                console.log(element[key]);
                 tr.appendChild(td);
             }
         }

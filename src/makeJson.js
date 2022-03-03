@@ -1,19 +1,25 @@
-const fs = require('fs');
-
+const fs = require("fs");
 
 module.exports = {
-    myClassToJson: function (myClass) {
-        myClassToJson(myClass);
-    }
-}
-
+  myClassToJson: function (myClass) {
+    return myClassToJson(myClass);
+  },
+};
 
 async function myClassToJson(myClass) {
-    //console.log(myClass)
-    fs.writeFile('./src/data/myClass.json', JSON.stringify(myClass), function (err) {
+  //console.log(myClass)
+  return new Promise((resolve, reject) => {
+    fs.writeFile(
+      "./src/data/myClass.json",
+      JSON.stringify(myClass),
+      function (err) {
         if (err) {
-            console.error(err);
+          console.error(err);
+        } else {
+          resolve();
+          console.log("write classFile...");
         }
-        console.log('write classFile...')
-    })
+      }
+    );
+  });
 }
