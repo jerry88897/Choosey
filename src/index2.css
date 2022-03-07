@@ -82,7 +82,7 @@ header ul li a{
 .sidebar{
   position: fixed;
   left: 0;
-  top: 76px;
+  top: 73px;
   height: 100%;
   width: 50px;
   background: #11101D;
@@ -301,11 +301,12 @@ header ul li a{
   background: none;
 }
 .home-section{
-  position: fixed;
-  background: #E4E9F7;
+  overflow: auto;
+  position: absolute;
+  background: #2b2a33; 
   border: 0px;
-  min-height: 100vh;
-  top: 76px;
+  height: 90vh;
+  top: 73px;
   left: 78px;
   width: 70vw;
   transition: all 0.5s ease;
@@ -313,7 +314,7 @@ header ul li a{
 }
 .sidebar.open ~ .home-section{
   left: 278px;
-  width: 70vw;
+  width: 50vw;
 }
 .home-section .text{
   display: inline-block;
@@ -327,6 +328,21 @@ header ul li a{
     display: none;
   }
 }
+
+.right-section{
+  position: fixed;
+  background: #201f25;
+  border: 0px;
+  min-height: 100vh;
+  top: 73px;
+  left: calc(78px + 70VW);
+  width: 40vw;
+  transition: all 0.5s ease;
+  z-index: 2;
+}
+
+
+
 
 
 
