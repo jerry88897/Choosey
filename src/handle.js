@@ -48,7 +48,6 @@ const getMyClass = document.getElementById("getMyClass");
 const preSelectClass = document.getElementById("preSelectClass");
 const setting = document.getElementById("setting");
 
-let tableSwitch;
 let myClassTableType = false;
 let countDownTimer;
 async function cleanFrame() {
@@ -279,6 +278,11 @@ async function preSelect() {
   });
 }
 
+let SelDepNo=0;
+let SelClassNo=0;
+async function showClassClass() {
+
+}
 let showMyClassType = 0;
 async function showMyClass() {
   await cleanFrame();
@@ -607,6 +611,12 @@ window.onload = function () {
   updateTime();
 };
 
+classClass.addEventListener("click", async function () {
+  ipc.send("getClassClass",SelDepNo,SelClassNo);
+  console.log("getClassClass");
+
+});
+
 getMyClass.addEventListener("click", async function () {
   ipc.send("getMyClass");
   console.log("getMyClass");
@@ -624,6 +634,11 @@ getMyClass.addEventListener("click", async function () {
 
 setting.addEventListener("click", async function () {
   showSetting();
+});
+
+ipc.on("readyToShowClassClass", function (evt) {
+  console.log("showClassClass");
+  showClassClass();
 });
 
 ipc.on("readyToShow", function (evt, myClass) {
