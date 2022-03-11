@@ -281,7 +281,152 @@ async function preSelect() {
 let SelDepNo=0;
 let SelClassNo=0;
 async function showClassClass() {
+  await cleanFrame();
+  let table = document.createElement("table");
+  let tHead = document.createElement("thead");
+  let viewTypeDiv = document.createElement("div");
+  let viewTypeImg = document.createElement("img");
 
+  let tableHead = [
+    "動作",
+    "課程代碼",
+    "課程名稱",
+    "教師",
+    "類別",
+    "學分",
+    "已選/上限",
+    "附註",
+  ];
+  let tableKey = [
+    "ln",
+    "id",
+    "name",
+    "teacher",
+    "type",
+    "point",
+    "student",
+    "ps",
+  ];
+
+  let dateHead = [
+    "星期一",
+    "星期二",
+    "星期三",
+    "星期四",
+    "星期五",
+    "星期六",
+    "星期日",
+  ];
+  let timeSeg = [
+    "第一節<br>08:10~<br>09:00",
+    "第二節<br>09:10~<br>10:00",
+    "第三節<br>10:10~<br>11:00",
+    "第四節<br>11:10~<br>12:00",
+    "中　午<br>12:10~<br>13:00",
+    "第五節<br>13:10~<br>14:00",
+    "第六節<br>14:10~<br>15:00",
+    "第七節<br>15:10~<br>16:00",
+    "第八節<br>16:10~<br>17:00",
+    "傍　晚<br>17:10~<br>18:00",
+    "第九節<br>18:20~<br>19:10",
+    "第10節<br>19:15~<br>20:05",
+    "第11節<br>20:15~<br>21:05",
+    "第12節<br>21:10~<br>22:00",
+  ];
+
+  fs.readFile("./src/data/ClassClass.json", function (err, myClass) {
+    if (err) {
+      return console.log(err);
+    }
+    console.log("start");
+    //將二進制數據轉換為字串符
+    let myclass = myClass.toString();
+    //將字符串轉換為 JSON 對象
+    try {
+      myclass = JSON.parse(myclass);
+    } catch (error) {}
+    if (showMyClassType == 0) {
+      table.className = "mtable";
+      let tr = table.insertRow(-1); // TABLE ROW.
+      tr.className = "mtr";
+      for (let key of tableHead) {
+        let th = document.createElement("th"); // TABLE HEADER.
+        th.setAttribute("id", "mheader");
+        th.innerHTML = key;
+        tHead.appendChild(th);
+      }
+      table.appendChild(tHead);
+      for (let element of myclass) {
+        tr = table.insertRow(-1);
+        tr.className = "mtr";
+        for (let key of tableKey) {
+          let td = document.createElement("td");
+          td.className = "mtd";
+          td.innerHTML = element[key];
+          console.log(element[key]);
+          tr.appendChild(td);
+        }
+      }
+    } else {
+      table.className = "mBtable";
+      let trSet = [];
+      let tr = table.insertRow(-1); // TABLE ROW.
+      tr.className = "mBtr";
+
+      for (let key of dateHead) {
+        let th = document.createElement("th"); // TABLE HEADER.
+        th.setAttribute("id", "mheader");
+        th.innerHTML = key;
+        tHead.appendChild(th);
+      }
+      table.appendChild(tHead);
+      for (let i = 0; i < 14; i++) {
+        let tdSet = [];
+        let tr = table.insertRow(-1); // TABLE ROW.
+        for (let j = 0; j < 7; j++) {
+          let td = document.createElement("td");
+          if (j == 0) {
+            td.innerHTML = timeSeg[i];
+          }
+          td.className = "mBtd";
+          tdSet.push(td);
+          tr.appendChild(td);
+        }
+        tr.className = "mBtr";
+        trSet.push(tdSet);
+      }
+      for (let element of myclass) {
+        for (let time of element["time"]) {
+          let day = time.day + 1;
+          let seg = time.seg;
+          trSet[seg][day].innerHTML = element["name"] + "<br>";
+        }
+      }
+    }
+    viewTypeDiv.setAttribute("class", "viewType");
+    viewTypeImg.setAttribute("class", "icon");
+    if (showMyClassType == 0) {
+      viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
+    } else {
+      viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
+    }
+    viewTypeDiv.appendChild(viewTypeImg);
+
+    main_farm.appendChild(table);
+    main_farm.appendChild(viewTypeDiv);
+
+    viewTypeDiv.addEventListener("click", async function () {
+      console.log("change");
+      if (showMyClassType == 0) {
+        showMyClassType = 1;
+        viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
+      } else {
+        showMyClassType = 0;
+        viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
+      }
+      showClassClass();
+    });
+  });
 }
 let showMyClassType = 0;
 async function showMyClass() {
