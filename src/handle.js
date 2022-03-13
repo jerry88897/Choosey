@@ -42,7 +42,7 @@ const fs = require("fs");
 const { resolve } = require("path");
 const menu = document.getElementById("menu");
 const sidebar = document.getElementById("sidebar");
-const main_farm = document.getElementById("main_farm");
+const main_frame = document.getElementById("main_frame");
 const classClass = document.getElementById("classClass");
 const getMyClass = document.getElementById("getMyClass");
 const preSelectClass = document.getElementById("preSelectClass");
@@ -51,7 +51,7 @@ const setting = document.getElementById("setting");
 let myClassTableType = false;
 let countDownTimer;
 async function cleanFrame() {
-  main_farm.innerHTML = "";
+  main_frame.innerHTML = "";
 }
 async function preSelect() {
   await cleanFrame();
@@ -68,7 +68,7 @@ async function preSelect() {
 
   for (let i = 0; i < 5; i++) {
     let th = document.createElement("th"); // TABLE HEADER.
-    th.setAttribute("id", "mheader");
+    th.setAttribute("id", "pheader");
     th.innerHTML = tableHead[i];
     tr.appendChild(th);
   }
@@ -181,8 +181,8 @@ async function preSelect() {
 
     console.log(preSelectList.isLock);
 
-    main_farm.appendChild(table);
-    main_farm.appendChild(save);
+    main_frame.appendChild(table);
+    main_frame.appendChild(save);
 
     document.getElementById("textarea9").style.visibility = "hidden";
 
@@ -278,14 +278,49 @@ async function preSelect() {
   });
 }
 
-let SelDepNo=0;
-let SelClassNo=0;
+let SelDepNo = 0;
+let SelClassNo = "UI3B";
 async function showClassClass() {
   await cleanFrame();
   let table = document.createElement("table");
   let tHead = document.createElement("thead");
   let viewTypeDiv = document.createElement("div");
   let viewTypeImg = document.createElement("img");
+  let toolBar = document.createElement("div");
+  let dep = [
+    "B",
+    "C",
+    "D",
+    "E",
+    "H",
+    "I",
+    "K",
+    "L",
+    "M",
+    "N",
+    "Q",
+    "S",
+    "T",
+    "V",
+    "W",
+  ];
+  let depName = new Map([
+    ["M", "M機材"],
+    ["E", "E電機"],
+    ["C", "C化生"],
+    ["D", "D工設"],
+    ["B", "B事經"],
+    ["I", "I資工"],
+    ["T", "T機材"],
+    ["S", "S化生"],
+    ["W", "W通訊"],
+    ["N", "N資經"],
+    ["V", "V媒設"],
+    ["L", "L應外"],
+    ["Q", "Q工管"],
+    ["K", "K設科"],
+    ["H", "H工學"],
+  ]);
 
   let tableHead = [
     "動作",
@@ -309,13 +344,13 @@ async function showClassClass() {
   ];
 
   let dateHead = [
+    "",
     "星期一",
     "星期二",
     "星期三",
     "星期四",
     "星期五",
     "星期六",
-    "星期日",
   ];
   let timeSeg = [
     "第一節<br>08:10~<br>09:00",
@@ -347,8 +382,6 @@ async function showClassClass() {
     } catch (error) {}
     if (showMyClassType == 0) {
       table.className = "mtable";
-      let tr = table.insertRow(-1); // TABLE ROW.
-      tr.className = "mtr";
       for (let key of tableHead) {
         let th = document.createElement("th"); // TABLE HEADER.
         th.setAttribute("id", "mheader");
@@ -370,9 +403,6 @@ async function showClassClass() {
     } else {
       table.className = "mBtable";
       let trSet = [];
-      let tr = table.insertRow(-1); // TABLE ROW.
-      tr.className = "mBtr";
-
       for (let key of dateHead) {
         let th = document.createElement("th"); // TABLE HEADER.
         th.setAttribute("id", "mheader");
@@ -399,30 +429,61 @@ async function showClassClass() {
         for (let time of element["time"]) {
           let day = time.day + 1;
           let seg = time.seg;
-          trSet[seg][day].innerHTML = element["name"] + "<br>";
+          trSet[seg][day].innerHTML += element["name"] + "<br>";
         }
       }
     }
     viewTypeDiv.setAttribute("class", "viewType");
     viewTypeImg.setAttribute("class", "icon");
     if (showMyClassType == 0) {
-      viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
-    } else {
       viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
+    } else {
+      viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
     }
     viewTypeDiv.appendChild(viewTypeImg);
 
-    main_farm.appendChild(table);
-    main_farm.appendChild(viewTypeDiv);
+    toolBar.setAttribute("class", "classClassToolBar");
+    toolBar.appendChild(viewTypeDiv);
+    main_frame.appendChild(table);
+    let placeHolder = document.createElement("div");
+    placeHolder.setAttribute("class", "placeHolder");
+    main_frame.appendChild(placeHolder);
 
+    let depButtonBox = document.createElement("div");
+    depButtonBox.setAttribute("class", "depButtonBox");
+    let depButtonArray = [];
+    for (let element of dep) {
+      let depButton = document.createElement("div");
+      if (element === SelDepNo) {
+        depButton.setAttribute("class", "depButtonSele");
+      } else {
+        depButton.setAttribute("class", "depButton");
+      }
+
+      depButton.setAttribute("role", "button");
+      depButton.setAttribute("tablindex", "0");
+      depButton.setAttribute("id", element);
+      depButton.innerText = depName.get(element);
+      depButtonBox.appendChild(depButton);
+      depButtonArray.push(depButton);
+    }
+    toolBar.appendChild(depButtonBox);
+    main_frame.appendChild(toolBar);
+    for (let element of depButtonArray) {
+      element.addEventListener("click", async function () {
+        console.log(element.id);
+        SelDepNo = element.id;
+        ipc.send("getClassClass", element.id, SelClassNo);
+      });
+    }
     viewTypeDiv.addEventListener("click", async function () {
       console.log("change");
       if (showMyClassType == 0) {
         showMyClassType = 1;
-        viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
+        viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
       } else {
         showMyClassType = 0;
-        viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
+        viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
       }
       showClassClass();
     });
@@ -458,13 +519,13 @@ async function showMyClass() {
   ];
 
   let dateHead = [
+    "",
     "星期一",
     "星期二",
     "星期三",
     "星期四",
     "星期五",
     "星期六",
-    "星期日",
   ];
   let timeSeg = [
     "第一節<br>08:10~<br>09:00",
@@ -496,8 +557,6 @@ async function showMyClass() {
     } catch (error) {}
     if (showMyClassType == 0) {
       table.className = "mtable";
-      let tr = table.insertRow(-1); // TABLE ROW.
-      tr.className = "mtr";
       for (let key of tableHead) {
         let th = document.createElement("th"); // TABLE HEADER.
         th.setAttribute("id", "mheader");
@@ -519,8 +578,6 @@ async function showMyClass() {
     } else {
       table.className = "mBtable";
       let trSet = [];
-      let tr = table.insertRow(-1); // TABLE ROW.
-      tr.className = "mBtr";
 
       for (let key of dateHead) {
         let th = document.createElement("th"); // TABLE HEADER.
@@ -555,23 +612,25 @@ async function showMyClass() {
     viewTypeDiv.setAttribute("class", "viewType");
     viewTypeImg.setAttribute("class", "icon");
     if (showMyClassType == 0) {
-      viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
-    } else {
       viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
+    } else {
+      viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
     }
     viewTypeDiv.appendChild(viewTypeImg);
 
-    main_farm.appendChild(table);
-    main_farm.appendChild(viewTypeDiv);
-
+    main_frame.appendChild(table);
+    main_frame.appendChild(viewTypeDiv);
+    let placeHolder = document.createElement("div");
+    placeHolder.setAttribute("class", "placeHolder");
+    main_frame.appendChild(placeHolder);
     viewTypeDiv.addEventListener("click", async function () {
       console.log("change");
       if (showMyClassType == 0) {
         showMyClassType = 1;
-        viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
+        viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
       } else {
         showMyClassType = 0;
-        viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
+        viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
       }
       showMyClass();
     });
@@ -717,8 +776,8 @@ async function showSetting() {
     save.className = "saveBTN";
     save.innerHTML = "保存";
 
-    main_farm.appendChild(table);
-    main_farm.appendChild(save);
+    main_frame.appendChild(table);
+    main_frame.appendChild(save);
 
     save.addEventListener("click", async function () {
       for (let i = 0; i < settingName.length; i++) {
@@ -757,9 +816,8 @@ window.onload = function () {
 };
 
 classClass.addEventListener("click", async function () {
-  ipc.send("getClassClass",SelDepNo,SelClassNo);
+  ipc.send("getClassClass", SelDepNo, SelClassNo);
   console.log("getClassClass");
-
 });
 
 getMyClass.addEventListener("click", async function () {
@@ -798,7 +856,7 @@ ipc.on("readyToShow", function (evt, myClass) {
 
 ipc.on("myClass", function (evt, myClass) {
   console.log(myClass);
-  main_farm.innerHTML = myClass;
+  main_frame.innerHTML = myClass;
 });
 
 ipc.on("appLocat", function (evt, appLocat) {

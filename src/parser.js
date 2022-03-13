@@ -82,7 +82,7 @@ async function ClassClassParser(response, SelDepNo, SelClassNo) {
           } else if (td == 2) {
             if (text != " " && text != "\n") nowClass.name += text;
           } else if (td == 3) {
-            nowClass.teacher = text;
+            nowClass.teacher += text;
           } else if (td == 4) {
             if (text != " " && text != "\n") nowClass.type += text;
           } else if (td == 5) {
@@ -189,7 +189,7 @@ async function myClassParser(response) {
           } else if (td == 2) {
             if (text != " " && text != "\n") nowClass.name += text;
           } else if (td == 3) {
-            nowClass.teacher = text;
+            nowClass.teacher += text;
           } else if (td == 4) {
             if (text != " " && text != "\n") nowClass.type += text;
           } else if (td == 5) {
@@ -399,8 +399,8 @@ async function gradeParser(response) {
             };
             seg++;
           } else if (seg == 2) {
-            user.grade = text.substring(0,4);
-            user.number = text.substring(4,text.length);
+            user.grade = text.substring(0, 4);
+            user.number = text.substring(4, text.length);
             seg++;
           } else if (seg >= 4) {
             user.name += text;

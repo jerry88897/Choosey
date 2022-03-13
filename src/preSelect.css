@@ -1,62 +1,69 @@
-.preTable{
+.preTable {
     text-align: center;
-    position: absolute;
-    left: 50%;
-    right: 50%;
-    top: 45%;
-    transform: translate(-50%,-50%);
     border-collapse: collapse;
     width: 500px;
     height: 200px;
-    background: #E4E9F7;
-    border: 1px solid #bdc3c7;
-    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2),-1px -1px 8px rgba(0, 0, 0, 0.2);
+    background: var(--tableTr-color);
+    border-bottom: 2px solid var(--tableBorder-color);
+    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2), -1px -1px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
 }
-.preTextrea{
+
+.preTextrea {
     height: 80px;
     resize: none;
-    border:2px #3187c0 solid;
+    border: 2px #3187c0 solid;
+    background-color: var(--tableTrHover-color);
     border-radius: 4px;
 }
-.preTextrea:focus{
-    outline: none ;
-    border:2px solid #1f8ed8;
+
+.preTextrea:focus {
+    outline: none;
+    border: 2px solid #1f8ed8;
+    background-color: var(--tableTrHover-color);
     box-shadow: 0 0 10px #414447;
 }
-.preTextreaDark{
+
+.preTextreaDark {
     height: 80px;
     resize: none;
-    border:2px #1c4b6b solid;
+    border: 2px #1c4b6b solid;
     border-radius: 4px;
 }
-.preTime{
-    border:0.5px #414141 solid;
+
+.preTime {
+    border: 0.5px #414141 solid;
 }
-.preTime:focus{
-    outline: none ;
+
+.preTime:focus {
+    outline: none;
 }
-.ptr{
+
+.ptr {
     transition: all .2s ease-in;
     cursor: pointer;
 }
-.pth,.ptd{
+
+.pth,
+.ptd {
     padding: 12px;
     text-align: center;
     border-bottom: 1px solid rgb(143, 143, 143);
 }
 
-#mheader{
-    background-color: #3187c0;
-    color: #fff;
+#pheader {
+    background-color: var(--tableHead-color);
+    color: var(--word-color);
 }
 
-.ptr:hover{
-    background-color: #f5f5f5;
+.ptr:hover {
+    background-color: var(--tableTrHover-color);
     transform: scale(1.02);
-    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2),-1px -1px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2), -1px -1px 8px rgba(0, 0, 0, 0.2);
 }
-@media only screen and(max-width: 768px){
-    .ptable{
+
+@media only screen and(max-width: 768px) {
+    .ptable {
         width: 90%;
     }
 }

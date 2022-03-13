@@ -2,15 +2,16 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>P Agent</title>
-  <link rel="stylesheet" href="index2.css">
-  <link rel="stylesheet" href="myClass.css">
-  <link rel="stylesheet" href="preSelect.css">
-  <link rel="stylesheet" href="setting.css">
-  <link rel="stylesheet" href="switch.css">
-  <link rel="stylesheet" href="icon.css">
-  <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="index2.css" />
+  <link rel="stylesheet" href="myClass.css" />
+  <link rel="stylesheet" href="preSelect.css" />
+  <link rel="stylesheet" href="setting.css" />
+  <link rel="stylesheet" href="switch.css" />
+  <link rel="stylesheet" href="icon.css" />
+  <link rel="stylesheet" href="classClass.css" />
+  <link href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet" />
   <script defer src=""></script>
 </head>
 
@@ -31,92 +32,99 @@
   </header>
   <div class="sidebar">
     <div class="logo-details">
-      <i class='bx bxs-parking icon'></i>
+      <i class="bx bxs-parking icon"></i>
       <div class="logo_name">Agent</div>
-      <i class='bx bx-menu' id="btn"></i>
+      <i class="bx bx-menu" id="btn"></i>
     </div>
     <ul class="nav-list">
       <li>
-        <i class='bx bx-search'></i>
-        <input  type="text" placeholder="搜尋課程...">
+        <i class="bx bx-search"></i>
+        <input type="text" placeholder="搜尋課程..." />
         <span class="tooltip">Search</span>
       </li>
       <li>
-        <a >
-          <i class='bx bx-grid-alt'></i>
+        <a>
+          <i class="bx bx-grid-alt"></i>
           <span class="links_name">修課狀態</span>
         </a>
         <span class="tooltip">修課狀態</span>
       </li>
       <li>
         <a id="classClass">
-          <i class='bx bx-user'></i>
+          <i class="bx bx-user"></i>
           <span class="links_name">各班課程</span>
         </a>
         <span class="tooltip">各班課程</span>
       </li>
       <li>
         <a href="#">
-          <i class='bx bx-folder'></i>
+          <i class="bx bx-folder"></i>
           <span class="links_name">通識課程</span>
         </a>
         <span class="tooltip">通識課程</span>
       </li>
       <li>
         <a href="#">
-          <i class='bx bx-cart-alt'></i>
+          <i class="bx bx-cart-alt"></i>
           <span class="links_name">選課邏輯</span>
         </a>
         <span class="tooltip">選課邏輯</span>
       </li>
       <li>
         <a id="preSelectClass">
-          <i class='bx bx-chat'></i>
+          <i class="bx bx-chat"></i>
           <span class="links_name">已預選課程</span>
         </a>
         <span class="tooltip">已預選課程</span>
       </li>
       <li>
         <a id="getMyClass">
-          <i class='bx bx-pie-chart-alt-2'></i>
+          <i class="bx bx-pie-chart-alt-2"></i>
           <span class="links_name">已中選課程</span>
         </a>
         <span class="tooltip">已中選課程</span>
       </li>
       <li>
         <a href="#">
-          <i class='bx bx-heart'></i>
+          <i class="bx bx-heart"></i>
           <span class="links_name">最愛課程</span>
         </a>
         <span class="tooltip">最愛課程</span>
       </li>
       <li>
         <a id="setting">
-          <i class='bx bx-cog'></i>
+          <i class="bx bx-cog"></i>
           <span class="links_name">設定</span>
         </a>
         <span class="tooltip">設定</span>
       </li>
       <li class="profile">
         <div class="profile-details">
-          <img src="profile.jpg" alt="profileImg">
+          <img src="profile.jpg" alt="profileImg" />
           <div class="name_job">
             <div class="name">name</div>
             <div class="id">student</div>
           </div>
         </div>
-        <i class='bx bx-log-out' id="log_out"></i>
+        <i class="bx bx-log-out" id="log_out"></i>
       </li>
     </ul>
   </div>
-  <div id="main_farm" class="home-section" >
-    <h1 id="ti">歡迎使用選課機器</h1>
-  </div>
-  <div id="right_farm" class="right-section" >
-    <h1 id="ti">歡迎使用選課機器</h1>
-  </div>
-  <script src="script.js"></script>
+  <div class="frame_box">
+
+    <div id="main_frame" class="home-section">
+      <h1 id="ti">歡迎使用選課機器</h1>
+    </div>
+    <div id="right_frame" class="right-section">
+      <h1 id="ti">歡迎使用選課機器2</h1>
+    </div>
+  </div>>
 </body>
-<script>require('./handle.js')</script>
+
+<script src="script.js"></script>
+</body>
+<script>
+  require("./handle.js");
+</script>
 
 </html>

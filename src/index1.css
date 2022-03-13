@@ -2,32 +2,35 @@
   font-family: "NotoSansTC-Medium";
   src: url(./fonts/NotoSansTC-Medium.otf);
 }
+
 @font-face {
   font-family: "NotoSansTC-Regular";
   src: url(./fonts/NotoSansTC-Regular.otf);
 }
+
 @font-face {
   font-family: "NotoSansTC-Light";
   src: url(./fonts/NotoSansTC-Light.otf);
 }
 
-:root{
+:root {
   --first-color: #9873ff;
   --button-color: #6b35ff;
   --input-color: #80868B;
   --border-color: #DADCE0;
 
-  --body-font:"NotoSansTC-Light",-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --body-font: "NotoSansTC-Light", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --normal-font-size: 1.1rem;
   --small-font-size: .9rem;
 }
 
-::before,::after{
+::before,
+::after {
   box-sizing: border-box;
 }
 
 body {
-  font-family: "NotoSansTC-Light",-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: "NotoSansTC-Light", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   margin: auto;
   max-width: 38rem;
   padding: 2rem;
@@ -35,25 +38,27 @@ body {
   overflow: hidden;
 }
 
-.login_title{
-  font-family: "NotoSansTC-Light",-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+.login_title {
+  font-family: "NotoSansTC-Light", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: whitesmoke;
   text-align: center;
   font-size: 32px;
-  font-weight:100;
+  font-weight: 100;
   z-index: 1;
   margin-top: 2%;
 }
-.login_title_small{
-  font-family: "NotoSansTC-Light",-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+.login_title_small {
+  font-family: "NotoSansTC-Light", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: whitesmoke;
   text-align: center;
-  font-weight:50;
+  font-weight: 50;
   font-size: 18.72px;
   z-index: 1;
   padding-top: 8px;
 }
-.loginBox{
+
+.loginBox {
   border-radius: 8px;
   box-shadow: 10px 10px 15px 1px rgba(33, 35, 37, 0.733);
   background-color: #0a0a0a9a;
@@ -70,7 +75,7 @@ body {
   align-items: center;
 }
 
-.l-form{
+.l-form {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -78,7 +83,8 @@ body {
   z-index: 5;
   animation: flyin 2s forwards;
 }
-.form{
+
+.form {
   box-shadow: 10px 10px 15px 1px rgba(33, 35, 37, 0.733);
   background-color: #0a0a0a9a;
   width: 360px;
@@ -86,12 +92,14 @@ body {
   border-radius: 1rem;
   z-index: 2;
 }
-.form_div{
+
+.form_div {
   position: relative;
   height: 48px;
   margin-bottom: 1.5rem;
 }
-.form_input{
+
+.form_input {
   position: absolute;
   color: whitesmoke;
   top: 0;
@@ -106,9 +114,10 @@ body {
   background: none;
   z-index: 1;
   margin-top: 1.5rem;
-  
+
 }
-.form_label{
+
+.form_label {
   position: absolute;
   left: 1rem;
   top: 1rem;
@@ -119,7 +128,8 @@ body {
   transition: .3s;
   margin-top: 1.5rem;
 }
-.form_button{
+
+.form_button {
   display: block;
   margin-left: auto;
   width: 37px;
@@ -135,15 +145,17 @@ body {
   margin-top: 3.5rem;
   user-select: none;
 }
-.form_button:hover{
+
+.form_button:hover {
   box-shadow: 0px 0px 15px 0.1px rgba(255, 255, 255, 0.322);
 }
-.form_button:active{
+
+.form_button:active {
   background-color: #5128c2;
 }
 
 /*Input focus move up label*/
-.form_input:focus + .form_label{
+.form_input:focus+.form_label {
   top: -.5rem;
   left: .8rem;
   color: var(--first-color);
@@ -153,7 +165,7 @@ body {
 }
 
 /*Input focus sticky top label*/
-.form_input:not(:placeholder-shown).form_input:not(:focus)+ .form_label{
+.form_input:not(:placeholder-shown).form_input:not(:focus)+.form_label {
   top: -.5rem;
   left: .8rem;
   font-size: var(--small-font-size);
@@ -162,42 +174,42 @@ body {
 }
 
 /*Input focus*/
-.form_input:focus{
+.form_input:focus {
   border: 2px solid var(--first-color);
 }
 
 .waveBox {
-  background:radial-gradient(ellipse at center, rgba(255,254,234,1) 0%, rgba(255,254,234,1) 35%, #B7E8EB 100%);
+  background: radial-gradient(ellipse at center, rgba(255, 254, 234, 1) 0%, rgba(255, 254, 234, 1) 35%, #B7E8EB 100%);
   overflow: hidden;
   z-index: -3;
 }
 
 
-.ocean { 
+.ocean {
   height: 5%;
-  width:100%;
-  position:absolute;
-  bottom:-400px;
-  left:0px;
+  width: 100%;
+  position: absolute;
+  bottom: -400px;
+  left: 0px;
   background: #653b94ff;
   animation: up 2s forwards;
   z-index: -3;
 }
 
 .wave {
-  background: url(./images/wave.svg) repeat-x; 
+  background: url(./images/wave.svg) repeat-x;
   position: absolute;
   top: -198px;
   width: 6400px;
   height: 198px;
-  animation: wave 20s cubic-bezier( 0.36, 0.45, 0.63, 0.53) infinite;
+  animation: wave 20s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
   transform: translate3d(0, 0, 0);
   z-index: -3;
 }
 
 .wave:nth-of-type(2) {
   top: -175px;
-  animation: wave 15s cubic-bezier( 0.36, 0.45, 0.63, 0.53) -.125s infinite, swell 7s ease -1.25s infinite;
+  animation: wave 15s cubic-bezier(0.36, 0.45, 0.63, 0.53) -.125s infinite, swell 7s ease -1.25s infinite;
   opacity: 1;
 }
 
@@ -208,6 +220,7 @@ body {
   0% {
     bottom: -400px;
   }
+
   100% {
     bottom: 0px;
   }
@@ -218,6 +231,7 @@ body {
     transform: translateY(-100px);
     opacity: 0;
   }
+
   100% {
     transform: translateY(0px);
     opacity: 1;
@@ -229,6 +243,7 @@ body {
     transform: translateY(0px);
     opacity: 1;
   }
+
   100% {
     transform: translateY(-100px);
     opacity: 0;
@@ -239,6 +254,7 @@ body {
   0% {
     bottom: 0px;
   }
+
   100% {
     bottom: -400px;
   }
@@ -248,8 +264,8 @@ body {
   0% {
     margin-left: 0;
   }
+
   100% {
     margin-left: -1600px;
   }
 }
-

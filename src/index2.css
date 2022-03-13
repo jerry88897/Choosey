@@ -2,28 +2,38 @@
   font-family: "NotoSansTC-Medium";
   src: url(./fonts/NotoSansTC-Medium.otf);
 }
+
 @font-face {
   font-family: "NotoSansTC-Regular";
   src: url(./fonts/NotoSansTC-Regular.otf);
 }
+
 @font-face {
   font-family: "NotoSansTC-Light";
   src: url(./fonts/NotoSansTC-Light.otf);
 }
 
-:root{
+:root {
   --first-color: #9873ff;
   --button-color: #6b35ff;
   --input-color: #80868B;
   --border-color: #DADCE0;
+  --tableHead-color: #393578;
+  --tableTr-color: #503e8f;
+  --tableTrHover-color: #806dc4;
+  --word-color: #ddd;
+  --tableBorder-color: #ddd;
 
-  --body-font:"NotoSansTC-Light",-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --body-font: "NotoSansTC-Light", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --normal-font-size: 1.1rem;
   --small-font-size: .9rem;
 }
 
+body {
+  overflow: hidden;
+}
 
-header{
+header {
   position: fixed;
   top: 0;
   left: 0;
@@ -35,9 +45,10 @@ header{
   padding: 10px 50px;
   background: #202225;
 }
-header .logo{
+
+header .logo {
   position: relative;
-  font-weight:  700;
+  font-weight: 700;
   color: #fff;
   text-decoration: none;
   font-size: 1.6em;
@@ -46,7 +57,7 @@ header .logo{
   transition: 0.6s;
 }
 
-header ul{
+header ul {
   position: relative;
   display: flex;
   justify-content: center;
@@ -55,55 +66,59 @@ header ul{
   list-style: none;
 }
 
-header ul li{
+header ul li {
   position: relative;
   margin: 0 15px;
   text-decoration: none;
-  
+
 }
 
-header ul li a{
+header ul li a {
   position: relative;
-  
+
   color: #fff;
   letter-spacing: 2px;
   font-weight: 500px;
   transition: 0.6s;
 }
 
-.banner{
+.banner {
   position: relative;
-  
+
 }
 
 
 
 
-.sidebar{
+.sidebar {
   position: fixed;
   left: 0;
   top: 73px;
   height: 100%;
   width: 50px;
   background: #11101D;
-  padding: 6px 14px;
+  padding: 6px 15px;
   z-index: 99;
   transition: all 0.5s ease;
 }
-.sidebar.open{
-  width: 250px;
+
+.sidebar.open {
+  width: 172px;
 }
-.sidebar .logo-details{
+
+.sidebar .logo-details {
   height: 60px;
   display: flex;
   align-items: center;
   position: relative;
 }
-.sidebar .logo-details .icon{
+
+.sidebar .logo-details .icon {
   opacity: 0;
   transition: all 0.5s ease;
 }
-.sidebar .logo-details .logo_name{
+
+.sidebar .logo-details .logo_name {
   color: #fff;
   font-size: 20px;
   font-weight: 600;
@@ -111,11 +126,13 @@ header ul li a{
   opacity: 0;
   transition: all 0.5s ease;
 }
+
 .sidebar.open .logo-details .icon,
-.sidebar.open .logo-details .logo_name{
+.sidebar.open .logo-details .logo_name {
   opacity: 1;
 }
-.sidebar .logo-details #btn{
+
+.sidebar .logo-details #btn {
   position: absolute;
   top: 50%;
   right: 0;
@@ -127,10 +144,12 @@ header ul li a{
   cursor: pointer;
   transition: all 0.5s ease;
 }
-.sidebar.open .logo-details #btn{
+
+.sidebar.open .logo-details #btn {
   text-align: right;
 }
-.sidebar i{
+
+.sidebar i {
   color: #fff;
   height: 60px;
   min-width: 50px;
@@ -138,17 +157,20 @@ header ul li a{
   text-align: center;
   line-height: 60px;
 }
-.sidebar .nav-list{
+
+.sidebar .nav-list {
   margin-top: 20px;
   height: 100%;
   padding: 0;
 }
-.sidebar li{
+
+.sidebar li {
   position: relative;
   margin: 8px 0;
   list-style: none;
 }
-.sidebar li .tooltip{
+
+.sidebar li .tooltip {
   position: absolute;
   top: -20px;
   left: calc(100% + 15px);
@@ -164,17 +186,20 @@ header ul li a{
   pointer-events: none;
   transition: 0s;
 }
-.sidebar li:hover .tooltip{
+
+.sidebar li:hover .tooltip {
   opacity: 1;
   pointer-events: auto;
   transition: all 0.4s ease;
   top: 50%;
   transform: translateY(-50%);
 }
-.sidebar.open li .tooltip{
+
+.sidebar.open li .tooltip {
   display: none;
 }
-.sidebar input{
+
+.sidebar input {
   font-size: 15px;
   color: #FFF;
   font-weight: 400;
@@ -187,11 +212,13 @@ header ul li a{
   transition: all 0.5s ease;
   background: #1d1b31;
 }
-.sidebar.open input{
+
+.sidebar.open input {
   padding: 0 20px 0 50px;
-  width: 180px;
+  width: 100px;
 }
-.sidebar .bx-search{
+
+.sidebar .bx-search {
   position: absolute;
   top: 50%;
   left: 0;
@@ -200,19 +227,22 @@ header ul li a{
   background: #1d1b31;
   color: #FFF;
 }
- input[type=text]
-{
-    padding: 0 0 0 0;
-} 
-.sidebar.open .bx-search:hover{
+
+input[type=text] {
+  padding: 0 0 0 0;
+}
+
+.sidebar.open .bx-search:hover {
   background: #1d1b31;
   color: #FFF;
 }
-.sidebar .bx-search:hover{
+
+.sidebar .bx-search:hover {
   background: #FFF;
   color: #11101d;
 }
-.sidebar li a{
+
+.sidebar li a {
   display: flex;
   height: 100%;
   width: 100%;
@@ -222,10 +252,12 @@ header ul li a{
   transition: all 0.4s ease;
   background: #11101D;
 }
-.sidebar li a:hover{
+
+.sidebar li a:hover {
   background: #FFF;
 }
-.sidebar li a .links_name{
+
+.sidebar li a .links_name {
   color: #fff;
   font-size: 15px;
   font-weight: 400;
@@ -234,22 +266,26 @@ header ul li a{
   pointer-events: none;
   transition: 0.4s;
 }
-.sidebar.open li a .links_name{
+
+.sidebar.open li a .links_name {
   opacity: 1;
   pointer-events: auto;
 }
+
 .sidebar li a:hover .links_name,
-.sidebar li a:hover i{
+.sidebar li a:hover i {
   transition: all 0.5s ease;
   color: #11101D;
 }
-.sidebar li i{
+
+.sidebar li i {
   height: 50px;
   line-height: 50px;
   font-size: 18px;
   border-radius: 12px;
 }
-.sidebar li.profile{
+
+.sidebar li.profile {
   position: fixed;
   height: 60px;
   width: 78px;
@@ -259,32 +295,38 @@ header ul li a{
   transition: all 0.5s ease;
   overflow: hidden;
 }
-.sidebar.open li.profile{
-  width: 278px;
+
+.sidebar.open li.profile {
+  width: 200px;
 }
-.sidebar li .profile-details{
+
+.sidebar li .profile-details {
   display: flex;
   align-items: center;
   flex-wrap: nowrap;
 }
-.sidebar li img{
+
+.sidebar li img {
   height: 45px;
   width: 45px;
   object-fit: cover;
   border-radius: 6px;
   margin-right: 10px;
 }
+
 .sidebar li.profile .name,
-.sidebar li.profile .job{
+.sidebar li.profile .job {
   font-size: 15px;
   font-weight: 400;
   color: #fff;
   white-space: nowrap;
 }
-.sidebar li.profile .job{
+
+.sidebar li.profile .job {
   font-size: 12px;
 }
-.sidebar .profile #log_out{
+
+.sidebar .profile #log_out {
   position: absolute;
   top: 50%;
   right: 0;
@@ -296,44 +338,74 @@ header ul li a{
   border-radius: 0px;
   transition: all 0.5s ease;
 }
-.sidebar.open .profile #log_out{
+
+.sidebar.open .profile #log_out {
   width: 50px;
   background: none;
 }
-.home-section{
-  overflow: auto;
+
+.frame_box {
   position: absolute;
-  background: #2b2a33; 
+  display: flex;
   border: 0px;
-  height: 90vh;
+  height: calc(100vh - 73px);
+  top: 73px;
+  left: 78px;
+  width: calc(100vw - 100px);
+  transition: all 0.5s ease;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-content: flex-start;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.home-section {
+  overflow: auto;
+  background: #2b2a33;
+  border: 0px;
   top: 73px;
   left: 78px;
   width: 70vw;
+  max-width: 70vw;
   transition: all 0.5s ease;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-content: center;
 }
-.sidebar.open ~ .home-section{
+
+.home-section::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.sidebar.open~.home-section {
   left: 278px;
   width: 50vw;
 }
-.home-section .text{
+
+.home-section .text {
   display: inline-block;
   color: #11101d;
   font-size: 25px;
   font-weight: 500;
   margin: 18px;
 }
+
 @media (max-width: 420px) {
-  .sidebar li .tooltip{
+  .sidebar li .tooltip {
     display: none;
   }
 }
 
-.right-section{
-  position: fixed;
+.right-section {
   background: #201f25;
   border: 0px;
-  min-height: 100vh;
+  height: 100%;
   top: 73px;
   left: calc(78px + 70VW);
   width: 40vw;
@@ -350,6 +422,7 @@ header ul li a{
   0% {
     bottom: -400px;
   }
+
   100% {
     bottom: 0px;
   }
@@ -360,6 +433,7 @@ header ul li a{
     transform: translateY(-100px);
     opacity: 0;
   }
+
   100% {
     transform: translateY(0px);
     opacity: 1;
@@ -371,6 +445,7 @@ header ul li a{
     transform: translateY(0px);
     opacity: 1;
   }
+
   100% {
     transform: translateY(-100px);
     opacity: 0;
@@ -381,6 +456,7 @@ header ul li a{
   0% {
     bottom: 0px;
   }
+
   100% {
     bottom: -400px;
   }
@@ -390,16 +466,20 @@ header ul li a{
   0% {
     margin-left: 0;
   }
+
   100% {
     margin-left: -1600px;
   }
 }
 
 @keyframes swell {
-  0%, 100% {
-    transform: translate3d(0,-25px,0);
+
+  0%,
+  100% {
+    transform: translate3d(0, -25px, 0);
   }
+
   50% {
-    transform: translate3d(0,5px,0);
+    transform: translate3d(0, 5px, 0);
   }
 }

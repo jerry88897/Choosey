@@ -136,8 +136,7 @@ async function GetClassClass(SelDepNo, SelClassNo) {
     axios
       .post(
         "https://stucis.ttu.edu.tw/selcourse/ListClassCourse.php",
-        //"SelDepNo=" + SelDepNo + "&SelClassNo=" + SelClassNo,
-        "SelDepNo=06&SelClassNo=UI2B",
+        "SelDepNo=" + SelDepNo + "&SelClassNo=" + SelClassNo,
         {
           responseType: "arraybuffer",
           headers: {

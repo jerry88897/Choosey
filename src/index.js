@@ -171,11 +171,11 @@ ipc.on("getMyClass", async function (e) {
 
 ipc.on("getClassClass", async function (e, SelDepNo, SelClassNo) {
   console.log("mainGetClassClass");
-  if(SelDepNo==0){
-    SelDepNo=depNo.get(user.grade.substring(1,2))
-    SelClassNo=user.grade;
+  if (SelDepNo == 0) {
+    SelDepNo = depNo.get(user.grade.substring(1, 2));
+    SelClassNo = user.grade;
   }
-  let response = getWeb.GetClassClass(SelDepNo, SelClassNo);
+  let response = getWeb.GetClassClass(depNo.get(SelDepNo), SelClassNo);
   let myClass = parser.ClassClassParser(response, SelDepNo, SelClassNo);
   let allMyClass;
   let allPromise = [];
