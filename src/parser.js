@@ -6,8 +6,11 @@ module.exports = {
   myClassParser: function (response) {
     return myClassParser(response);
   },
-  ClassClassParser: function (response, SelDepNo, SelClassNo) {
-    return ClassClassParser(response, SelDepNo, SelClassNo);
+  classClassParser: function (response, SelDepNo, SelClassNo) {
+    return classClassParser(response, SelDepNo, SelClassNo);
+  },
+  classClassListParser: function (response) {
+    return classClassListParser(response);
   },
   myClassDateParser: function (response, myClass) {
     return myClassDateParser(response, myClass);
@@ -16,8 +19,53 @@ module.exports = {
     return gradeParser(response);
   },
 };
-
-async function ClassClassParser(response, SelDepNo, SelClassNo) {
+async function classClassListParser(response) {
+  let areaCount = 0;
+  let done = false;
+  var allClass = [];
+  var outText = "";
+  var nowClass;
+  const MyClassParser = new htmlparser2.Parser(
+    {
+      onattribute(name, value) {
+        if (areaCount == 2) {
+          if (name === "value") {
+            allClass.push(value.substring(0, 4));
+          }
+        }
+      },
+      onopentag(name, attribs) {
+        if (name === "select") {
+          areaCount++;
+        }
+      },
+      onclosetag(tagname) {
+        if (tagname === "select") {
+          if (areaCount == 2) {
+            areaCount++;
+          }
+        }
+      },
+    },
+    {
+      decodeEntities: true,
+    }
+  );
+  return new Promise((resolve, reject) => {
+    response
+      .then((success) => {
+        MyClassParser.write(iconv.decode(Buffer.from(success.data), "big5"));
+        MyClassParser.end();
+      })
+      .then((success) => {
+        resolve(allClass);
+      })
+      .catch((fail) => {
+        console.log(fail);
+      });
+  });
+}
+async function classClassParser(response, SelDepNo, SelClassNo) {
   let inTable = false;
   let countRows = false;
   let done = false;

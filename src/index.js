@@ -172,11 +172,12 @@ ipc.on("getMyClass", async function (e) {
 ipc.on("getClassClass", async function (e, SelDepNo, SelClassNo) {
   console.log("mainGetClassClass");
   if (SelDepNo == 0) {
-    SelDepNo = depNo.get(user.grade.substring(1, 2));
+    SelDepNo = user.grade.substring(1, 2);
     SelClassNo = user.grade;
   }
   let response = getWeb.GetClassClass(depNo.get(SelDepNo), SelClassNo);
-  let myClass = parser.ClassClassParser(response, SelDepNo, SelClassNo);
+  let myClass = parser.classClassParser(response, SelDepNo, SelClassNo);
+  let classClassListparser = parser.classClassListParser(response);
   let allMyClass;
   let allPromise = [];
   myClass
@@ -208,8 +209,19 @@ ipc.on("getClassClass", async function (e, SelDepNo, SelClassNo) {
         let makeFilePromise = makeJson.ClassClassToJson(allMyClass);
         makeFilePromise
           .then(async function (success) {
-            win.webContents.send("readyToShowClassClass");
-            console.log("readyToShowClassClass");
+            classClassListparser
+              .then(async function (data) {
+                win.webContents.send(
+                  "readyToShowClassClass",
+                  SelDepNo,
+                  SelClassNo,
+                  data
+                );
+                console.log("readyToShowClassClass");
+              })
+              .catch((fail) => {
+                console.log(fail);
+              });
           })
           .catch((fail) => {
             console.log(fail);

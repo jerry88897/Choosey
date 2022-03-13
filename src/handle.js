@@ -280,8 +280,10 @@ async function preSelect() {
 
 let SelDepNo = 0;
 let SelClassNo = "UI3B";
-async function showClassClass() {
+async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
   await cleanFrame();
+  SelDepNo = SelectedDepNo;
+  SelClassNo = SelectedClassNo;
   let table = document.createElement("table");
   let tHead = document.createElement("thead");
   let viewTypeDiv = document.createElement("div");
@@ -454,7 +456,7 @@ async function showClassClass() {
     let depButtonArray = [];
     for (let element of dep) {
       let depButton = document.createElement("div");
-      if (element === SelDepNo) {
+      if (element === SelectedDepNo) {
         depButton.setAttribute("class", "depButtonSele");
       } else {
         depButton.setAttribute("class", "depButton");
@@ -468,12 +470,61 @@ async function showClassClass() {
       depButtonArray.push(depButton);
     }
     toolBar.appendChild(depButtonBox);
-    main_frame.appendChild(toolBar);
     for (let element of depButtonArray) {
       element.addEventListener("click", async function () {
         console.log(element.id);
         SelDepNo = element.id;
         ipc.send("getClassClass", element.id, SelClassNo);
+      });
+    }
+    let classButtonBox = document.createElement("div");
+    classButtonBox.setAttribute("class", "classButtonBox");
+    let classButtonArray = [];
+    let classGroup = [];
+    let classButtonGroup = document.createElement("div");
+    classButtonGroup.setAttribute("class", "classButtonGroup");
+    let groupMemberCount = 0;
+    for (let element of classList) {
+      let classButton = document.createElement("div");
+      if (!classGroup.includes(element[0])) {
+        classGroup.push(element[0]);
+        if (groupMemberCount != 0) {
+          classButtonBox.appendChild(classButtonGroup);
+          groupMemberCount = 0;
+        }
+        let classGroupHead = document.createElement("div");
+        classGroupHead.setAttribute("class", "classGroupHead");
+        classGroupHead.innerText = element[0] + ":";
+        classButtonGroup = document.createElement("div");
+        classButtonGroup.setAttribute("class", "classButtonGroup");
+        classButtonGroup.appendChild(classGroupHead);
+      }
+      if (element === SelectedClassNo) {
+        classButton.setAttribute("class", "classButtonSele");
+      } else {
+        classButton.setAttribute("class", "classButton");
+      }
+
+      classButton.setAttribute("role", "button");
+      classButton.setAttribute("tablindex", "0");
+      classButton.setAttribute("id", element);
+      classButton.innerText = element.replace(SelectedDepNo, "");
+      classButton.innerText = classButton.innerText.replace(
+        classButton.innerText[0],
+        ""
+      );
+      classButtonGroup.appendChild(classButton);
+      classButtonArray.push(classButton);
+      groupMemberCount++;
+    }
+    classButtonBox.appendChild(classButtonGroup);
+    toolBar.appendChild(classButtonBox);
+    main_frame.appendChild(toolBar);
+    for (let element of classButtonArray) {
+      element.addEventListener("click", async function () {
+        console.log(element.id);
+        SelDepNo = element.id;
+        ipc.send("getClassClass", SelDepNo, element.id);
       });
     }
     viewTypeDiv.addEventListener("click", async function () {
@@ -485,7 +536,7 @@ async function showClassClass() {
         showMyClassType = 0;
         viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
       }
-      showClassClass();
+      showClassClass(SelectedDepNo, SelectedClassNo, classList);
     });
   });
 }
@@ -839,10 +890,13 @@ setting.addEventListener("click", async function () {
   showSetting();
 });
 
-ipc.on("readyToShowClassClass", function (evt) {
-  console.log("showClassClass");
-  showClassClass();
-});
+ipc.on(
+  "readyToShowClassClass",
+  function (evt, SelDepNo, SelClassNo, classList) {
+    console.log("showClassClass");
+    showClassClass(SelDepNo, SelClassNo, classList);
+  }
+);
 
 ipc.on("readyToShow", function (evt, myClass) {
   console.log("show");
