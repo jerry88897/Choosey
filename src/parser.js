@@ -22,6 +22,8 @@ module.exports = {
 async function classClassListParser(response) {
   let areaCount = 0;
   let done = false;
+  let lastClass
+  var selected
   var allClass = [];
   var outText = "";
   var nowClass;
@@ -31,6 +33,10 @@ async function classClassListParser(response) {
         if (areaCount == 2) {
           if (name === "value") {
             allClass.push(value.substring(0, 4));
+            lastClass=value.substring(0, 4)
+          }
+          if(name === "selected"){
+            selected=lastClass;
           }
         }
       },
@@ -58,6 +64,7 @@ async function classClassListParser(response) {
         MyClassParser.end();
       })
       .then((success) => {
+        allClass.push(selected)
         resolve(allClass);
       })
       .catch((fail) => {

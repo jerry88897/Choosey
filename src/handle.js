@@ -50,6 +50,52 @@ const setting = document.getElementById("setting");
 
 let myClassTableType = false;
 let countDownTimer;
+let tableHead = [
+  "動作",
+  "課程代碼",
+  "課程名稱",
+  "教師",
+  "類別",
+  "學分",
+  "已選/上限",
+  "附註",
+];
+let tableKey = [
+  "ln",
+  "id",
+  "name",
+  "teacher",
+  "type",
+  "point",
+  "student",
+  "ps",
+];
+
+let dateHead = [
+  "",
+  "星期一",
+  "星期二",
+  "星期三",
+  "星期四",
+  "星期五",
+  "星期六",
+];
+let timeSeg = [
+  "第一節<br>08:10~<br>09:00",
+  "第二節<br>09:10~<br>10:00",
+  "第三節<br>10:10~<br>11:00",
+  "第四節<br>11:10~<br>12:00",
+  "中　午<br>12:10~<br>13:00",
+  "第五節<br>13:10~<br>14:00",
+  "第六節<br>14:10~<br>15:00",
+  "第七節<br>15:10~<br>16:00",
+  "第八節<br>16:10~<br>17:00",
+  "傍　晚<br>17:10~<br>18:00",
+  "第九節<br>18:20~<br>19:10",
+  "第10節<br>19:15~<br>20:05",
+  "第11節<br>20:15~<br>21:05",
+  "第12節<br>21:10~<br>22:00",
+];
 async function cleanFrame() {
   main_frame.innerHTML = "";
 }
@@ -324,53 +370,6 @@ async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
     ["H", "H工學"],
   ]);
 
-  let tableHead = [
-    "動作",
-    "課程代碼",
-    "課程名稱",
-    "教師",
-    "類別",
-    "學分",
-    "已選/上限",
-    "附註",
-  ];
-  let tableKey = [
-    "ln",
-    "id",
-    "name",
-    "teacher",
-    "type",
-    "point",
-    "student",
-    "ps",
-  ];
-
-  let dateHead = [
-    "",
-    "星期一",
-    "星期二",
-    "星期三",
-    "星期四",
-    "星期五",
-    "星期六",
-  ];
-  let timeSeg = [
-    "第一節<br>08:10~<br>09:00",
-    "第二節<br>09:10~<br>10:00",
-    "第三節<br>10:10~<br>11:00",
-    "第四節<br>11:10~<br>12:00",
-    "中　午<br>12:10~<br>13:00",
-    "第五節<br>13:10~<br>14:00",
-    "第六節<br>14:10~<br>15:00",
-    "第七節<br>15:10~<br>16:00",
-    "第八節<br>16:10~<br>17:00",
-    "傍　晚<br>17:10~<br>18:00",
-    "第九節<br>18:20~<br>19:10",
-    "第10節<br>19:15~<br>20:05",
-    "第11節<br>20:15~<br>21:05",
-    "第12節<br>21:10~<br>22:00",
-  ];
-
   fs.readFile("./src/data/ClassClass.json", function (err, myClass) {
     if (err) {
       return console.log(err);
@@ -523,7 +522,7 @@ async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
     for (let element of classButtonArray) {
       element.addEventListener("click", async function () {
         console.log(element.id);
-        SelDepNo = element.id;
+        SelDepNo = element.id[1];
         ipc.send("getClassClass", SelDepNo, element.id);
       });
     }
@@ -547,53 +546,6 @@ async function showMyClass() {
   let tHead = document.createElement("thead");
   let viewTypeDiv = document.createElement("div");
   let viewTypeImg = document.createElement("img");
-
-  let tableHead = [
-    "動作",
-    "課程代碼",
-    "課程名稱",
-    "教師",
-    "類別",
-    "學分",
-    "已選/上限",
-    "附註",
-  ];
-  let tableKey = [
-    "ln",
-    "id",
-    "name",
-    "teacher",
-    "type",
-    "point",
-    "student",
-    "ps",
-  ];
-
-  let dateHead = [
-    "",
-    "星期一",
-    "星期二",
-    "星期三",
-    "星期四",
-    "星期五",
-    "星期六",
-  ];
-  let timeSeg = [
-    "第一節<br>08:10~<br>09:00",
-    "第二節<br>09:10~<br>10:00",
-    "第三節<br>10:10~<br>11:00",
-    "第四節<br>11:10~<br>12:00",
-    "中　午<br>12:10~<br>13:00",
-    "第五節<br>13:10~<br>14:00",
-    "第六節<br>14:10~<br>15:00",
-    "第七節<br>15:10~<br>16:00",
-    "第八節<br>16:10~<br>17:00",
-    "傍　晚<br>17:10~<br>18:00",
-    "第九節<br>18:20~<br>19:10",
-    "第10節<br>19:15~<br>20:05",
-    "第11節<br>20:15~<br>21:05",
-    "第12節<br>21:10~<br>22:00",
-  ];
 
   fs.readFile("./src/data/myClass.json", function (err, myClass) {
     if (err) {

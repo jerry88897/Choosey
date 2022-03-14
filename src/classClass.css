@@ -81,13 +81,13 @@
     display: flex;
     background-color: rgb(28, 5, 49);
     width: 60vw;
-    height: 85px;
+    height: 115px;
     left: calc((70vw / 2) - 30vw + 78px);
     border-radius: 0 0 10px 10px;
     flex-direction: column;
     flex-wrap: wrap;
     align-content: center;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
 }
 

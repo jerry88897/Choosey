@@ -211,10 +211,15 @@ ipc.on("getClassClass", async function (e, SelDepNo, SelClassNo) {
           .then(async function (success) {
             classClassListparser
               .then(async function (data) {
+                let selected = data[data.length-1];
+                data.pop();
+                if(typeof selected =='undefined'){
+                  selected=data[0]
+                }
                 win.webContents.send(
                   "readyToShowClassClass",
                   SelDepNo,
-                  SelClassNo,
+                  selected,
                   data
                 );
                 console.log("readyToShowClassClass");
