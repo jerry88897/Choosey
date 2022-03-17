@@ -15,7 +15,6 @@
     line-height: 50px;
     width: 50px;
     height: 50px;
-    border-radius: 50%;
     user-select: none;
 }
 
@@ -32,6 +31,7 @@
 
 
 .depButton:hover {
+    border-radius: 50%;
     background: rgb(129, 129, 129);
 }
 
@@ -52,11 +52,11 @@
     line-height: 30px;
     width: 30px;
     height: 30px;
-    border-radius: 50%;
     user-select: none;
 }
 
 .classButton:hover {
+    border-radius: 50%;
     background: rgb(129, 129, 129);
 }
 
@@ -97,4 +97,35 @@
     text-align: right;
     width: 30px;
     height: 30px;
+}
+
+.classAction {
+    width: 20px;
+    height: 20px;
+}
+
+.classActionDiv {
+    transition: all 0.4s ease;
+    display: flex;
+    width: 30px;
+    height: 30px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.classActionDiv:hover {
+    border-radius: 50%;
+    background: rgb(129, 129, 129);
+}
+
+.classActionBox {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
 }

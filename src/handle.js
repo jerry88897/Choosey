@@ -71,15 +71,7 @@ let tableKey = [
   "ps",
 ];
 
-let dateHead = [
-  "",
-  "星期一",
-  "星期二",
-  "星期三",
-  "星期四",
-  "星期五",
-  "星期六",
-];
+let dateHead = ["", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
 let timeSeg = [
   "第一節<br>08:10~<br>09:00",
   "第二節<br>09:10~<br>10:00",
@@ -393,11 +385,36 @@ async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
       for (let element of myclass) {
         tr = table.insertRow(-1);
         tr.className = "mtr";
-        for (let key of tableKey) {
+        let td = document.createElement("td");
+        let selectThisClass = document.createElement("img");
+        let preSelectThisClass = document.createElement("img");
+        let selectThisClassDiv = document.createElement("div");
+        let preSelectThisClassDiv = document.createElement("div");
+        let classActionBox = document.createElement("div");
+        selectThisClass.setAttribute(
+          "src",
+          "./icon/add_circle_outline_white_24dp.svg"
+        );
+        preSelectThisClass.setAttribute(
+          "src",
+          "./icon/add_shopping_cart_white_24dp.svg"
+        );
+        selectThisClass.setAttribute("class", "classAction");
+        preSelectThisClass.setAttribute("class", "classAction");
+        selectThisClassDiv.appendChild(selectThisClass);
+        preSelectThisClassDiv.appendChild(preSelectThisClass);
+        selectThisClassDiv.setAttribute("class", "classActionDiv");
+        preSelectThisClassDiv.setAttribute("class", "classActionDiv");
+        classActionBox.appendChild(selectThisClassDiv);
+        classActionBox.appendChild(preSelectThisClassDiv);
+        classActionBox.setAttribute("class", "classActionBox");
+        td.appendChild(classActionBox);
+        td.className = "mtd";
+        tr.appendChild(td);
+        for (let tabletd = 1; tabletd < tableKey.length; tabletd++) {
           let td = document.createElement("td");
           td.className = "mtd";
-          td.innerHTML = element[key];
-          console.log(element[key]);
+          td.innerHTML = element[tableKey[tabletd]];
           tr.appendChild(td);
         }
       }
