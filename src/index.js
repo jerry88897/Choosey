@@ -10,7 +10,7 @@ const makeJson = require("./makeJson");
 const iconv = require("iconv-lite");
 const { Console } = require("console");
 const screen = require("electron").screen;
-
+const fsp = require("fs").promises;
 let win;
 let user = {
   id: "",
@@ -175,6 +175,12 @@ ipc.on("getClassClass", async function (e, SelDepNo, SelClassNo) {
     SelDepNo = user.grade.substring(1, 2);
     SelClassNo = user.grade;
   }
+  const rawHtml = await fsp.readFile("./src/data/test.html", "utf8");
+  let myClass2 = await parser.classClassParserTEST(
+    rawHtml,
+    SelDepNo,
+    SelClassNo
+  );
   let response = getWeb.GetClassClass(depNo.get(SelDepNo), SelClassNo);
   let myClass = parser.classClassParser(response, SelDepNo, SelClassNo);
   let classClassListparser = parser.classClassListParser(response);
@@ -211,10 +217,10 @@ ipc.on("getClassClass", async function (e, SelDepNo, SelClassNo) {
           .then(async function (success) {
             classClassListparser
               .then(async function (data) {
-                let selected = data[data.length-1];
+                let selected = data[data.length - 1];
                 data.pop();
-                if(typeof selected =='undefined'){
-                  selected=data[0]
+                if (typeof selected == "undefined") {
+                  selected = data[0];
                 }
                 win.webContents.send(
                   "readyToShowClassClass",

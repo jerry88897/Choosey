@@ -1,4 +1,5 @@
 const htmlparser2 = require("htmlparser2");
+const htmlparser2S = require("htmlparser2/lib/WritableStream");
 const iconv = require("iconv-lite");
 const fs = require("fs");
 const { Console } = require("console");
@@ -8,6 +9,9 @@ module.exports = {
   },
   classClassParser: function (response, SelDepNo, SelClassNo) {
     return classClassParser(response, SelDepNo, SelClassNo);
+  },
+  classClassParserTEST: function (response, SelDepNo, SelClassNo) {
+    return classClassParserTEST(response, SelDepNo, SelClassNo);
   },
   classClassListParser: function (response) {
     return classClassListParser(response);
@@ -22,8 +26,8 @@ module.exports = {
 async function classClassListParser(response) {
   let areaCount = 0;
   let done = false;
-  let lastClass
-  var selected
+  let lastClass;
+  var selected;
   var allClass = [];
   var outText = "";
   var nowClass;
@@ -33,10 +37,10 @@ async function classClassListParser(response) {
         if (areaCount == 2) {
           if (name === "value") {
             allClass.push(value.substring(0, 4));
-            lastClass=value.substring(0, 4)
+            lastClass = value.substring(0, 4);
           }
-          if(name === "selected"){
-            selected=lastClass;
+          if (name === "selected") {
+            selected = lastClass;
           }
         }
       },
@@ -64,7 +68,7 @@ async function classClassListParser(response) {
         MyClassParser.end();
       })
       .then((success) => {
-        allClass.push(selected)
+        allClass.push(selected);
         resolve(allClass);
       })
       .catch((fail) => {
@@ -490,5 +494,101 @@ async function gradeParser(response) {
       .catch((fail) => {
         console.log(fail);
       });
+  });
+}
+
+async function classClassParserTEST(response, SelDepNo, SelClassNo) {
+  let inTable = false;
+  let countRows = false;
+  let done = false;
+  let tr = 0;
+  let td = 0;
+  var allClass = [];
+  var outText = "";
+  var nowClass;
+  return new Promise((resolve, reject) => {
+    //let data = iconv.decode(Buffer.from(response), "big5");
+    const MyClassParser = new htmlparser2.Parser(
+      {
+        onattribute(name, value) {
+          if (name === "class" && value === "cistab") {
+            inTable = true;
+          }
+        },
+        onopentag(name, attribs) {
+          if (name === "tr") {
+            if (attribs.bgcolor === "GreenYellow") {
+              inTable = false;
+            }
+            tr++;
+            td = 0;
+          }
+        },
+        ontext(text) {
+          if (inTable && tr >= 2) {
+            //console.log( "title: " + text );
+            outText += text;
+
+            if (td == 0) {
+              nowClass = {
+                ln: 0,
+                id: "",
+                name: "",
+                DepNo: "",
+                SelClassNo: "",
+                teacher: "",
+                type: "",
+                point: "",
+                student: "",
+                ps: "",
+                time: [],
+              };
+              nowClass.DepNo = SelDepNo;
+              nowClass.ClassNo = SelClassNo;
+              if (text === "加") {
+                nowClass.ln = 1;
+              } else {
+                nowClass.ln = 2;
+              }
+            } else if (td == 1) {
+              if (text != " ") nowClass.id += text;
+            } else if (td == 2) {
+              if (text != " " && text != "\n") nowClass.name += text;
+            } else if (td == 3) {
+              nowClass.teacher += text;
+            } else if (td == 4) {
+              if (text != " " && text != "\n") nowClass.type += text;
+            } else if (td == 5) {
+              if (text != " " && text != "\n") nowClass.point += text;
+            } else if (td == 6) {
+              nowClass.student += text;
+            } else if (td == 7) {
+              nowClass.ps = text;
+              nowClass.name = nowClass.name.replace(/\s+/g, "");
+              nowClass.type = nowClass.type.replace(/\s+/g, "");
+              nowClass.point = nowClass.point.replace(/\s+/g, "");
+              nowClass.student = nowClass.student.replace(/\s+/g, "");
+              nowClass.ps = nowClass.ps.replace(/\s+/g, "");
+              allClass.push(nowClass);
+            }
+          }
+        },
+        onclosetag(tagname) {
+          if (tagname === "html") {
+            console.log("That's it!");
+            resolve(allClass);
+            done = true;
+          } else if (tagname === "table") {
+            inTable = false;
+          } else if (tagname === "td") {
+            td++;
+          }
+        },
+      },
+      {
+        decodeEntities: true,
+      }
+    );
+    MyClassParser.write(response);
   });
 }
