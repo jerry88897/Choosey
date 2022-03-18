@@ -61,7 +61,7 @@ let tableHead = [
   "附註",
 ];
 let tableKey = [
-  "ln",
+  "action",
   "id",
   "name",
   "teacher",
@@ -391,10 +391,21 @@ async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
         let selectThisClassDiv = document.createElement("div");
         let preSelectThisClassDiv = document.createElement("div");
         let classActionBox = document.createElement("div");
-        selectThisClass.setAttribute(
-          "src",
-          "./icon/add_circle_outline_white_24dp.svg"
-        );
+        selectThisClassDiv.setAttribute("class", "classActionDiv");
+        if (element[tableKey[0] == 1]) {
+          selectThisClass.setAttribute(
+            "src",
+            "./icon/add_circle_outline_white_24dp.svg"
+          );
+        } else if (element[tableKey[0] == 2]) {
+          selectThisClass.setAttribute("src", "./icon/cancel_white_24dp.svg");
+        } else {
+          selectThisClassDiv.setAttribute("class", "classNoActionDiv");
+          selectThisClass.setAttribute(
+            "src",
+            "./icon/selectThisClassEmpty.svg"
+          );
+        }
         preSelectThisClass.setAttribute(
           "src",
           "./icon/add_shopping_cart_white_24dp.svg"
@@ -403,7 +414,6 @@ async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
         preSelectThisClass.setAttribute("class", "classAction");
         selectThisClassDiv.appendChild(selectThisClass);
         preSelectThisClassDiv.appendChild(preSelectThisClass);
-        selectThisClassDiv.setAttribute("class", "classActionDiv");
         preSelectThisClassDiv.setAttribute("class", "classActionDiv");
         classActionBox.appendChild(selectThisClassDiv);
         classActionBox.appendChild(preSelectThisClassDiv);

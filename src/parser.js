@@ -81,19 +81,6 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
   let word = 0;
   var allClass = [];
   var outText = "";
-  var aClass = {
-    ln: 0,
-    id: "",
-    name: "",
-    DepNo: "",
-    SelClassNo: "",
-    teacher: "",
-    type: "",
-    point: "",
-    student: "",
-    ps: "",
-    time: [],
-  };
   var nowClass;
   const MyClassParser = new htmlparser2.Parser(
     {
@@ -118,7 +105,7 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
 
           if (td == 0) {
             nowClass = {
-              ln: 0,
+              action: 0,
               id: "",
               name: "",
               engName: "",
@@ -133,7 +120,11 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
             };
             nowClass.DepNo = SelDepNo;
             nowClass.ClassNo = SelClassNo;
-            nowClass.ln = tr - 2;
+            if (text === "加") {
+              nowClass.action = 1;
+            } else if (text === "退") {
+              nowClass.action = 2;
+            }
           } else if (td == 1) {
             if (text != " ") nowClass.id += text;
           } else if (td == 2) {
@@ -198,17 +189,6 @@ async function myClassParser(response) {
   let td = 0;
   var allClass = [];
   var outText = "";
-  var aClass = {
-    ln: 0,
-    id: "",
-    name: "",
-    teacher: "",
-    type: "",
-    point: "",
-    student: "",
-    ps: "",
-    time: [],
-  };
   var nowClass;
   const MyClassParser = new htmlparser2.Parser(
     {
@@ -233,7 +213,7 @@ async function myClassParser(response) {
 
           if (td == 0) {
             nowClass = {
-              ln: 0,
+              action: 0,
               id: "",
               name: "",
               teacher: "",

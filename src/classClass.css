@@ -116,6 +116,18 @@
     align-items: center;
 }
 
+.classNoActionDiv {
+    transition: all 0.4s ease;
+    display: flex;
+    width: 30px;
+    height: 30px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+
 .classActionDiv:hover {
     border-radius: 50%;
     background: rgb(129, 129, 129);
