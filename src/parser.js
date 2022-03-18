@@ -22,8 +22,8 @@ module.exports = {
 async function classClassListParser(response) {
   let areaCount = 0;
   let done = false;
-  let lastClass
-  var selected
+  let lastClass;
+  var selected;
   var allClass = [];
   var outText = "";
   var nowClass;
@@ -33,10 +33,10 @@ async function classClassListParser(response) {
         if (areaCount == 2) {
           if (name === "value") {
             allClass.push(value.substring(0, 4));
-            lastClass=value.substring(0, 4)
+            lastClass = value.substring(0, 4);
           }
-          if(name === "selected"){
-            selected=lastClass;
+          if (name === "selected") {
+            selected = lastClass;
           }
         }
       },
@@ -64,7 +64,7 @@ async function classClassListParser(response) {
         MyClassParser.end();
       })
       .then((success) => {
-        allClass.push(selected)
+        allClass.push(selected);
         resolve(allClass);
       })
       .catch((fail) => {
@@ -78,6 +78,7 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
   let done = false;
   let tr = 0;
   let td = 0;
+  let word = 0;
   var allClass = [];
   var outText = "";
   var aClass = {
@@ -120,6 +121,7 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
               ln: 0,
               id: "",
               name: "",
+              engName: "",
               DepNo: "",
               SelClassNo: "",
               teacher: "",
@@ -135,7 +137,8 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
           } else if (td == 1) {
             if (text != " ") nowClass.id += text;
           } else if (td == 2) {
-            if (text != " " && text != "\n") nowClass.name += text;
+            if (word == 0) nowClass.name = text;
+            else if (word == 1) nowClass.engName = text;
           } else if (td == 3) {
             nowClass.teacher += text;
           } else if (td == 4) {
@@ -153,6 +156,7 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
             nowClass.ps = nowClass.ps.replace(/\s+/g, "");
             allClass.push(nowClass);
           }
+          word++;
         }
       },
       onclosetag(tagname) {
@@ -162,6 +166,7 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
         } else if (tagname === "table") {
           inTable = false;
         } else if (tagname === "td") {
+          word = 0;
           td++;
         }
       },
