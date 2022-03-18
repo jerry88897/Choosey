@@ -503,6 +503,7 @@ async function classClassParserTEST(response, SelDepNo, SelClassNo) {
   let done = false;
   let tr = 0;
   let td = 0;
+  let word = 0;
   var allClass = [];
   var outText = "";
   var nowClass;
@@ -522,32 +523,34 @@ async function classClassParserTEST(response, SelDepNo, SelClassNo) {
             }
             tr++;
             td = 0;
+            word = 0;
           }
         },
         ontext(text) {
           if (inTable && tr >= 2) {
             //console.log( "title: " + text );
             outText += text;
-
             if (td == 0) {
-              nowClass = {
-                ln: 0,
-                id: "",
-                name: "",
-                DepNo: "",
-                SelClassNo: "",
-                teacher: "",
-                type: "",
-                point: "",
-                student: "",
-                ps: "",
-                time: [],
-              };
-              nowClass.DepNo = SelDepNo;
-              nowClass.ClassNo = SelClassNo;
+              if (word == 0) {
+                nowClass = {
+                  ln: 0,
+                  id: "",
+                  name: "",
+                  DepNo: "",
+                  SelClassNo: "",
+                  teacher: "",
+                  type: "",
+                  point: "",
+                  student: "",
+                  ps: "",
+                  time: [],
+                };
+                nowClass.DepNo = SelDepNo;
+                nowClass.ClassNo = SelClassNo;
+              }
               if (text === "加") {
                 nowClass.ln = 1;
-              } else {
+              } else if (text === "退") {
                 nowClass.ln = 2;
               }
             } else if (td == 1) {
@@ -563,14 +566,9 @@ async function classClassParserTEST(response, SelDepNo, SelClassNo) {
             } else if (td == 6) {
               nowClass.student += text;
             } else if (td == 7) {
-              nowClass.ps = text;
-              nowClass.name = nowClass.name.replace(/\s+/g, "");
-              nowClass.type = nowClass.type.replace(/\s+/g, "");
-              nowClass.point = nowClass.point.replace(/\s+/g, "");
-              nowClass.student = nowClass.student.replace(/\s+/g, "");
-              nowClass.ps = nowClass.ps.replace(/\s+/g, "");
-              allClass.push(nowClass);
+              nowClass.ps += text;
             }
+            word++;
           }
         },
         onclosetag(tagname) {
@@ -581,6 +579,15 @@ async function classClassParserTEST(response, SelDepNo, SelClassNo) {
           } else if (tagname === "table") {
             inTable = false;
           } else if (tagname === "td") {
+            td++;
+          } else if (tagname === "tr" && tr >= 2) {
+            nowClass.id = nowClass.id.replace(/\s+/g, "");
+            nowClass.name = nowClass.name.replace(/\s+/g, "");
+            nowClass.type = nowClass.type.replace(/\s+/g, "");
+            nowClass.point = nowClass.point.replace(/\s+/g, "");
+            nowClass.student = nowClass.student.replace(/\s+/g, "");
+            nowClass.ps = nowClass.ps.replace(/\s+/g, "");
+            allClass.push(nowClass);
             td++;
           }
         },
