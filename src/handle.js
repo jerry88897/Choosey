@@ -47,6 +47,7 @@ const right_frame = document.getElementById("right_frame");
 const classClass = document.getElementById("classClass");
 const getMyClass = document.getElementById("getMyClass");
 const preSelectClass = document.getElementById("preSelectClass");
+const fastSelectClass = document.getElementById("fastSelectClass");
 const setting = document.getElementById("setting");
 
 let myClassTableType = false;
@@ -96,7 +97,7 @@ async function cleanFrame() {
 async function cleanRightFrame() {
   right_frame.innerHTML = "";
 }
-async function preSelect() {
+async function fastSelect() {
   await cleanFrame();
   let preSelectList = {
     isLock: false,
@@ -769,6 +770,296 @@ async function showPreSelectClass() {
     });
   });
 }
+async function showPreSelectClassAtPreSelectPage() {
+  await cleanRightFrame();
+  let table = document.createElement("table");
+  let tHead = document.createElement("thead");
+  let viewShoppingCartDiv = document.createElement("div");
+  let viewShoppingCartImg = document.createElement("img");
+  let miniTableHead = ["動作", "課程代碼", "課程名稱", "教師", "類別", "學分"];
+  fs.readFile("./src/data/shoppingCart.json", function (err, myClass) {
+    let preSelectThisClassDivArray = [];
+    let exportThisClassDivArray = [];
+    let preSelectlist;
+    if (err) {
+      return console.log(err);
+    }
+    console.log("start");
+    //將二進制數據轉換為字串符
+    let myclass = myClass.toString();
+    //將字符串轉換為 JSON 對象
+    try {
+      myclass = JSON.parse(myclass);
+    } catch (error) {}
+    if (showMyClassType == 0) {
+      //以列表方式顯示
+      table.className = "sctable";
+      for (let key of miniTableHead) {
+        let th = document.createElement("th"); // TABLE HEADER.
+        th.setAttribute("id", "scheader");
+        th.innerHTML = key;
+        tHead.appendChild(th);
+      }
+      table.appendChild(tHead);
+      for (let element of myclass) {
+        tr = table.insertRow(-1);
+        tr.className = "sctr";
+        let td = document.createElement("td");
+        let preSelectThisClass = document.createElement("img");
+        let preSelectThisClassDiv = document.createElement("div");
+        let exportThisClass = document.createElement("img");
+        let exportThisClassDiv = document.createElement("div");
+        let classActionBox = document.createElement("div");
+        preSelectThisClass.setAttribute("src", "./icon/bx-cart-arrow-out.svg");
+        preSelectThisClassDiv.setAttribute("id", "s" + element[tableKey[1]]);
+        preSelectThisClass.setAttribute("class", "classAction");
+        preSelectThisClassDiv.appendChild(preSelectThisClass);
+        preSelectThisClassDiv.setAttribute("class", "classActionDiv");
+        preSelectThisClassDivArray.push(preSelectThisClassDiv);
+        exportThisClass.setAttribute("src", "./icon/bxs-file-export.svg");
+        exportThisClassDiv.setAttribute("id", "e" + element[tableKey[1]]);
+        exportThisClass.setAttribute("class", "classAction");
+        exportThisClassDiv.appendChild(exportThisClass);
+        exportThisClassDiv.setAttribute("class", "classActionDiv");
+        exportThisClassDivArray.push(exportThisClassDiv);
+        classActionBox.appendChild(exportThisClassDiv);
+        classActionBox.appendChild(preSelectThisClassDiv);
+        classActionBox.setAttribute("class", "classActionBox");
+        td.appendChild(classActionBox);
+        td.className = "sctd";
+        tr.appendChild(td);
+        for (let tabletd = 1; tabletd < 4; tabletd++) {
+          let td = document.createElement("td");
+          td.className = "sctd";
+          td.innerHTML = element[tableKey[tabletd]];
+          tr.appendChild(td);
+        }
+        td = document.createElement("td");
+        td.className = "sctd";
+        if (element[tableKey[4]] === "必修") {
+          td.style.color = "yellow";
+        } else {
+          td.style.color = "var(--yes-color)";
+        }
+        td.innerHTML = element[tableKey[4]];
+        tr.appendChild(td);
+        td = document.createElement("td");
+        td.className = "sctd";
+        td.innerHTML = element[tableKey[5]];
+        tr.appendChild(td);
+      }
+    }
+    viewShoppingCartDiv.setAttribute("class", "viewShoppingCart");
+    viewShoppingCartImg.setAttribute("class", "icon");
+    viewShoppingCartImg.setAttribute(
+      "src",
+      "./icon/shopping_cart_white_24dp.svg"
+    );
+    viewShoppingCartDiv.appendChild(viewShoppingCartImg);
+    right_frame.appendChild(table);
+    let placeHolder = document.createElement("div");
+    placeHolder.setAttribute("class", "placeHolder");
+    right_frame.appendChild(placeHolder);
+
+    for (
+      let preSelectButton = 0;
+      preSelectButton < preSelectThisClassDivArray.length;
+      preSelectButton++
+    ) {
+      preSelectThisClassDivArray[preSelectButton].addEventListener(
+        "click",
+        async function () {
+          console.log("remove");
+          ipc.send("removePreSelectClassAndUpdate", myclass[preSelectButton]);
+        }
+      );
+    }
+    right_frame.appendChild(viewShoppingCartDiv);
+    viewShoppingCartDiv.addEventListener("click", async function () {
+      showPreSelectClass();
+    });
+  });
+}
+let showpreSelectClassType = 0;
+async function preSelectClassPage() {
+  await cleanFrame();
+  let table = document.createElement("table");
+  let tHead = document.createElement("thead");
+  let viewTypeDiv = document.createElement("div");
+  let viewTypeImg = document.createElement("img");
+  fs.readFile("./src/data/shoppingCart.json", function (err, myClass) {
+    let preSelectThisClassDivArray = [];
+    if (err) {
+      return console.log(err);
+    }
+    console.log("start");
+    //將二進制數據轉換為字串符
+    let myclass = myClass.toString();
+    //將字符串轉換為 JSON 對象
+    try {
+      myclass = JSON.parse(myclass);
+    } catch (error) {}
+    if (showpreSelectClassType == 0) {
+      //以列表方式顯示
+      table.className = "mtable";
+      for (let key of tableHead) {
+        let th = document.createElement("th"); // TABLE HEADER.
+        th.setAttribute("id", "mheader");
+        th.innerHTML = key;
+        tHead.appendChild(th);
+      }
+      table.appendChild(tHead);
+      for (let element of myclass) {
+        tr = table.insertRow(-1);
+        tr.className = "mtr";
+        let td = document.createElement("td");
+        let selectThisClass = document.createElement("img");
+        let preSelectThisClass = document.createElement("img");
+        let selectThisClassDiv = document.createElement("div");
+        let preSelectThisClassDiv = document.createElement("div");
+        let classActionBox = document.createElement("div");
+        selectThisClassDiv.setAttribute("class", "classActionDiv");
+        if (element[tableKey[0]] == 1) {
+          selectThisClass.setAttribute(
+            "src",
+            "./icon/add_circle_outline_white_24dp.svg"
+          );
+        } else if (element[tableKey[0]] == 2) {
+          selectThisClass.setAttribute("src", "./icon/cancel_white_24dp.svg");
+        } else {
+          selectThisClassDiv.setAttribute("class", "classNoActionDiv");
+          selectThisClass.setAttribute(
+            "src",
+            "./icon/selectThisClassEmpty.svg"
+          );
+        }
+        preSelectThisClass.setAttribute("src", "./icon/getout_white_24dp.svg");
+        preSelectThisClass.setAttribute("id", element[tableKey[1]]);
+        selectThisClass.setAttribute("class", "classAction");
+        preSelectThisClass.setAttribute("class", "classAction");
+        selectThisClassDiv.appendChild(selectThisClass);
+        preSelectThisClassDiv.appendChild(preSelectThisClass);
+        preSelectThisClassDiv.setAttribute("class", "classActionDiv");
+        preSelectThisClassDivArray.push(preSelectThisClassDiv);
+        classActionBox.appendChild(selectThisClassDiv);
+        classActionBox.appendChild(preSelectThisClassDiv);
+        classActionBox.setAttribute("class", "classActionBox");
+        td.appendChild(classActionBox);
+        td.className = "mtd";
+        tr.appendChild(td);
+        for (let tabletd = 1; tabletd < 4; tabletd++) {
+          let td = document.createElement("td");
+          td.className = "mtd";
+          td.innerHTML = element[tableKey[tabletd]];
+          tr.appendChild(td);
+        }
+        td = document.createElement("td");
+        td.className = "mtd";
+        if (element[tableKey[4]] === "必修") {
+          td.style.color = "yellow";
+        } else {
+          td.style.color = "var(--yes-color)";
+        }
+        td.innerHTML = element[tableKey[4]];
+        tr.appendChild(td);
+        td = document.createElement("td");
+        td.className = "mtd";
+        td.innerHTML = element[tableKey[5]];
+        tr.appendChild(td);
+        td = document.createElement("td");
+        td.className = "mtd";
+        if (element[tableKey[7]]) {
+          td.style.color = "var(--no-color)";
+        } else {
+          td.style.color = "var(--yes-color)";
+        }
+        td.innerHTML = element[tableKey[6]];
+        tr.appendChild(td);
+        for (let tabletd = 8; tabletd < tableKey.length; tabletd++) {
+          let td = document.createElement("td");
+          td.className = "mtd";
+          td.innerHTML = element[tableKey[tabletd]];
+          tr.appendChild(td);
+        }
+      }
+    } else {
+      //以課表方式顯示
+      table.className = "mBtable";
+      let trSet = [];
+      for (let key of dateHead) {
+        let th = document.createElement("th"); // TABLE HEADER.
+        th.setAttribute("id", "mheader");
+        th.innerHTML = key;
+        tHead.appendChild(th);
+      }
+      table.appendChild(tHead);
+      for (let i = 0; i < 14; i++) {
+        let tdSet = [];
+        let tr = table.insertRow(-1); // TABLE ROW.
+        for (let j = 0; j < 7; j++) {
+          let td = document.createElement("td");
+          if (j == 0) {
+            td.innerHTML = timeSeg[i];
+          }
+          td.className = "mBtd";
+          tdSet.push(td);
+          tr.appendChild(td);
+        }
+        tr.className = "mBtr";
+        trSet.push(tdSet);
+      }
+      for (let element of myclass) {
+        for (let time of element["time"]) {
+          let day = time.day + 1;
+          let seg = time.seg;
+          trSet[seg][day].innerHTML += element["name"] + "<br>";
+        }
+      }
+    }
+    viewTypeDiv.setAttribute("class", "viewType");
+    viewTypeImg.setAttribute("class", "icon");
+    if (showClassClassType == 0) {
+      viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
+    } else {
+      viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
+    }
+    main_frame.appendChild(table);
+    viewTypeDiv.appendChild(viewTypeImg);
+    main_frame.appendChild(viewTypeDiv);
+    let placeHolder = document.createElement("div");
+    placeHolder.setAttribute("class", "placeHolder");
+    main_frame.appendChild(placeHolder);
+
+    for (
+      let preSelectButton = 0;
+      preSelectButton < preSelectThisClassDivArray.length;
+      preSelectButton++
+    ) {
+      preSelectThisClassDivArray[preSelectButton].addEventListener(
+        "click",
+        async function () {
+          console.log("remove");
+          ipc.send(
+            "preSelectPageRemovePreSelectClass",
+            myclass[preSelectButton]
+          );
+        }
+      );
+    }
+
+    viewTypeDiv.addEventListener("click", async function () {
+      console.log("change");
+      if (showpreSelectClassType == 0) {
+        showpreSelectClassType = 1;
+        viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
+      } else {
+        showpreSelectClassType = 0;
+        viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
+      }
+      preSelectClassPage();
+    });
+  });
+}
 let showMyClassType = 0;
 async function showMyClass() {
   await cleanFrame();
@@ -1095,7 +1386,11 @@ async function showSetting() {
 }
 
 preSelectClass.addEventListener("click", async function () {
-  preSelect();
+  preSelectClassPage();
+  showPreSelectClassAtPreSelectPage();
+});
+fastSelectClass.addEventListener("click", async function () {
+  fastSelect();
 });
 
 window.onload = function () {
@@ -1143,7 +1438,10 @@ ipc.on("updatePreSelectClassAndMain", function (evt) {
   showClassClass(SelDepNo, SelClassNo, backclassList);
   showPreSelectClass();
 });
-
+ipc.on("updatePreSelectPage", function (evt) {
+  console.log("showPreSelectClass");
+  preSelectClassPage();
+});
 ipc.on("readyToShow", function (evt, myClass) {
   console.log("show");
   showMyClass();

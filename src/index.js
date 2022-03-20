@@ -256,6 +256,13 @@ ipc.on("removePreSelectClassAndUpdate", async function (e, removeThisClass) {
   await preSelect.removePreSelectClass(removeThisClass);
   win.webContents.send("updatePreSelectClassAndMain");
 });
+ipc.on(
+  "preSelectPageRemovePreSelectClass",
+  async function (e, removeThisClass) {
+    await preSelect.removePreSelectClass(removeThisClass);
+    win.webContents.send("updatePreSelectPage");
+  }
+);
 
 ipc.on("updatePreSelect", async function (e, data) {
   if (data["engage"] == true) {
