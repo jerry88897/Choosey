@@ -43,6 +43,7 @@ const { resolve } = require("path");
 const menu = document.getElementById("menu");
 const sidebar = document.getElementById("sidebar");
 const main_frame = document.getElementById("main_frame");
+const right_frame = document.getElementById("right_frame");
 const classClass = document.getElementById("classClass");
 const getMyClass = document.getElementById("getMyClass");
 const preSelectClass = document.getElementById("preSelectClass");
@@ -68,6 +69,7 @@ let tableKey = [
   "type",
   "point",
   "student",
+  "overflow",
   "ps",
 ];
 
@@ -392,12 +394,12 @@ async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
         let preSelectThisClassDiv = document.createElement("div");
         let classActionBox = document.createElement("div");
         selectThisClassDiv.setAttribute("class", "classActionDiv");
-        if (element[tableKey[0] == 1]) {
+        if (element[tableKey[0]] == 1) {
           selectThisClass.setAttribute(
             "src",
             "./icon/add_circle_outline_white_24dp.svg"
           );
-        } else if (element[tableKey[0] == 2]) {
+        } else if (element[tableKey[0]] == 2) {
           selectThisClass.setAttribute("src", "./icon/cancel_white_24dp.svg");
         } else {
           selectThisClassDiv.setAttribute("class", "classNoActionDiv");
@@ -421,7 +423,35 @@ async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
         td.appendChild(classActionBox);
         td.className = "mtd";
         tr.appendChild(td);
-        for (let tabletd = 1; tabletd < tableKey.length; tabletd++) {
+        for (let tabletd = 1; tabletd < 4; tabletd++) {
+          let td = document.createElement("td");
+          td.className = "mtd";
+          td.innerHTML = element[tableKey[tabletd]];
+          tr.appendChild(td);
+        }
+        td = document.createElement("td");
+        td.className = "mtd";
+        if (element[tableKey[4]] === "必修") {
+          td.style.color = "yellow";
+        } else {
+          td.style.color = "var(--yes-color)";
+        }
+        td.innerHTML = element[tableKey[4]];
+        tr.appendChild(td);
+        td = document.createElement("td");
+        td.className = "mtd";
+        td.innerHTML = element[tableKey[5]];
+        tr.appendChild(td);
+        td = document.createElement("td");
+        td.className = "mtd";
+        if (element[tableKey[7]]) {
+          td.style.color = "var(--no-color)";
+        } else {
+          td.style.color = "var(--yes-color)";
+        }
+        td.innerHTML = element[tableKey[6]];
+        tr.appendChild(td);
+        for (let tabletd = 8; tabletd < tableKey.length; tabletd++) {
           let td = document.createElement("td");
           td.className = "mtd";
           td.innerHTML = element[tableKey[tabletd]];
@@ -597,11 +627,65 @@ async function showMyClass() {
       for (let element of myclass) {
         tr = table.insertRow(-1);
         tr.className = "mtr";
-        for (let key of tableKey) {
+        let td = document.createElement("td");
+        td.className = "mtd";
+        let selectThisClass = document.createElement("img");
+        let selectThisClassDiv = document.createElement("div");
+        let classActionBox = document.createElement("div");
+        selectThisClassDiv.setAttribute("class", "classActionDiv");
+        if (element[tableKey[0]] == 1) {
+          selectThisClass.setAttribute(
+            "src",
+            "./icon/add_circle_outline_white_24dp.svg"
+          );
+        } else if (element[tableKey[0]] == 2) {
+          selectThisClass.setAttribute("src", "./icon/cancel_white_24dp.svg");
+        } else {
+          selectThisClassDiv.setAttribute("class", "classNoActionDiv");
+          selectThisClass.setAttribute(
+            "src",
+            "./icon/selectThisClassEmpty.svg"
+          );
+        }
+        selectThisClass.setAttribute("class", "classAction");
+        selectThisClassDiv.appendChild(selectThisClass);
+        classActionBox.appendChild(selectThisClassDiv);
+        classActionBox.setAttribute("class", "classActionBox");
+        td.appendChild(classActionBox);
+        td.className = "mtd";
+        tr.appendChild(td);
+        for (let tabletd = 1; tabletd < 4; tabletd++) {
           let td = document.createElement("td");
           td.className = "mtd";
-          td.innerHTML = element[key];
-          console.log(element[key]);
+          td.innerHTML = element[tableKey[tabletd]];
+          tr.appendChild(td);
+        }
+        td = document.createElement("td");
+        td.className = "mtd";
+        if (element[tableKey[4]] === "必修") {
+          td.style.color = "yellow";
+        } else {
+          td.style.color = "var(--yes-color)";
+        }
+        td.innerHTML = element[tableKey[4]];
+        tr.appendChild(td);
+        td = document.createElement("td");
+        td.className = "mtd";
+        td.innerHTML = element[tableKey[5]];
+        tr.appendChild(td);
+        td = document.createElement("td");
+        td.className = "mtd";
+        if (element[tableKey[7]]) {
+          td.style.color = "var(--no-color)";
+        } else {
+          td.style.color = "var(--yes-color)";
+        }
+        td.innerHTML = element[tableKey[6]];
+        tr.appendChild(td);
+        for (let tabletd = 8; tabletd < tableKey.length; tabletd++) {
+          let td = document.createElement("td");
+          td.className = "mtd";
+          td.innerHTML = element[tableKey[tabletd]];
           tr.appendChild(td);
         }
       }

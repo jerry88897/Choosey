@@ -79,6 +79,7 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
   let tr = 0;
   let td = 0;
   let word = 0;
+  let red = false;
   var allClass = [];
   var outText = "";
   var nowClass;
@@ -87,6 +88,8 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
       onattribute(name, value) {
         if (name === "class" && value === "cistab") {
           inTable = true;
+        } else if (name === "color" && value === "Red") {
+          red = true;
         }
       },
       onopentag(name, attribs) {
@@ -115,6 +118,7 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
               type: "",
               point: "",
               student: "",
+              overflow: false,
               ps: "",
               time: [],
             };
@@ -136,8 +140,10 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
             if (text != " " && text != "\n") nowClass.type += text;
           } else if (td == 5) {
             if (text != " " && text != "\n") nowClass.point += text;
+            red = false;
           } else if (td == 6) {
             nowClass.student += text;
+            if (red == true) nowClass.overflow = true;
           } else if (td == 7) {
             nowClass.ps = text;
             nowClass.name = nowClass.name.replace(/\s+/g, "");
@@ -220,10 +226,16 @@ async function myClassParser(response) {
               type: "",
               point: "",
               student: "",
+              overflow: false,
               ps: "",
               time: [],
             };
             nowClass.ln = tr - 2;
+            if (text === "加") {
+              nowClass.action = 1;
+            } else if (text === "退") {
+              nowClass.action = 2;
+            }
           } else if (td == 1) {
             if (text != " ") nowClass.id += text;
           } else if (td == 2) {
@@ -243,6 +255,18 @@ async function myClassParser(response) {
             nowClass.point = nowClass.point.replace(/\s+/g, "");
             nowClass.student = nowClass.student.replace(/\s+/g, "");
             nowClass.ps = nowClass.ps.replace(/\s+/g, "");
+            let inStudent = parseInt(
+              nowClass.student.substring(0, nowClass.student.indexOf("/")),
+              10
+            );
+            let wantStudent = parseInt(
+              nowClass.student.substring(
+                nowClass.student.indexOf("/") + 1,
+                nowClass.student.indexOf("人")
+              ),
+              10
+            );
+            if (inStudent >= wantStudent) nowClass.overflow = true;
             allClass.push(nowClass);
           }
         }

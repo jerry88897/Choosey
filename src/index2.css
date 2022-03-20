@@ -18,11 +18,13 @@
   --button-color: #6b35ff;
   --input-color: #80868B;
   --border-color: #DADCE0;
-  --tableHead-color: #393578;
-  --tableTr-color: #503e8f;
-  --tableTrHover-color: #806dc4;
+  --tableHead-color: #474194;
+  --tableTr-color: #32275a;
+  --tableTrHover-color: #584b86;
   --word-color: #ddd;
   --tableBorder-color: #ddd;
+  --yes-color: #32CD32;
+  --no-color: #FF4500;
 
   --body-font: "NotoSansTC-Light", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --normal-font-size: 1.1rem;
