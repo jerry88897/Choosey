@@ -7,6 +7,7 @@ const getWeb = require("./getWeb");
 const parser = require("./parser");
 const timer = require("./timer");
 const makeJson = require("./makeJson");
+const preSelect = require("./preSelect");
 const iconv = require("iconv-lite");
 const { Console } = require("console");
 const screen = require("electron").screen;
@@ -211,10 +212,10 @@ ipc.on("getClassClass", async function (e, SelDepNo, SelClassNo) {
           .then(async function (success) {
             classClassListparser
               .then(async function (data) {
-                let selected = data[data.length-1];
+                let selected = data[data.length - 1];
                 data.pop();
-                if(typeof selected =='undefined'){
-                  selected=data[0]
+                if (typeof selected == "undefined") {
+                  selected = data[0];
                 }
                 win.webContents.send(
                   "readyToShowClassClass",
@@ -240,6 +241,20 @@ ipc.on("getClassClass", async function (e, SelDepNo, SelClassNo) {
     .catch((fail) => {
       console.log(fail);
     });
+});
+
+ipc.on("addPreSelectClass", async function (e, preSelectThisClass) {
+  await preSelect.addPreSelectClass(preSelectThisClass);
+  win.webContents.send("updatePreSelectClass");
+  console.log("addPreSelectClass");
+});
+ipc.on("removePreSelectClass", async function (e, removeThisClass) {
+  await preSelect.removePreSelectClass(removeThisClass);
+  win.webContents.send("updatePreSelectClass");
+});
+ipc.on("removePreSelectClassAndUpdate", async function (e, removeThisClass) {
+  await preSelect.removePreSelectClass(removeThisClass);
+  win.webContents.send("updatePreSelectClassAndMain");
 });
 
 ipc.on("updatePreSelect", async function (e, data) {

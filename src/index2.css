@@ -405,17 +405,26 @@ input[type=text] {
 }
 
 .right-section {
+  overflow: auto;
   background: #201f25;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-content: center;
   border: 0px;
   height: 100%;
   top: 73px;
   left: calc(78px + 70VW);
-  width: 40vw;
+  width: calc(30vw - 78px);
   transition: all 0.5s ease;
   z-index: 2;
+  justify-content: flex-start;
 }
 
-
+.right-section::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
 
 
 
