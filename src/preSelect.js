@@ -6,6 +6,9 @@ module.exports = {
   removePreSelectClass: function (aClass) {
     return removePreSelectClass(aClass);
   },
+  exportPreSelectClass: function (aClass) {
+    return exportPreSelectClass(aClass);
+  },
 };
 
 async function addPreSelectClass(aClass) {
@@ -97,6 +100,56 @@ async function removePreSelectClass(aClass) {
         }
         fs.writeFile(
           "./src/data/shoppingCart.json",
+          JSON.stringify(shoppingCart),
+          function (err) {
+            if (err) {
+              console.log(err);
+              reject(err);
+            } else {
+              shoppingCart = "";
+              resolve();
+            }
+          }
+        );
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  });
+}
+async function exportPreSelectClass(aClass) {
+  //console.log(myClass)
+  return new Promise((resolve, reject) => {
+    let shoppingCart;
+    let getFile = new Promise((resolve, reject) => {
+      fs.readFile(
+        "./src/data/PreSelectPage.json",
+        function (err, shoppingCartData) {
+          if (err) {
+            console.error(err);
+            fs.writeFile("./src/data/PreSelectPage.json", "[]", function (err) {
+              if (err) {
+                console.log(err);
+                reject(err);
+              } else {
+                shoppingCart = "[]";
+                resolve();
+              }
+            });
+          } else {
+            shoppingCart = shoppingCartData.toString();
+            resolve();
+            console.log("write classFile...");
+          }
+        }
+      );
+    });
+    getFile
+      .then(function () {
+        shoppingCart = JSON.parse(shoppingCart);
+        shoppingCart.push(aClass);
+        fs.writeFile(
+          "./src/data/PreSelectPage.json",
           JSON.stringify(shoppingCart),
           function (err) {
             if (err) {

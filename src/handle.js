@@ -777,22 +777,42 @@ async function showPreSelectClassAtPreSelectPage() {
   let viewShoppingCartDiv = document.createElement("div");
   let viewShoppingCartImg = document.createElement("img");
   let miniTableHead = ["動作", "課程代碼", "課程名稱", "教師", "類別", "學分"];
-  fs.readFile("./src/data/shoppingCart.json", function (err, myClass) {
+  fs.readFile("./src/data/shoppingCart.json", function (err, myClassData) {
     let preSelectThisClassDivArray = [];
     let exportThisClassDivArray = [];
-    let preSelectlist;
+    let exportThisClassArray = [];
+    let myclass;
     if (err) {
-      return console.log(err);
+      console.log(err);
+      myclass = "[]";
+    } else {
+      myclass = myClassData.toString();
     }
     console.log("start");
     //將二進制數據轉換為字串符
-    let myclass = myClass.toString();
-    //將字符串轉換為 JSON 對象
-    try {
-      myclass = JSON.parse(myclass);
-    } catch (error) {}
-    if (showMyClassType == 0) {
-      //以列表方式顯示
+    let preSelectlist;
+    let readPreSelectPage = new Promise(function (resolve, reject) {
+      fs.readFile(
+        "./src/data/PreSelectPage.json",
+        function (err, preSelectlistData) {
+          if (err) {
+            console.error(err);
+            preSelectlist = "[]";
+            preSelectlist = JSON.parse(preSelectlist);
+            resolve();
+          } else {
+            preSelectlist = preSelectlistData.toString();
+            preSelectlist = JSON.parse(preSelectlist);
+            resolve();
+          }
+        }
+      );
+    });
+    readPreSelectPage.then(function () {
+      //將字符串轉換為 JSON 對象
+      try {
+        myclass = JSON.parse(myClassData);
+      } catch (error) {}
       table.className = "sctable";
       for (let key of miniTableHead) {
         let th = document.createElement("th"); // TABLE HEADER.
@@ -821,7 +841,23 @@ async function showPreSelectClassAtPreSelectPage() {
         exportThisClass.setAttribute("class", "classAction");
         exportThisClassDiv.appendChild(exportThisClass);
         exportThisClassDiv.setAttribute("class", "classActionDiv");
-        exportThisClassDivArray.push(exportThisClassDiv);
+        let isIn = false;
+        for (let i = 0; i < preSelectlist.length; i++) {
+          if (preSelectlist[i].id === element.id) {
+            isIn = true;
+            break;
+          }
+        }
+        if (!isIn) {
+          exportThisClassArray.push(element);
+          exportThisClassDivArray.push(exportThisClassDiv);
+        } else {
+          exportThisClass.setAttribute(
+            "src",
+            "./icon/selectThisClassEmpty.svg"
+          );
+          exportThisClassDiv.setAttribute("class", "classNoActionDiv");
+        }
         classActionBox.appendChild(exportThisClassDiv);
         classActionBox.appendChild(preSelectThisClassDiv);
         classActionBox.setAttribute("class", "classActionBox");
@@ -848,35 +884,54 @@ async function showPreSelectClassAtPreSelectPage() {
         td.innerHTML = element[tableKey[5]];
         tr.appendChild(td);
       }
-    }
-    viewShoppingCartDiv.setAttribute("class", "viewShoppingCart");
-    viewShoppingCartImg.setAttribute("class", "icon");
-    viewShoppingCartImg.setAttribute(
-      "src",
-      "./icon/shopping_cart_white_24dp.svg"
-    );
-    viewShoppingCartDiv.appendChild(viewShoppingCartImg);
-    right_frame.appendChild(table);
-    let placeHolder = document.createElement("div");
-    placeHolder.setAttribute("class", "placeHolder");
-    right_frame.appendChild(placeHolder);
-
-    for (
-      let preSelectButton = 0;
-      preSelectButton < preSelectThisClassDivArray.length;
-      preSelectButton++
-    ) {
-      preSelectThisClassDivArray[preSelectButton].addEventListener(
-        "click",
-        async function () {
-          console.log("remove");
-          ipc.send("removePreSelectClassAndUpdate", myclass[preSelectButton]);
-        }
+      viewShoppingCartDiv.setAttribute("class", "viewShoppingCart");
+      viewShoppingCartImg.setAttribute("class", "icon");
+      viewShoppingCartImg.setAttribute(
+        "src",
+        "./icon/shopping_cart_white_24dp.svg"
       );
-    }
-    right_frame.appendChild(viewShoppingCartDiv);
-    viewShoppingCartDiv.addEventListener("click", async function () {
-      showPreSelectClass();
+      viewShoppingCartDiv.appendChild(viewShoppingCartImg);
+      right_frame.appendChild(table);
+      let placeHolder = document.createElement("div");
+      placeHolder.setAttribute("class", "placeHolder");
+      right_frame.appendChild(placeHolder);
+
+      for (
+        let preSelectButton = 0;
+        preSelectButton < preSelectThisClassDivArray.length;
+        preSelectButton++
+      ) {
+        preSelectThisClassDivArray[preSelectButton].addEventListener(
+          "click",
+          async function () {
+            console.log("remove");
+            ipc.send(
+              "preSelectPageRemovePreSelectClass",
+              myclass[preSelectButton]
+            );
+          }
+        );
+      }
+      for (
+        let exportSelectButton = 0;
+        exportSelectButton < exportThisClassDivArray.length;
+        exportSelectButton++
+      ) {
+        exportThisClassDivArray[exportSelectButton].addEventListener(
+          "click",
+          async function () {
+            console.log("export");
+            ipc.send(
+              "exportPreSelectClass",
+              exportThisClassArray[exportSelectButton]
+            );
+          }
+        );
+      }
+      right_frame.appendChild(viewShoppingCartDiv);
+      viewShoppingCartDiv.addEventListener("click", async function () {
+        showPreSelectClass();
+      });
     });
   });
 }
@@ -887,18 +942,24 @@ async function preSelectClassPage() {
   let tHead = document.createElement("thead");
   let viewTypeDiv = document.createElement("div");
   let viewTypeImg = document.createElement("img");
-  fs.readFile("./src/data/shoppingCart.json", function (err, myClass) {
+  fs.readFile("./src/data/PreSelectPage.json", function (err, myClass) {
     let preSelectThisClassDivArray = [];
     if (err) {
-      return console.log(err);
+      console.log(err);
+      myclass = "[]";
+      //將字符串轉換為 JSON 對象
+      try {
+        myclass = JSON.parse(myclass);
+      } catch (error) {}
+    } else {
+      myclass = myClass.toString();
+      //將字符串轉換為 JSON 對象
+      try {
+        myclass = JSON.parse(myclass);
+      } catch (error) {}
     }
     console.log("start");
-    //將二進制數據轉換為字串符
-    let myclass = myClass.toString();
-    //將字符串轉換為 JSON 對象
-    try {
-      myclass = JSON.parse(myclass);
-    } catch (error) {}
+
     if (showpreSelectClassType == 0) {
       //以列表方式顯示
       table.className = "mtable";
@@ -1039,10 +1100,7 @@ async function preSelectClassPage() {
         "click",
         async function () {
           console.log("remove");
-          ipc.send(
-            "preSelectPageRemovePreSelectClass",
-            myclass[preSelectButton]
-          );
+          ipc.send("preSelectPageRemoveClass", myclass[preSelectButton]);
         }
       );
     }
@@ -1438,9 +1496,14 @@ ipc.on("updatePreSelectClassAndMain", function (evt) {
   showClassClass(SelDepNo, SelClassNo, backclassList);
   showPreSelectClass();
 });
+ipc.on("updatePreSelectClassInPreSelectPage", function (evt) {
+  console.log("showPreSelectClass");
+  showPreSelectClassAtPreSelectPage();
+});
 ipc.on("updatePreSelectPage", function (evt) {
   console.log("showPreSelectClass");
   preSelectClassPage();
+  showPreSelectClassAtPreSelectPage();
 });
 ipc.on("readyToShow", function (evt, myClass) {
   console.log("show");

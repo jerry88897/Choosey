@@ -8,6 +8,7 @@ const parser = require("./parser");
 const timer = require("./timer");
 const makeJson = require("./makeJson");
 const preSelect = require("./preSelect");
+const preSelectPage = require("./preSelectPage");
 const iconv = require("iconv-lite");
 const { Console } = require("console");
 const screen = require("electron").screen;
@@ -260,9 +261,17 @@ ipc.on(
   "preSelectPageRemovePreSelectClass",
   async function (e, removeThisClass) {
     await preSelect.removePreSelectClass(removeThisClass);
-    win.webContents.send("updatePreSelectPage");
+    win.webContents.send("updatePreSelectClassInPreSelectPage");
   }
 );
+ipc.on("preSelectPageRemoveClass", async function (e, removeThisClass) {
+  await preSelectPage.removePreSelectClass(removeThisClass);
+  win.webContents.send("updatePreSelectPage");
+});
+ipc.on("exportPreSelectClass", async function (e, exportThisClass) {
+  await preSelect.exportPreSelectClass(exportThisClass);
+  win.webContents.send("updatePreSelectPage");
+});
 
 ipc.on("updatePreSelect", async function (e, data) {
   if (data["engage"] == true) {
