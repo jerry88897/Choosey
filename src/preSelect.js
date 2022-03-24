@@ -147,6 +147,7 @@ async function exportPreSelectClass(aClass) {
     getFile
       .then(function () {
         shoppingCart = JSON.parse(shoppingCart);
+        aClass["isLock"] = false;
         shoppingCart.push(aClass);
         fs.writeFile(
           "./src/data/PreSelectPage.json",

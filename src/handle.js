@@ -974,12 +974,15 @@ async function preSelectClassPage() {
         tr = table.insertRow(-1);
         tr.className = "mtr";
         let td = document.createElement("td");
+        let lockThisClass = document.createElement("img");
+        let lockThisClassDiv = document.createElement("div");
         let selectThisClass = document.createElement("img");
-        let preSelectThisClass = document.createElement("img");
         let selectThisClassDiv = document.createElement("div");
+        let preSelectThisClass = document.createElement("img");
         let preSelectThisClassDiv = document.createElement("div");
         let classActionBox = document.createElement("div");
         selectThisClassDiv.setAttribute("class", "classActionDiv");
+        lockThisClassDiv.setAttribute("class", "classActionDiv");
         if (element[tableKey[0]] == 1) {
           selectThisClass.setAttribute(
             "src",
@@ -994,6 +997,13 @@ async function preSelectClassPage() {
             "./icon/selectThisClassEmpty.svg"
           );
         }
+        if (element["isLock"] == true) {
+          lockThisClass.setAttribute("src", "./icon/bxs-lock.svg");
+        } else {
+          lockThisClass.setAttribute("src", "./icon/bxs-lock-open.svg");
+        }
+        lockThisClass.setAttribute("class", "classAction");
+        lockThisClassDiv.appendChild(lockThisClass);
         preSelectThisClass.setAttribute("src", "./icon/getout_white_24dp.svg");
         preSelectThisClass.setAttribute("id", element[tableKey[1]]);
         selectThisClass.setAttribute("class", "classAction");
@@ -1003,8 +1013,9 @@ async function preSelectClassPage() {
         preSelectThisClassDiv.setAttribute("class", "classActionDiv");
         preSelectThisClassDivArray.push(preSelectThisClassDiv);
         classActionBox.appendChild(selectThisClassDiv);
+        classActionBox.appendChild(lockThisClassDiv);
         classActionBox.appendChild(preSelectThisClassDiv);
-        classActionBox.setAttribute("class", "classActionBox");
+        classActionBox.setAttribute("class", "classActionBoxInPSCP");
         td.appendChild(classActionBox);
         td.className = "mtd";
         tr.appendChild(td);
