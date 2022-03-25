@@ -945,6 +945,8 @@ async function preSelectClassPage() {
   let tHead = document.createElement("thead");
   let viewTypeDiv = document.createElement("div");
   let viewTypeImg = document.createElement("img");
+  let saveDiv = document.createElement("div");
+  let saveImg = document.createElement("img");
   fs.readFile("./src/data/PreSelectPage.json", function (err, myClass) {
     let preSelectThisClassDivArray = [];
     let trArray = [];
@@ -1025,7 +1027,12 @@ async function preSelectClassPage() {
         td.appendChild(classActionBox);
         td.className = "mtd";
         tr.appendChild(td);
-        for (let tabletd = 1; tabletd < 4; tabletd++) {
+
+        td = document.createElement("td");
+        td.className = "mtd candidate";
+        td.innerHTML = element[tableKey[1]];
+        tr.appendChild(td);
+        for (let tabletd = 2; tabletd < 4; tabletd++) {
           let td = document.createElement("td");
           td.className = "mtd";
           td.innerHTML = element[tableKey[tabletd]];
@@ -1101,6 +1108,11 @@ async function preSelectClassPage() {
     } else {
       viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
     }
+    saveDiv.setAttribute("class", "save");
+    saveImg.setAttribute("class", "icon");
+    saveImg.setAttribute("src", "./icon/bx-save-check.svg");
+    saveDiv.appendChild(saveImg);
+    main_frame.appendChild(saveDiv);
     main_frame.appendChild(table);
     viewTypeDiv.appendChild(viewTypeImg);
     main_frame.appendChild(viewTypeDiv);
@@ -1114,6 +1126,7 @@ async function preSelectClassPage() {
       });
       trArray[trCount].addEventListener("dragenter", function dragover(e) {
         console.log("ondragenter");
+        saveImg.setAttribute("src", "./icon/bx-save.svg");
         let children = Array.from(e.target.parentNode.parentNode.children);
         if (children.indexOf(e.target.parentNode) > children.indexOf(shadow)) {
           e.target.parentNode.after(shadow);
@@ -1135,7 +1148,6 @@ async function preSelectClassPage() {
         }
       );
     }
-
     viewTypeDiv.addEventListener("click", async function () {
       console.log("change");
       if (showpreSelectClassType == 0) {
@@ -1146,6 +1158,36 @@ async function preSelectClassPage() {
         viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
       }
       preSelectClassPage();
+    });
+    saveDiv.addEventListener("click", async function () {
+      console.log("save");
+      let classList = document.getElementsByClassName("candidate");
+      let newSave = [];
+      for (let i = 0; i < classList.length; i++) {
+        for (let element of myclass) {
+          if (element.id === classList[i].innerHTML) {
+            newSave.push(element);
+            break;
+          }
+        }
+      }
+      let saved = new Promise((resolve, reject) => {
+        fs.writeFile(
+          "./src/data/PreSelectPage.json",
+          JSON.stringify(newSave),
+          function (err) {
+            if (err) {
+              console.error(err);
+            } else {
+              resolve();
+              console.log("write saveFile...");
+            }
+          }
+        );
+      });
+      saved.then(function (result) {
+        saveImg.setAttribute("src", "./icon/bx-save-check.svg");
+      });
     });
   });
 }
