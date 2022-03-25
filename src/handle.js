@@ -935,6 +935,9 @@ async function showPreSelectClassAtPreSelectPage() {
     });
   });
 }
+
+let shadow;
+
 let showpreSelectClassType = 0;
 async function preSelectClassPage() {
   await cleanFrame();
@@ -944,6 +947,7 @@ async function preSelectClassPage() {
   let viewTypeImg = document.createElement("img");
   fs.readFile("./src/data/PreSelectPage.json", function (err, myClass) {
     let preSelectThisClassDivArray = [];
+    let trArray = [];
     if (err) {
       console.log(err);
       myclass = "[]";
@@ -973,6 +977,8 @@ async function preSelectClassPage() {
       for (let element of myclass) {
         tr = table.insertRow(-1);
         tr.className = "mtr";
+        tr.setAttribute("draggable", "true");
+        trArray.push(tr);
         let td = document.createElement("td");
         let lockThisClass = document.createElement("img");
         let lockThisClassDiv = document.createElement("div");
@@ -1101,7 +1107,21 @@ async function preSelectClassPage() {
     let placeHolder = document.createElement("div");
     placeHolder.setAttribute("class", "placeHolder");
     main_frame.appendChild(placeHolder);
-
+    for (let trCount = 0; trCount < trArray.length; trCount++) {
+      trArray[trCount].addEventListener("dragstart", function dragit(event) {
+        console.log("ondragstart");
+        shadow = event.target;
+      });
+      trArray[trCount].addEventListener("dragenter", function dragover(e) {
+        console.log("ondragenter");
+        let children = Array.from(e.target.parentNode.parentNode.children);
+        if (children.indexOf(e.target.parentNode) > children.indexOf(shadow)) {
+          e.target.parentNode.after(shadow);
+        } else {
+          e.target.parentNode.before(shadow);
+        }
+      });
+    }
     for (
       let preSelectButton = 0;
       preSelectButton < preSelectThisClassDivArray.length;
