@@ -331,6 +331,7 @@ async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
   SelDepNo = SelectedDepNo;
   SelClassNo = SelectedClassNo;
   backclassList = classList;
+  let actionDiv = document.createElement("div");
   let table = document.createElement("table");
   let tHead = document.createElement("thead");
   let viewTypeDiv = document.createElement("div");
@@ -371,6 +372,7 @@ async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
     ["H", "H工學"],
   ]);
 
+  actionDiv.setAttribute("class", "actionDiv");
   fs.readFile("./src/data/ClassClass.json", function (err, myClass) {
     let preSelectThisClassDivArray = [];
     let preSelectlist;
@@ -549,10 +551,11 @@ async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
       viewTypeDiv.appendChild(viewTypeImg);
 
       toolBar.setAttribute("class", "classClassToolBar"); //建立上方選科系班級區域
-      toolBar.appendChild(viewTypeDiv);
+      actionDiv.appendChild(viewTypeDiv);
       main_frame.appendChild(table);
       let placeHolder = document.createElement("div");
       placeHolder.setAttribute("class", "placeHolder");
+      main_frame.appendChild(actionDiv);
       main_frame.appendChild(placeHolder);
 
       for (
@@ -679,7 +682,6 @@ async function showPreSelectClass() {
   let miniTableHead = ["動作", "課程代碼", "課程名稱", "教師", "類別", "學分"];
   fs.readFile("./src/data/shoppingCart.json", function (err, myClass) {
     let preSelectThisClassDivArray = [];
-    let preSelectlist;
     if (err) {
       return console.log(err);
     }
@@ -939,14 +941,20 @@ async function showPreSelectClassAtPreSelectPage() {
 let shadow;
 
 let showpreSelectClassType = 0;
+let preSelectClassPageReady = false;
 async function preSelectClassPage() {
   await cleanFrame();
+  let areaSetting;
   let table = document.createElement("table");
   let tHead = document.createElement("thead");
+  let actionDiv = document.createElement("div");
   let viewTypeDiv = document.createElement("div");
   let viewTypeImg = document.createElement("img");
   let saveDiv = document.createElement("div");
   let saveImg = document.createElement("img");
+  let readyDiv = document.createElement("div");
+  let readyImg = document.createElement("img");
+  actionDiv.setAttribute("class", "actionDiv");
   fs.readFile("./src/data/PreSelectPage.json", function (err, myClass) {
     let preSelectThisClassDivArray = [];
     let trArray = [];
@@ -964,229 +972,304 @@ async function preSelectClassPage() {
         myclass = JSON.parse(myclass);
       } catch (error) {}
     }
-    console.log("start");
-
-    if (showpreSelectClassType == 0) {
-      //以列表方式顯示
-      table.className = "mtable";
-      for (let key of tableHead) {
-        let th = document.createElement("th"); // TABLE HEADER.
-        th.setAttribute("id", "mheader");
-        th.innerHTML = key;
-        tHead.appendChild(th);
-      }
-      table.appendChild(tHead);
-      for (let element of myclass) {
-        tr = table.insertRow(-1);
-        tr.className = "mtr";
-        tr.setAttribute("draggable", "true");
-        trArray.push(tr);
-        let td = document.createElement("td");
-        let lockThisClass = document.createElement("img");
-        let lockThisClassDiv = document.createElement("div");
-        let selectThisClass = document.createElement("img");
-        let selectThisClassDiv = document.createElement("div");
-        let preSelectThisClass = document.createElement("img");
-        let preSelectThisClassDiv = document.createElement("div");
-        let classActionBox = document.createElement("div");
-        selectThisClassDiv.setAttribute("class", "classActionDiv");
-        lockThisClassDiv.setAttribute("class", "classActionDiv");
-        if (element[tableKey[0]] == 1) {
-          selectThisClass.setAttribute(
-            "src",
-            "./icon/add_circle_outline_white_24dp.svg"
-          );
-        } else if (element[tableKey[0]] == 2) {
-          selectThisClass.setAttribute("src", "./icon/cancel_white_24dp.svg");
-        } else {
-          selectThisClassDiv.setAttribute("class", "classNoActionDiv");
-          selectThisClass.setAttribute(
-            "src",
-            "./icon/selectThisClassEmpty.svg"
-          );
-        }
-        if (element["isLock"] == true) {
-          lockThisClass.setAttribute("src", "./icon/bxs-lock.svg");
-        } else {
-          lockThisClass.setAttribute("src", "./icon/bxs-lock-open.svg");
-        }
-        lockThisClass.setAttribute("class", "classAction");
-        lockThisClassDiv.appendChild(lockThisClass);
-        preSelectThisClass.setAttribute("src", "./icon/getout_white_24dp.svg");
-        preSelectThisClass.setAttribute("id", element[tableKey[1]]);
-        selectThisClass.setAttribute("class", "classAction");
-        preSelectThisClass.setAttribute("class", "classAction");
-        selectThisClassDiv.appendChild(selectThisClass);
-        preSelectThisClassDiv.appendChild(preSelectThisClass);
-        preSelectThisClassDiv.setAttribute("class", "classActionDiv");
-        preSelectThisClassDivArray.push(preSelectThisClassDiv);
-        classActionBox.appendChild(selectThisClassDiv);
-        classActionBox.appendChild(lockThisClassDiv);
-        classActionBox.appendChild(preSelectThisClassDiv);
-        classActionBox.setAttribute("class", "classActionBoxInPSCP");
-        td.appendChild(classActionBox);
-        td.className = "mtd";
-        tr.appendChild(td);
-
-        td = document.createElement("td");
-        td.className = "mtd candidate";
-        td.innerHTML = element[tableKey[1]];
-        tr.appendChild(td);
-        for (let tabletd = 2; tabletd < 4; tabletd++) {
-          let td = document.createElement("td");
-          td.className = "mtd";
-          td.innerHTML = element[tableKey[tabletd]];
-          tr.appendChild(td);
-        }
-        td = document.createElement("td");
-        td.className = "mtd";
-        if (element[tableKey[4]] === "必修") {
-          td.style.color = "yellow";
-        } else {
-          td.style.color = "var(--yes-color)";
-        }
-        td.innerHTML = element[tableKey[4]];
-        tr.appendChild(td);
-        td = document.createElement("td");
-        td.className = "mtd";
-        td.innerHTML = element[tableKey[5]];
-        tr.appendChild(td);
-        td = document.createElement("td");
-        td.className = "mtd";
-        if (element[tableKey[7]]) {
-          td.style.color = "var(--no-color)";
-        } else {
-          td.style.color = "var(--yes-color)";
-        }
-        td.innerHTML = element[tableKey[6]];
-        tr.appendChild(td);
-        for (let tabletd = 8; tabletd < tableKey.length; tabletd++) {
-          let td = document.createElement("td");
-          td.className = "mtd";
-          td.innerHTML = element[tableKey[tabletd]];
-          tr.appendChild(td);
-        }
-      }
-    } else {
-      //以課表方式顯示
-      table.className = "mBtable";
-      let trSet = [];
-      for (let key of dateHead) {
-        let th = document.createElement("th"); // TABLE HEADER.
-        th.setAttribute("id", "mheader");
-        th.innerHTML = key;
-        tHead.appendChild(th);
-      }
-      table.appendChild(tHead);
-      for (let i = 0; i < 14; i++) {
-        let tdSet = [];
-        let tr = table.insertRow(-1); // TABLE ROW.
-        for (let j = 0; j < 7; j++) {
-          let td = document.createElement("td");
-          if (j == 0) {
-            td.innerHTML = timeSeg[i];
+    let areaSetting = new Promise(function (resolve, reject) {
+      fs.readFile(
+        "./src/data/PreSelectPageSetting.json",
+        function (err, setting) {
+          if (err) {
+            console.log(err);
+            setting = '{"isSet":false}';
+            //將字符串轉換為 JSON 對象
+            try {
+              areaSetting = JSON.parse(setting);
+              resolve();
+            } catch (error) {}
+          } else {
+            setting = setting.toString();
+            //將字符串轉換為 JSON 對象
+            try {
+              areaSetting = JSON.parse(setting);
+              if (areaSetting["isSet"]) preSelectClassPageReady = true;
+              resolve();
+            } catch (error) {}
           }
-          td.className = "mBtd";
-          tdSet.push(td);
-          tr.appendChild(td);
-        }
-        tr.className = "mBtr";
-        trSet.push(tdSet);
-      }
-      for (let element of myclass) {
-        for (let time of element["time"]) {
-          let day = time.day + 1;
-          let seg = time.seg;
-          trSet[seg][day].innerHTML += element["name"] + "<br>";
-        }
-      }
-    }
-    viewTypeDiv.setAttribute("class", "viewType");
-    viewTypeImg.setAttribute("class", "icon");
-    if (showClassClassType == 0) {
-      viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
-    } else {
-      viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
-    }
-    saveDiv.setAttribute("class", "save");
-    saveImg.setAttribute("class", "icon");
-    saveImg.setAttribute("src", "./icon/bx-save-check.svg");
-    saveDiv.appendChild(saveImg);
-    main_frame.appendChild(saveDiv);
-    main_frame.appendChild(table);
-    viewTypeDiv.appendChild(viewTypeImg);
-    main_frame.appendChild(viewTypeDiv);
-    let placeHolder = document.createElement("div");
-    placeHolder.setAttribute("class", "placeHolder");
-    main_frame.appendChild(placeHolder);
-    for (let trCount = 0; trCount < trArray.length; trCount++) {
-      trArray[trCount].addEventListener("dragstart", function dragit(event) {
-        console.log("ondragstart");
-        shadow = event.target;
-      });
-      trArray[trCount].addEventListener("dragenter", function dragover(e) {
-        console.log("ondragenter");
-        saveImg.setAttribute("src", "./icon/bx-save.svg");
-        let children = Array.from(e.target.parentNode.parentNode.children);
-        if (children.indexOf(e.target.parentNode) > children.indexOf(shadow)) {
-          e.target.parentNode.after(shadow);
-        } else {
-          e.target.parentNode.before(shadow);
-        }
-      });
-    }
-    for (
-      let preSelectButton = 0;
-      preSelectButton < preSelectThisClassDivArray.length;
-      preSelectButton++
-    ) {
-      preSelectThisClassDivArray[preSelectButton].addEventListener(
-        "click",
-        async function () {
-          console.log("remove");
-          ipc.send("preSelectPageRemoveClass", myclass[preSelectButton]);
         }
       );
-    }
-    viewTypeDiv.addEventListener("click", async function () {
-      console.log("change");
-      if (showpreSelectClassType == 0) {
-        showpreSelectClassType = 1;
-        viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
-      } else {
-        showpreSelectClassType = 0;
-        viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
-      }
-      preSelectClassPage();
     });
-    saveDiv.addEventListener("click", async function () {
-      console.log("save");
-      let classList = document.getElementsByClassName("candidate");
-      let newSave = [];
-      for (let i = 0; i < classList.length; i++) {
+    areaSetting.then(function () {
+      console.log("start");
+
+      if (showpreSelectClassType == 0) {
+        //以列表方式顯示
+        table.className = "mtable";
+        for (let key of tableHead) {
+          let th = document.createElement("th"); // TABLE HEADER.
+          th.setAttribute("id", "mheader");
+          th.innerHTML = key;
+          tHead.appendChild(th);
+        }
+        table.appendChild(tHead);
         for (let element of myclass) {
-          if (element.id === classList[i].innerHTML) {
-            newSave.push(element);
-            break;
+          tr = table.insertRow(-1);
+          tr.className = "mtr";
+          tr.setAttribute("draggable", "true");
+          trArray.push(tr);
+          let td = document.createElement("td");
+          let lockThisClass = document.createElement("img");
+          let lockThisClassDiv = document.createElement("div");
+          let selectThisClass = document.createElement("img");
+          let selectThisClassDiv = document.createElement("div");
+          let preSelectThisClass = document.createElement("img");
+          let preSelectThisClassDiv = document.createElement("div");
+          let classActionBox = document.createElement("div");
+          selectThisClassDiv.setAttribute("class", "classActionDiv");
+          lockThisClassDiv.setAttribute("class", "classActionDiv");
+          if (element[tableKey[0]] == 1) {
+            selectThisClass.setAttribute(
+              "src",
+              "./icon/add_circle_outline_white_24dp.svg"
+            );
+          } else if (element[tableKey[0]] == 2) {
+            selectThisClass.setAttribute("src", "./icon/cancel_white_24dp.svg");
+          } else {
+            selectThisClassDiv.setAttribute("class", "classNoActionDiv");
+            selectThisClass.setAttribute(
+              "src",
+              "./icon/selectThisClassEmpty.svg"
+            );
+          }
+          if (element["isLock"] == true) {
+            lockThisClass.setAttribute("src", "./icon/bxs-lock.svg");
+          } else {
+            lockThisClass.setAttribute("src", "./icon/bxs-lock-open.svg");
+          }
+          lockThisClass.setAttribute("class", "classAction");
+          lockThisClassDiv.appendChild(lockThisClass);
+          preSelectThisClass.setAttribute(
+            "src",
+            "./icon/getout_white_24dp.svg"
+          );
+          preSelectThisClass.setAttribute("id", element[tableKey[1]]);
+          selectThisClass.setAttribute("class", "classAction");
+          preSelectThisClass.setAttribute("class", "classAction");
+          selectThisClassDiv.appendChild(selectThisClass);
+          preSelectThisClassDiv.appendChild(preSelectThisClass);
+          preSelectThisClassDiv.setAttribute("class", "classActionDiv");
+          preSelectThisClassDivArray.push(preSelectThisClassDiv);
+          classActionBox.appendChild(selectThisClassDiv);
+          classActionBox.appendChild(lockThisClassDiv);
+          classActionBox.appendChild(preSelectThisClassDiv);
+          classActionBox.setAttribute("class", "classActionBoxInPSCP");
+          td.appendChild(classActionBox);
+          td.className = "mtd";
+          tr.appendChild(td);
+
+          td = document.createElement("td");
+          td.className = "mtd candidate";
+          td.innerHTML = element[tableKey[1]];
+          tr.appendChild(td);
+          for (let tabletd = 2; tabletd < 4; tabletd++) {
+            let td = document.createElement("td");
+            td.className = "mtd";
+            td.innerHTML = element[tableKey[tabletd]];
+            tr.appendChild(td);
+          }
+          td = document.createElement("td");
+          td.className = "mtd";
+          if (element[tableKey[4]] === "必修") {
+            td.style.color = "yellow";
+          } else {
+            td.style.color = "var(--yes-color)";
+          }
+          td.innerHTML = element[tableKey[4]];
+          tr.appendChild(td);
+          td = document.createElement("td");
+          td.className = "mtd";
+          td.innerHTML = element[tableKey[5]];
+          tr.appendChild(td);
+          td = document.createElement("td");
+          td.className = "mtd";
+          if (element[tableKey[7]]) {
+            td.style.color = "var(--no-color)";
+          } else {
+            td.style.color = "var(--yes-color)";
+          }
+          td.innerHTML = element[tableKey[6]];
+          tr.appendChild(td);
+          for (let tabletd = 8; tabletd < tableKey.length; tabletd++) {
+            let td = document.createElement("td");
+            td.className = "mtd";
+            td.innerHTML = element[tableKey[tabletd]];
+            tr.appendChild(td);
+          }
+        }
+      } else {
+        //以課表方式顯示
+        table.className = "mBtable";
+        let trSet = [];
+        for (let key of dateHead) {
+          let th = document.createElement("th"); // TABLE HEADER.
+          th.setAttribute("id", "mheader");
+          th.innerHTML = key;
+          tHead.appendChild(th);
+        }
+        table.appendChild(tHead);
+        for (let i = 0; i < 14; i++) {
+          let tdSet = [];
+          let tr = table.insertRow(-1); // TABLE ROW.
+          for (let j = 0; j < 7; j++) {
+            let td = document.createElement("td");
+            if (j == 0) {
+              td.innerHTML = timeSeg[i];
+            }
+            td.className = "mBtd";
+            tdSet.push(td);
+            tr.appendChild(td);
+          }
+          tr.className = "mBtr";
+          trSet.push(tdSet);
+        }
+        for (let element of myclass) {
+          for (let time of element["time"]) {
+            let day = time.day + 1;
+            let seg = time.seg;
+            trSet[seg][day].innerHTML += element["name"] + "<br>";
           }
         }
       }
-      let saved = new Promise((resolve, reject) => {
-        fs.writeFile(
-          "./src/data/PreSelectPage.json",
-          JSON.stringify(newSave),
-          function (err) {
-            if (err) {
-              console.error(err);
-            } else {
-              resolve();
-              console.log("write saveFile...");
-            }
+      viewTypeDiv.setAttribute("class", "viewType");
+      viewTypeImg.setAttribute("class", "icon");
+      if (showClassClassType == 0) {
+        viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
+      } else {
+        viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
+      }
+      saveDiv.setAttribute("class", "save");
+      saveImg.setAttribute("class", "icon");
+      saveImg.setAttribute("src", "./icon/bx-save-check.svg");
+      saveDiv.appendChild(saveImg);
+      readyDiv.setAttribute("class", "ready");
+      readyImg.setAttribute("class", "icon");
+      readyImg.setAttribute("src", "./icon/playlist_remove_24dp.svg");
+      if (preSelectClassPageReady) {
+        readyImg.setAttribute("src", "./icon/playlist_add_check_24dp.svg");
+      } else {
+        readyImg.setAttribute("src", "./icon/playlist_remove_24dp.svg");
+      }
+      viewTypeDiv.appendChild(viewTypeImg);
+      actionDiv.appendChild(viewTypeDiv);
+      saveDiv.appendChild(saveImg);
+      actionDiv.appendChild(saveDiv);
+      readyDiv.appendChild(readyImg);
+      actionDiv.appendChild(readyDiv);
+      main_frame.appendChild(table);
+      main_frame.appendChild(actionDiv);
+      let placeHolder = document.createElement("div");
+      placeHolder.setAttribute("class", "placeHolder");
+      main_frame.appendChild(placeHolder);
+      for (let trCount = 0; trCount < trArray.length; trCount++) {
+        trArray[trCount].addEventListener("dragstart", function dragit(event) {
+          console.log("ondragstart");
+          shadow = event.target;
+        });
+        trArray[trCount].addEventListener("dragenter", function dragover(e) {
+          console.log("ondragenter");
+          saveImg.setAttribute("src", "./icon/bx-save.svg");
+          let children = Array.from(e.target.parentNode.parentNode.children);
+          if (
+            children.indexOf(e.target.parentNode) > children.indexOf(shadow)
+          ) {
+            e.target.parentNode.after(shadow);
+          } else {
+            e.target.parentNode.before(shadow);
+          }
+        });
+      }
+      for (
+        let preSelectButton = 0;
+        preSelectButton < preSelectThisClassDivArray.length;
+        preSelectButton++
+      ) {
+        preSelectThisClassDivArray[preSelectButton].addEventListener(
+          "click",
+          async function () {
+            console.log("remove");
+            ipc.send("preSelectPageRemoveClass", myclass[preSelectButton]);
           }
         );
+      }
+      viewTypeDiv.addEventListener("click", async function () {
+        console.log("change");
+        if (showpreSelectClassType == 0) {
+          showpreSelectClassType = 1;
+          viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
+        } else {
+          showpreSelectClassType = 0;
+          viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
+        }
+        preSelectClassPage();
       });
-      saved.then(function (result) {
-        saveImg.setAttribute("src", "./icon/bx-save-check.svg");
+      readyDiv.addEventListener("click", async function () {
+        if (preSelectClassPageReady) {
+          console.log("notReady");
+          preSelectClassPageReady = false;
+          areaSetting["isSet"] = false;
+          readyImg.setAttribute("src", "./icon/playlist_remove_24dp.svg");
+          ipc.send("preSelectPageState", 0);
+        } else {
+          console.log("ready");
+          preSelectClassPageReady = true;
+          areaSetting["isSet"] = true;
+          readyImg.setAttribute("src", "./icon/playlist_add_check_24dp.svg");
+          ipc.send("preSelectPageState", 1);
+        }
+        let saved = new Promise((resolve, reject) => {
+          fs.writeFile(
+            "./src/data/PreSelectPageSetting.json",
+            JSON.stringify(areaSetting),
+            function (err) {
+              if (err) {
+                console.error(err);
+              } else {
+                resolve();
+                console.log("write saveFile...");
+              }
+            }
+          );
+        });
+        saved.then(function (result) {
+          saveImg.setAttribute("src", "./icon/bx-save-check.svg");
+        });
+      });
+      saveDiv.addEventListener("click", async function () {
+        console.log("save");
+        let classList = document.getElementsByClassName("candidate");
+        let newSave = [];
+        for (let i = 0; i < classList.length; i++) {
+          for (let element of myclass) {
+            if (element.id === classList[i].innerHTML) {
+              newSave.push(element);
+              break;
+            }
+          }
+        }
+        let saved = new Promise((resolve, reject) => {
+          fs.writeFile(
+            "./src/data/PreSelectPage.json",
+            JSON.stringify(newSave),
+            function (err) {
+              if (err) {
+                console.error(err);
+              } else {
+                resolve();
+                console.log("write saveFile...");
+              }
+            }
+          );
+        });
+        saved.then(function (result) {
+          saveImg.setAttribute("src", "./icon/bx-save-check.svg");
+        });
       });
     });
   });

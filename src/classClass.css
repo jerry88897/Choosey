@@ -216,6 +216,13 @@
     height: 40px;
     border-radius: 50%;
     transition: all 200ms ease;
+    margin-bottom: 5px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
 }
 
 .viewShoppingCart:hover {

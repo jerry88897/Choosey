@@ -123,7 +123,7 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
               time: [],
             };
             nowClass.DepNo = SelDepNo;
-            nowClass.ClassNo = SelClassNo;
+            nowClass.SelClassNo = SelClassNo;
             if (text === "加") {
               nowClass.action = 1;
             } else if (text === "退") {
@@ -150,6 +150,7 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
             nowClass.type = nowClass.type.replace(/\s+/g, "");
             nowClass.point = nowClass.point.replace(/\s+/g, "");
             nowClass.student = nowClass.student.replace(/\s+/g, "");
+            nowClass.teacher = nowClass.student.replace(/\s+/g, "");
             nowClass.ps = nowClass.ps.replace(/\s+/g, "");
             allClass.push(nowClass);
           }

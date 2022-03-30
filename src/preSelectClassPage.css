@@ -8,15 +8,51 @@
 }
 
 .save {
-    position: fixed;
-    left: calc(80px + 70vw - ((70vw - 60vw) / 4) - 20px);
-    top: 140px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
     width: 40px;
     height: 40px;
     border-radius: 50%;
     transition: all 200ms ease;
+    margin-bottom: 5px;
 }
 
 .save:hover {
     background: rgb(129, 129, 129);
+}
+
+.ready {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: all 200ms ease;
+    margin-bottom: 5px;
+}
+
+.ready:hover {
+    background: rgb(129, 129, 129);
+}
+
+.actionDiv {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: flex-start;
+    align-items: center;
+    left: calc(80px + 70vw - ((70vw - 60vw) / 4) - 20px);
+    top: 90px;
+    width: 40px;
+    height: 200px;
 }
