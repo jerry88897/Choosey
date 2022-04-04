@@ -942,9 +942,10 @@ let shadow;
 
 let showpreSelectClassType = 0;
 let preSelectClassPageReady = false;
+let preSelectClassPagePlay = false;
 async function preSelectClassPage() {
   await cleanFrame();
-  let areaSetting;
+  let areaSettingJson;
   let table = document.createElement("table");
   let tHead = document.createElement("thead");
   let actionDiv = document.createElement("div");
@@ -954,6 +955,8 @@ async function preSelectClassPage() {
   let saveImg = document.createElement("img");
   let readyDiv = document.createElement("div");
   let readyImg = document.createElement("img");
+  let playDiv = document.createElement("div");
+  let playImg = document.createElement("img");
   actionDiv.setAttribute("class", "actionDiv");
   fs.readFile("./src/data/PreSelectPage.json", function (err, myClass) {
     let preSelectThisClassDivArray = [];
@@ -978,18 +981,19 @@ async function preSelectClassPage() {
         function (err, setting) {
           if (err) {
             console.log(err);
-            setting = '{"isSet":false}';
+            setting = '{"isSet":false,"isPlay":false}';
             //將字符串轉換為 JSON 對象
             try {
-              areaSetting = JSON.parse(setting);
+              areaSettingJson = JSON.parse(setting);
               resolve();
             } catch (error) {}
           } else {
             setting = setting.toString();
             //將字符串轉換為 JSON 對象
             try {
-              areaSetting = JSON.parse(setting);
+              areaSettingJson = JSON.parse(setting);
               if (areaSetting["isSet"]) preSelectClassPageReady = true;
+              if (areaSetting["isPlay"]) preSelectClassPagePlay = true;
               resolve();
             } catch (error) {}
           }
@@ -1157,11 +1161,20 @@ async function preSelectClassPage() {
         readyImg.setAttribute("src", "./icon/playlist_remove_24dp.svg");
       }
       viewTypeDiv.appendChild(viewTypeImg);
+      if (preSelectClassPagePlay) {
+        playImg.setAttribute("src", "./icon/stop_24dp.svg");
+      } else {
+        playImg.setAttribute("src", "./icon/play_arrow_24dp.svg");
+      }
+      playDiv.setAttribute("class", "save");
+      playImg.setAttribute("class", "icon");
+      playDiv.appendChild(playImg);
       actionDiv.appendChild(viewTypeDiv);
       saveDiv.appendChild(saveImg);
       actionDiv.appendChild(saveDiv);
       readyDiv.appendChild(readyImg);
       actionDiv.appendChild(readyDiv);
+      actionDiv.appendChild(playDiv);
       main_frame.appendChild(table);
       main_frame.appendChild(actionDiv);
       let placeHolder = document.createElement("div");
@@ -1213,20 +1226,52 @@ async function preSelectClassPage() {
         if (preSelectClassPageReady) {
           console.log("notReady");
           preSelectClassPageReady = false;
-          areaSetting["isSet"] = false;
+          areaSettingJson["isSet"] = false;
           readyImg.setAttribute("src", "./icon/playlist_remove_24dp.svg");
           ipc.send("preSelectPageState", 0);
         } else {
           console.log("ready");
           preSelectClassPageReady = true;
-          areaSetting["isSet"] = true;
+          areaSettingJson["isSet"] = true;
           readyImg.setAttribute("src", "./icon/playlist_add_check_24dp.svg");
           ipc.send("preSelectPageState", 1);
         }
         let saved = new Promise((resolve, reject) => {
           fs.writeFile(
             "./src/data/PreSelectPageSetting.json",
-            JSON.stringify(areaSetting),
+            JSON.stringify(areaSettingJson),
+            function (err) {
+              if (err) {
+                console.error(err);
+              } else {
+                resolve();
+                console.log("write saveFile...");
+              }
+            }
+          );
+        });
+        saved.then(function (result) {
+          saveImg.setAttribute("src", "./icon/bx-save-check.svg");
+        });
+      });
+      playDiv.addEventListener("click", async function () {
+        if (preSelectClassPagePlay) {
+          console.log("stop");
+          preSelectClassPagePlay = false;
+          areaSettingJson["isPlay"] = false;
+          playImg.setAttribute("src", "./icon/play_arrow_24dp.svg");
+          ipc.send("preSelectPagePlay", 0);
+        } else {
+          console.log("play");
+          preSelectClassPagePlay = true;
+          areaSettingJson["isPlay"] = true;
+          playImg.setAttribute("src", "./icon/stop_24dp.svg");
+          ipc.send("preSelectPagePlay", 1);
+        }
+        let saved = new Promise((resolve, reject) => {
+          fs.writeFile(
+            "./src/data/PreSelectPageSetting.json",
+            JSON.stringify(areaSettingJson),
             function (err) {
               if (err) {
                 console.error(err);

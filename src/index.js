@@ -3,13 +3,13 @@ const path = require("path");
 const { electron } = require("process");
 
 const ipc = require("electron").ipcMain;
-const fs = require("fs");
 const getWeb = require("./getWeb");
 const parser = require("./parser");
 const timer = require("./timer");
 const makeJson = require("./makeJson");
 const preSelect = require("./preSelect");
 const preSelectPage = require("./preSelectPage");
+const preSelectPageAction = require("./preSelectPageAction");
 const iconv = require("iconv-lite");
 const { Console } = require("console");
 const screen = require("electron").screen;
@@ -112,7 +112,7 @@ app.on("activate", () => {
 
 ipc.on("getMyClass", async function (e) {
   console.log("mainGetMyClass");
-  let response = getWeb.loginAndGetClass();
+  let response = getWeb.getMyClass();
   console.log(response);
   console.log("success");
   let myClass = parser.myClassParser(response);
@@ -343,26 +343,20 @@ ipc.on("updatePreSelect", async function (e, data) {
   }
 });
 
-ipc.on("preSelectPageState", async function (e, state) {
-  if (state == 0) {
-    fs.readFile("./src/data/PreSelectPage.json", function (err, classList) {
-      if (err) {
-      } else {
-        preSelectPageTimer = setInterval(function () {
-          for (let i = 0; i < classList.length; i++) {
-            let response = getWeb.GetClassClass(
-              depNo.get(SelDepNo),
-              SelClassNo
-            );
-            let myClass = parser.classClassParser(
-              response,
-              SelDepNo,
-              SelClassNo
-            );
-          }
-        }, 2 * 60 * 1000);
-      }
-    });
+ipc.on("preSelectPagePlay", async function (e, state) {
+  if (state == 1) {
+    preSelectPageAction.setGetWeb(getWeb);
+    preSelectPageAction.setParser(parser);
+    if (
+      user.grade[2] === "1" ||
+      user.grade[2] === "2" ||
+      user.grade[2] === "3"
+    ) {
+      preSelectPageAction.setMaxPoint(220);
+    } else {
+      preSelectPageAction.setMaxPoint(250);
+    }
+    preSelectPageAction.patrolActionPerformed();
   } else {
     if (preSelectPageTimer != undefined) clearInterval(preSelectPageTimer);
   }

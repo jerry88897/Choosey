@@ -18,6 +18,9 @@ module.exports = {
   gradeParser: function (response) {
     return gradeParser(response);
   },
+  pointParser: function (response) {
+    return pointParser(response);
+  },
 };
 async function classClassListParser(response) {
   let areaCount = 0;
@@ -150,7 +153,7 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
             nowClass.type = nowClass.type.replace(/\s+/g, "");
             nowClass.point = nowClass.point.replace(/\s+/g, "");
             nowClass.student = nowClass.student.replace(/\s+/g, "");
-            nowClass.teacher = nowClass.student.replace(/\s+/g, "");
+            nowClass.teacher = nowClass.teacher.replace(/\s+/g, "");
             nowClass.ps = nowClass.ps.replace(/\s+/g, "");
             allClass.push(nowClass);
           }
@@ -256,6 +259,7 @@ async function myClassParser(response) {
             nowClass.point = nowClass.point.replace(/\s+/g, "");
             nowClass.student = nowClass.student.replace(/\s+/g, "");
             nowClass.ps = nowClass.ps.replace(/\s+/g, "");
+            nowClass.teacher = nowClass.teacher.replace(/\s+/g, "");
             let inStudent = parseInt(
               nowClass.student.substring(0, nowClass.student.indexOf("/")),
               10
@@ -301,7 +305,54 @@ async function myClassParser(response) {
       });
   });
 }
-
+async function pointParser(response) {
+  let inLine = false;
+  let inTd = false;
+  var outText = "";
+  const MyClassParser = new htmlparser2.Parser(
+    {
+      onopentag(name, attribs) {
+        if (name === "tr") {
+          if (attribs.bgcolor === "YellowGreen") {
+            inLine = true;
+          }
+        } else if (name === "font") {
+          inTd = true;
+        }
+      },
+      ontext(text) {
+        if (inLine && inTd) {
+          outText += text;
+        }
+      },
+      onclosetag(tagname) {
+        if (tagname === "html") {
+          console.log("That's it!");
+          done = true;
+        } else if (tagname === "font") {
+          inTd = false;
+          outText = outText.replace(/\s+/g, "");
+        }
+      },
+    },
+    {
+      decodeEntities: true,
+    }
+  );
+  return new Promise((resolve, reject) => {
+    response
+      .then((success) => {
+        MyClassParser.write(iconv.decode(Buffer.from(success.data), "big5"));
+        MyClassParser.end();
+      })
+      .then((success) => {
+        resolve(outText);
+      })
+      .catch((fail) => {
+        console.log(fail);
+      });
+  });
+}
 async function myClassDateParser(response) {
   return new Promise((resolve, reject) => {
     let done = false;
