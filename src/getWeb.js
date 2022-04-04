@@ -3,8 +3,8 @@ const axios = require("axios");
 let cookie = "";
 
 module.exports = {
-  loginAndGetClass: function () {
-    return loginAndGetMyClass();
+  getMyClass: function () {
+    return getMyClass();
   },
   GetClassClass: function (SelDepNo, SelClassNo) {
     return GetClassClass(SelDepNo, SelClassNo);
@@ -20,6 +20,12 @@ module.exports = {
   },
   passCheck: function () {
     return passCheck();
+  },
+  sendAddClass: function (classId) {
+    return sendAddClass(classId);
+  },
+  sendDelClass: function (classId) {
+    return sendDelClass(classId);
   },
   getCookie: function () {
     return cookie;
@@ -99,7 +105,7 @@ async function login(loginData) {
 //     });
 // }
 
-async function loginAndGetMyClass() {
+async function getMyClass() {
   return new Promise((resolve, reject) => {
     var MyClass;
     //await login();
@@ -152,7 +158,6 @@ async function GetClassClass(SelDepNo, SelClassNo) {
         }
       )
       .then(function (classClass) {
-        console.log("ClassClass" + cookie);
         resolve(classClass);
       })
       .catch(function (error) {
@@ -215,6 +220,65 @@ async function getMyClassDate(classId) {
         resolve(myClassData);
       })
       .catch(function (error) {
+        console.log(error);
+      });
+  });
+}
+async function sendAddClass(classId) {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        "https://stucis.ttu.edu.tw/selcourse/DoAddDelSbj.php?AddSbjNo=" +
+          classId,
+        {
+          responseType: "arraybuffer",
+          headers: {
+            Cookie: cookie,
+            Accept:
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0",
+          },
+        },
+        {
+          withCredentials: true,
+        }
+      )
+      .then(function () {
+        resolve();
+      })
+      .catch(function (error) {
+        reject();
+        console.log(error);
+      });
+  });
+}
+
+async function sendDelClass(classId) {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        "https://stucis.ttu.edu.tw/selcourse/DoAddDelSbj.php?DelSbjNo=" +
+          classId,
+        {
+          responseType: "arraybuffer",
+          headers: {
+            Cookie: cookie,
+            Accept:
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0",
+          },
+        },
+        {
+          withCredentials: true,
+        }
+      )
+      .then(function () {
+        resolve();
+      })
+      .catch(function (error) {
+        reject();
         console.log(error);
       });
   });

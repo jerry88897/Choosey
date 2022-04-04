@@ -116,6 +116,18 @@
     align-items: center;
 }
 
+.classNoActionDiv {
+    transition: all 0.4s ease;
+    display: flex;
+    width: 30px;
+    height: 30px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+
 .classActionDiv:hover {
     border-radius: 50%;
     background: rgb(129, 129, 129);
@@ -128,4 +140,91 @@
     align-content: center;
     justify-content: center;
     align-items: center;
+}
+
+.placeHolder {
+    width: 0px;
+    padding-bottom: 60px;
+    background: rgb(201, 34, 34);
+}
+
+.sctable {
+    border-collapse: separate;
+    width: 18vw;
+    color: var(--word-color);
+    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2);
+    border-spacing: 0;
+    border-radius: 10px;
+    margin-top: 120px;
+}
+
+.sctr {
+    transition: all 0.2s ease-in;
+    height: 60px;
+    cursor: pointer;
+    background-color: var(--tableTrHover-color);
+    border-bottom: 0.5px solid var(--tableBorder-color);
+    border-top: 0.5px solid var(--tableBorder-color);
+}
+
+.sctr:hover .sctd {
+    background-color: var(--tableTrHover-color);
+}
+
+.sctr:hover {
+    border-radius: 2%;
+    transform: scale(1.02);
+    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2), -1px -1px 8px rgba(0, 0, 0, 0.2);
+}
+
+.scth {
+    padding: 7px;
+    text-align: center;
+}
+
+
+.sctd {
+    background-color: var(--tableTr-color);
+    padding: 7px;
+    text-align: left;
+    border-bottom: 1px solid var(--tableBorder-color);
+    text-align: center;
+}
+
+#scheader {
+    background-color: var(--tableHead-color);
+    color: var(--word-color);
+    height: 50px;
+
+}
+
+#scheader:first-child {
+    border-top-left-radius: 10px;
+    /* border-bottom-left-radius: 10px; */
+}
+
+#scheader:last-child {
+    border-top-right-radius: 10px;
+    /* border-bottom-right-radius: 10px; */
+}
+
+.viewShoppingCart {
+    position: fixed;
+    left: calc(100vw - (((30vw - 78px) - 18vw) / 4) - 20px);
+    top: 90px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: all 200ms ease;
+    margin-bottom: 5px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.viewShoppingCart:hover {
+    background: rgb(129, 129, 129);
 }

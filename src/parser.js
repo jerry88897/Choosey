@@ -22,6 +22,9 @@ module.exports = {
   gradeParser: function (response) {
     return gradeParser(response);
   },
+  pointParser: function (response) {
+    return pointParser(response);
+  },
 };
 async function classClassListParser(response) {
   let areaCount = 0;
@@ -82,27 +85,18 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
   let done = false;
   let tr = 0;
   let td = 0;
+  let word = 0;
+  let red = false;
   var allClass = [];
   var outText = "";
-  var aClass = {
-    ln: 0,
-    id: "",
-    name: "",
-    DepNo: "",
-    SelClassNo: "",
-    teacher: "",
-    type: "",
-    point: "",
-    student: "",
-    ps: "",
-    time: [],
-  };
   var nowClass;
   const MyClassParser = new htmlparser2.Parser(
     {
       onattribute(name, value) {
         if (name === "class" && value === "cistab") {
           inTable = true;
+        } else if (name === "color" && value === "Red") {
+          red = true;
         }
       },
       onopentag(name, attribs) {
@@ -121,42 +115,53 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
 
           if (td == 0) {
             nowClass = {
-              ln: 0,
+              action: 0,
               id: "",
               name: "",
+              engName: "",
               DepNo: "",
               SelClassNo: "",
               teacher: "",
               type: "",
               point: "",
               student: "",
+              overflow: false,
               ps: "",
               time: [],
             };
             nowClass.DepNo = SelDepNo;
-            nowClass.ClassNo = SelClassNo;
-            nowClass.ln = tr - 2;
+            nowClass.SelClassNo = SelClassNo;
+            if (text === "加") {
+              nowClass.action = 1;
+            } else if (text === "退") {
+              nowClass.action = 2;
+            }
           } else if (td == 1) {
             if (text != " ") nowClass.id += text;
           } else if (td == 2) {
-            if (text != " " && text != "\n") nowClass.name += text;
+            if (word == 0) nowClass.name = text;
+            else if (word == 1) nowClass.engName = text;
           } else if (td == 3) {
             nowClass.teacher += text;
           } else if (td == 4) {
             if (text != " " && text != "\n") nowClass.type += text;
           } else if (td == 5) {
             if (text != " " && text != "\n") nowClass.point += text;
+            red = false;
           } else if (td == 6) {
             nowClass.student += text;
+            if (red == true) nowClass.overflow = true;
           } else if (td == 7) {
             nowClass.ps = text;
             nowClass.name = nowClass.name.replace(/\s+/g, "");
             nowClass.type = nowClass.type.replace(/\s+/g, "");
             nowClass.point = nowClass.point.replace(/\s+/g, "");
             nowClass.student = nowClass.student.replace(/\s+/g, "");
+            nowClass.teacher = nowClass.teacher.replace(/\s+/g, "");
             nowClass.ps = nowClass.ps.replace(/\s+/g, "");
             allClass.push(nowClass);
           }
+          word++;
         }
       },
       onclosetag(tagname) {
@@ -166,6 +171,7 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
         } else if (tagname === "table") {
           inTable = false;
         } else if (tagname === "td") {
+          word = 0;
           td++;
         }
       },
@@ -197,17 +203,6 @@ async function myClassParser(response) {
   let td = 0;
   var allClass = [];
   var outText = "";
-  var aClass = {
-    ln: 0,
-    id: "",
-    name: "",
-    teacher: "",
-    type: "",
-    point: "",
-    student: "",
-    ps: "",
-    time: [],
-  };
   var nowClass;
   const MyClassParser = new htmlparser2.Parser(
     {
@@ -232,17 +227,23 @@ async function myClassParser(response) {
 
           if (td == 0) {
             nowClass = {
-              ln: 0,
+              action: 0,
               id: "",
               name: "",
               teacher: "",
               type: "",
               point: "",
               student: "",
+              overflow: false,
               ps: "",
               time: [],
             };
             nowClass.ln = tr - 2;
+            if (text === "加") {
+              nowClass.action = 1;
+            } else if (text === "退") {
+              nowClass.action = 2;
+            }
           } else if (td == 1) {
             if (text != " ") nowClass.id += text;
           } else if (td == 2) {
@@ -262,6 +263,19 @@ async function myClassParser(response) {
             nowClass.point = nowClass.point.replace(/\s+/g, "");
             nowClass.student = nowClass.student.replace(/\s+/g, "");
             nowClass.ps = nowClass.ps.replace(/\s+/g, "");
+            nowClass.teacher = nowClass.teacher.replace(/\s+/g, "");
+            let inStudent = parseInt(
+              nowClass.student.substring(0, nowClass.student.indexOf("/")),
+              10
+            );
+            let wantStudent = parseInt(
+              nowClass.student.substring(
+                nowClass.student.indexOf("/") + 1,
+                nowClass.student.indexOf("人")
+              ),
+              10
+            );
+            if (inStudent >= wantStudent) nowClass.overflow = true;
             allClass.push(nowClass);
           }
         }
@@ -295,7 +309,54 @@ async function myClassParser(response) {
       });
   });
 }
-
+async function pointParser(response) {
+  let inLine = false;
+  let inTd = false;
+  var outText = "";
+  const MyClassParser = new htmlparser2.Parser(
+    {
+      onopentag(name, attribs) {
+        if (name === "tr") {
+          if (attribs.bgcolor === "YellowGreen") {
+            inLine = true;
+          }
+        } else if (name === "font") {
+          inTd = true;
+        }
+      },
+      ontext(text) {
+        if (inLine && inTd) {
+          outText += text;
+        }
+      },
+      onclosetag(tagname) {
+        if (tagname === "html") {
+          console.log("That's it!");
+          done = true;
+        } else if (tagname === "font") {
+          inTd = false;
+          outText = outText.replace(/\s+/g, "");
+        }
+      },
+    },
+    {
+      decodeEntities: true,
+    }
+  );
+  return new Promise((resolve, reject) => {
+    response
+      .then((success) => {
+        MyClassParser.write(iconv.decode(Buffer.from(success.data), "big5"));
+        MyClassParser.end();
+      })
+      .then((success) => {
+        resolve(outText);
+      })
+      .catch((fail) => {
+        console.log(fail);
+      });
+  });
+}
 async function myClassDateParser(response) {
   return new Promise((resolve, reject) => {
     let done = false;

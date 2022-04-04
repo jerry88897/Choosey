@@ -7,10 +7,13 @@ const getWeb = require("./getWeb");
 const parser = require("./parser");
 const timer = require("./timer");
 const makeJson = require("./makeJson");
+const preSelect = require("./preSelect");
+const preSelectPage = require("./preSelectPage");
+const preSelectPageAction = require("./preSelectPageAction");
 const iconv = require("iconv-lite");
 const { Console } = require("console");
 const screen = require("electron").screen;
-const fsp = require("fs").promises;
+
 let win;
 let user = {
   id: "",
@@ -37,7 +40,7 @@ let depNo = new Map([
   ["H", "19"],
 ]);
 // Make a request for a user with a given ID
-
+let preSelectPageTimer;
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
   // eslint-disable-line global-require
@@ -109,7 +112,7 @@ app.on("activate", () => {
 
 ipc.on("getMyClass", async function (e) {
   console.log("mainGetMyClass");
-  let response = getWeb.loginAndGetClass();
+  let response = getWeb.getMyClass();
   console.log(response);
   console.log("success");
   let myClass = parser.myClassParser(response);
@@ -175,77 +178,161 @@ ipc.on("getClassClass", async function (e, SelDepNo, SelClassNo) {
     SelDepNo = user.grade.substring(1, 2);
     SelClassNo = user.grade;
   }
-  const rawHtml = await fsp.readFile("./src/data/test.html", "utf8");
-  let myClass2 = await parser.classClassParserTEST(
-    rawHtml,
-    SelDepNo,
-    SelClassNo
-  );
   let response = getWeb.GetClassClass(depNo.get(SelDepNo), SelClassNo);
-  let myClass = parser.classClassParser(response, SelDepNo, SelClassNo);
   let classClassListparser = parser.classClassListParser(response);
   let allMyClass;
   let allPromise = [];
-  myClass
-    .then(async function (success) {
-      allMyClass = success;
-      for (let i = 0; i < allMyClass.length; i++) {
-        //for (let i = 0; i < 2; i++) {
-        allPromise.push(
-          new Promise(function (resolve, reject) {
-            console.log("parser RE " + allMyClass[i]["id"]);
-            response = getWeb.getMyClassDate(allMyClass[i]["id"]);
-            let addClassTime = parser.myClassDateParser(response);
-            addClassTime
-              .then(async function (success) {
-                allMyClass[i]["time"] = success;
-                console.log("111111");
-                resolve();
-              })
-              .catch((fail) => {
-                console.log(fail);
-              });
-          })
-        );
+
+  classClassListparser
+    .then(async function (data) {
+      let selected = data[data.length - 1];
+      data.pop();
+      if (typeof selected == "undefined") {
+        selected = data[0];
       }
-    })
-    .then((success) => {
-      Promise.all(allPromise).then(function (values) {
-        console.log("2222222");
-        let makeFilePromise = makeJson.ClassClassToJson(allMyClass);
-        makeFilePromise
-          .then(async function (success) {
-            classClassListparser
-              .then(async function (data) {
-                let selected = data[data.length - 1];
-                data.pop();
-                if (typeof selected == "undefined") {
-                  selected = data[0];
-                }
+      SelClassNo = selected;
+      let myClass = parser.classClassParser(response, SelDepNo, SelClassNo);
+      myClass
+        .then(async function (success) {
+          allMyClass = success;
+          for (let i = 0; i < allMyClass.length; i++) {
+            //for (let i = 0; i < 2; i++) {
+            allPromise.push(
+              new Promise(function (resolve, reject) {
+                console.log("parser RE " + allMyClass[i]["id"]);
+                response = getWeb.getMyClassDate(allMyClass[i]["id"]);
+                let addClassTime = parser.myClassDateParser(response);
+                addClassTime
+                  .then(async function (success) {
+                    allMyClass[i]["time"] = success;
+                    console.log("111111");
+                    resolve();
+                  })
+                  .catch((fail) => {
+                    console.log(fail);
+                  });
+              })
+            );
+          }
+        })
+        .then((success) => {
+          Promise.all(allPromise).then(function (values) {
+            console.log("2222222");
+            let makeFilePromise = makeJson.ClassClassToJson(allMyClass);
+            makeFilePromise
+              .then(async function (success) {
                 win.webContents.send(
                   "readyToShowClassClass",
                   SelDepNo,
                   selected,
                   data
                 );
-                console.log("readyToShowClassClass");
               })
               .catch((fail) => {
                 console.log(fail);
               });
-          })
-          .catch((fail) => {
-            console.log(fail);
+            let currentPath = process.cwd();
+            console.log("@@" + currentPath);
+            win.webContents.send("appLocat", currentPath);
           });
-
-        let currentPath = process.cwd();
-        console.log("@@" + currentPath);
-        win.webContents.send("appLocat", currentPath);
-      });
+        })
+        .catch((fail) => {
+          console.log(fail);
+        });
     })
     .catch((fail) => {
       console.log(fail);
     });
+
+  // myClass
+  //   .then(async function (success) {
+  //     allMyClass = success;
+  //     for (let i = 0; i < allMyClass.length; i++) {
+  //       //for (let i = 0; i < 2; i++) {
+  //       allPromise.push(
+  //         new Promise(function (resolve, reject) {
+  //           console.log("parser RE " + allMyClass[i]["id"]);
+  //           response = getWeb.getMyClassDate(allMyClass[i]["id"]);
+  //           let addClassTime = parser.myClassDateParser(response);
+  //           addClassTime
+  //             .then(async function (success) {
+  //               allMyClass[i]["time"] = success;
+  //               console.log("111111");
+  //               resolve();
+  //             })
+  //             .catch((fail) => {
+  //               console.log(fail);
+  //             });
+  //         })
+  //       );
+  //     }
+  //   })
+  //   .then((success) => {
+  //     Promise.all(allPromise).then(function (values) {
+  //       console.log("2222222");
+  //       let makeFilePromise = makeJson.ClassClassToJson(allMyClass);
+  //       makeFilePromise
+  //         .then(async function (success) {
+  //           classClassListparser
+  //             .then(async function (data) {
+  //               let selected = data[data.length - 1];
+  //               data.pop();
+  //               if (typeof selected == "undefined") {
+  //                 selected = data[0];
+  //               }
+  //               win.webContents.send(
+  //                 "readyToShowClassClass",
+  //                 SelDepNo,
+  //                 selected,
+  //                 data
+  //               );
+  //               console.log("readyToShowClassClass");
+  //             })
+  //             .catch((fail) => {
+  //               console.log(fail);
+  //             });
+  //         })
+  //         .catch((fail) => {
+  //           console.log(fail);
+  //         });
+
+  //       let currentPath = process.cwd();
+  //       console.log("@@" + currentPath);
+  //       win.webContents.send("appLocat", currentPath);
+  //     });
+  //   })
+  //   .catch((fail) => {
+  //     console.log(fail);
+  //   });
+});
+
+ipc.on("addPreSelectClass", async function (e, preSelectThisClass) {
+  await preSelect.addPreSelectClass(preSelectThisClass);
+  win.webContents.send("updatePreSelectClass");
+  console.log("addPreSelectClass");
+});
+ipc.on("removePreSelectClass", async function (e, removeThisClass) {
+  await preSelect.removePreSelectClass(removeThisClass);
+  win.webContents.send("updatePreSelectClass");
+});
+ipc.on("removePreSelectClassAndUpdate", async function (e, removeThisClass) {
+  await preSelect.removePreSelectClass(removeThisClass);
+  win.webContents.send("updatePreSelectClassAndMain");
+});
+ipc.on(
+  "preSelectPageRemovePreSelectClass",
+  async function (e, removeThisClass) {
+    await preSelect.removePreSelectClass(removeThisClass);
+    win.webContents.send("updatePreSelectClassInPreSelectPage");
+  }
+);
+ipc.on("preSelectPageRemoveClass", async function (e, removeThisClass) {
+  await preSelectPage.removePreSelectClass(removeThisClass);
+  win.webContents.send("updatePreSelectPage");
+});
+ipc.on("exportPreSelectClass", async function (e, exportThisClass) {
+  await preSelect.exportPreSelectClass(exportThisClass);
+  win.webContents.send("updatePreSelectPage");
 });
 
 ipc.on("updatePreSelect", async function (e, data) {
@@ -253,6 +340,25 @@ ipc.on("updatePreSelect", async function (e, data) {
     timer.setPreSelectTimer(getWeb);
   } else {
     timer.deletPreSelectTimer();
+  }
+});
+
+ipc.on("preSelectPagePlay", async function (e, state) {
+  if (state == 1) {
+    preSelectPageAction.setGetWeb(getWeb);
+    preSelectPageAction.setParser(parser);
+    if (
+      user.grade[2] === "1" ||
+      user.grade[2] === "2" ||
+      user.grade[2] === "3"
+    ) {
+      preSelectPageAction.setMaxPoint(220);
+    } else {
+      preSelectPageAction.setMaxPoint(250);
+    }
+    preSelectPageAction.patrolActionPerformed();
+  } else {
+    if (preSelectPageTimer != undefined) clearInterval(preSelectPageTimer);
   }
 });
 
