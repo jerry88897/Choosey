@@ -162,7 +162,6 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
       },
       onclosetag(tagname) {
         if (tagname === "html") {
-          console.log("That's it!");
           done = true;
         } else if (tagname === "table") {
           inTable = false;

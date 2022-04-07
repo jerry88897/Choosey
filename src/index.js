@@ -356,7 +356,13 @@ ipc.on("preSelectPagePlay", async function (e, state) {
     } else {
       preSelectPageAction.setMaxPoint(250);
     }
-    preSelectPageAction.patrolActionPerformed();
+    let patrolAction = preSelectPageAction.patrolActionPerformed();
+    patrolAction.then(function () {
+      let update = preSelectPageAction.updatedClassState();
+      update.then(function () {
+        win.webContents.send("updatePreSelectPage");
+      });
+    });
   } else {
     if (preSelectPageTimer != undefined) clearInterval(preSelectPageTimer);
   }
