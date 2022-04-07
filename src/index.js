@@ -352,7 +352,7 @@ ipc.on("preSelectPagePlay", async function (e, state) {
       user.grade[2] === "2" ||
       user.grade[2] === "3"
     ) {
-      preSelectPageAction.setMaxPoint(220);
+      preSelectPageAction.setMaxPoint(210);
     } else {
       preSelectPageAction.setMaxPoint(250);
     }

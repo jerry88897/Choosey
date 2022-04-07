@@ -44,7 +44,8 @@ async function patrolActionPerformed() {
     point = parseInt(parseFloat(point) * 10);
     let readFileProm = new Promise(function (resolve, reject) {
       fs.readFile("./src/data/PreSelectPage.json", function (err, classList) {
-        if (err) {} else {
+        if (err) {
+        } else {
           classList = classList.toString();
           classList = JSON.parse(classList);
           updatedClass = classList;
@@ -63,9 +64,10 @@ async function patrolActionPerformed() {
                 watchClass.then(function (data) {
                   for (let j = 0; j < data.length; j++) {
                     if (data[j]["id"] === classList[i]["id"]) {
-                      updatedClass[i]["action"] = data[j]["action"];
+                      //updatedClass[i]["action"] = data[j]["action"];
                       updatedClass[i]["student"] = data[j]["student"];
                       updatedClass[i]["overflow"] = data[j]["overflow"];
+                      //updatedClass[i]["point"] = data[j]["point"];
                       resolve(i);
                       break;
                     }
@@ -73,8 +75,8 @@ async function patrolActionPerformed() {
                 });
               })
             );
+            if (i == classList.length - 1) resolve();
           }
-          resolve();
         }
       });
     });
@@ -82,57 +84,144 @@ async function patrolActionPerformed() {
       let waitToAdd = [];
       let waitToRemove = [];
       let c = 0;
-      let checkAction = new Promise(function () {
-        for await (let item of arr) {
-          console.log("check " + c++);
+      let checkAction = new Promise(async function (resolve, reject) {
+        for await (let item of allPromise) {
+          console.log(
+            c++ +
+              " " +
+              updatedClass[item]["id"] +
+              "  " +
+              updatedClass[item]["action"] +
+              "  " +
+              updatedClass[item]["point"]
+          );
           if (updatedClass[item]["action"] === 1) {
             let classPoint = parseInt(
               parseFloat(updatedClass[item]["point"]) * 10
             );
             if (classPoint + point <= maxPoint) {
               point += classPoint;
-              //getWeb.sendAddClass(updatedClass[item]["id"])
-            } else if (updatedClass[item]["action"] === 0 && updatedClass[item]["overflow"] === false) {
+              getWeb.sendAddClass(updatedClass[item]["id"]);
+            } else {
               let waitToAddClass = {
                 id: "",
-                point: ""
-              }
+                point: "",
+                priority: item,
+              };
               waitToAddClass.id = updatedClass[item]["id"];
-              waitToAddClass.point = updatedClass[item]["point"]
+              waitToAddClass.point = updatedClass[item]["point"];
               waitToAdd.push(waitToAddClass);
-            } else if (updatedClass[item]["action"] === 2 && updatedClass[item]["isLock"] === false) {
-              let waitToRemoveClass = {
-                id: "",
-                point: ""
-              }
-              waitToRemoveClass.id = updatedClass[item]["id"];
-              waitToRemoveClass.point = updatedClass[item]["point"]
-              waitToRemove.push(waitToRemoveClass);
             }
+          } else if (
+            updatedClass[item]["action"] === 0 &&
+            updatedClass[item]["overflow"] === false
+          ) {
+            let waitToAddClass = {
+              id: "",
+              point: "",
+              priority: item,
+            };
+            waitToAddClass.id = updatedClass[item]["id"];
+            waitToAddClass.point = updatedClass[item]["point"];
+            waitToAdd.push(waitToAddClass);
+          } else if (
+            updatedClass[item]["action"] === 2 &&
+            updatedClass[item]["isLock"] === false &&
+            updatedClass[item]["point"] !== "0.0"
+          ) {
+            let waitToRemoveClass = {
+              id: "",
+              point: "",
+              priority: item,
+            };
+            waitToRemoveClass.id = updatedClass[item]["id"];
+            waitToRemoveClass.point = updatedClass[item]["point"];
+            waitToRemove.push(waitToRemoveClass);
           }
         }
         console.log("check end");
         resolve();
-      })
+      });
       checkAction.then(function () {
         waitToRemove.reverse();
         for (let i = 0; i < waitToAdd.length; i++) {
-          let needPoint = parseInt(parseFloat(waitToAdd[i]["point"]) * 10);
+          let needPoint =
+            parseInt(parseFloat(waitToAdd[i]["point"]) * 10) -
+            (maxPoint - point);
           let retreatPoint = 0;
           for (let j = 0; j < waitToRemove.length; j++) {
-            retreatPoint += parseInt(parseFloat(waitToRemove[j]["point"]) * 10);
-            if (retreatPoint >= needPoint) {
-              let delClassPromise = []
-              for (let k = 0; k <= j; k++) {
-                delClassPromise.push(getWeb.sendDelClass(waitToRemove[k]["id"]));
+            if (waitToAdd[i]["priority"] < waitToRemove[j]["priority"]) {
+              let delClassPromise = [];
+              retreatPoint += parseInt(
+                parseFloat(waitToRemove[j]["point"]) * 10
+              );
+              if (retreatPoint == needPoint) {
+                for (let k = 0; k <= j; k++) {
+                  delClassPromise.push(
+                    getWeb.sendDelClass(waitToRemove[k]["id"])
+                  );
+                }
+                for (let k = 0; k <= j; k++) {
+                  waitToRemove.shift();
+                }
+                Promise.all(delClassPromise).then(function () {
+                  point += waitToAdd[i]["point"];
+                  getWeb.sendAddClass(waitToAdd[i]["id"]);
+                });
+                break;
+              } else if (retreatPoint > needPoint) {
+                let differ = retreatPoint - needPoint;
+                let freeClass = [];
+                let needDelClass = [];
+                let freeClassCount = 0;
+                for (let k = j; k >= 0; k--) {
+                  if (
+                    parseInt(parseFloat(waitToRemove[k]["point"]) * 10) <=
+                    differ
+                  ) {
+                    freeClass.push(waitToRemove[k]);
+                    freeClassCount++;
+                    differ -= parseInt(
+                      parseFloat(waitToRemove[k]["point"]) * 10
+                    );
+                  } else {
+                    needDelClass.push(waitToRemove[k]);
+                  }
+                }
+                if (freeClassCount == 0) {
+                  for (let k = 0; k <= j; k++) {
+                    delClassPromise.push(
+                      getWeb.sendDelClass(waitToRemove[k]["id"])
+                    );
+                    point -= waitToRemove[k]["point"];
+                  }
+                  for (let k = 0; k <= j; k++) {
+                    waitToRemove.shift();
+                  }
+                } else {
+                  for (let k = 0; k < needDelClass.length; k++) {
+                    delClassPromise.push(
+                      getWeb.sendDelClass(needDelClass[k]["id"])
+                    );
+                    point -= needDelClass[k]["point"];
+                  }
+                }
+                for (let k = 0; k <= j; k++) {
+                  waitToRemove.shift();
+                }
+                for (let k = 0; k < freeClass.length; k++) {
+                  waitToRemove.unshift(freeClass[k]);
+                }
+                Promise.all(delClassPromise).then(function () {
+                  point += waitToAdd[i]["point"];
+                  getWeb.sendAddClass(waitToAdd[i]["id"]);
+                });
+                break;
               }
-              Promise.all(delClassPromise).then(function () {
-                getWeb.sendAddClass(waitToAdd[i]["id"]);
-              })
             }
           }
         }
-      })
+      });
     });
   });
 

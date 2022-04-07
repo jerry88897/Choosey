@@ -7,8 +7,8 @@ module.exports = {
   myClassParser: function (response) {
     return myClassParser(response);
   },
-  classClassParser: function (response, SelDepNo, SelClassNo) {
-    return classClassParser(response, SelDepNo, SelClassNo);
+  classClassParser: function (response, SelDepNo, SelectedClassNo) {
+    return classClassParser(response, SelDepNo, SelectedClassNo);
   },
   classClassParserTEST: function (response, SelDepNo, SelClassNo) {
     return classClassParserTEST(response, SelDepNo, SelClassNo);
@@ -159,6 +159,20 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
             nowClass.student = nowClass.student.replace(/\s+/g, "");
             nowClass.teacher = nowClass.teacher.replace(/\s+/g, "");
             nowClass.ps = nowClass.ps.replace(/\s+/g, "");
+            nowClass.action = Math.floor(Math.random() * 3);
+            nowClass.overflow = false;
+            let ram = Math.floor(Math.random() * 5);
+            if (ram == 0) {
+              nowClass.point = "0.0";
+            } else if (ram == 1) {
+              nowClass.point = "0.5";
+            } else if (ram == 2) {
+              nowClass.point = "1.0";
+            } else if (ram == 3) {
+              nowClass.point = "2.0";
+            } else if (ram == 4) {
+              nowClass.point = "3.0";
+            }
             allClass.push(nowClass);
           }
           word++;
@@ -166,7 +180,6 @@ async function classClassParser(response, SelDepNo, SelClassNo) {
       },
       onclosetag(tagname) {
         if (tagname === "html") {
-          console.log("That's it!");
           done = true;
         } else if (tagname === "table") {
           inTable = false;
