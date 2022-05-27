@@ -9,6 +9,9 @@ module.exports = {
   GetClassClass: function (SelDepNo, SelClassNo) {
     return GetClassClass(SelDepNo, SelClassNo);
   },
+  getGeneralClass: function () {
+    return getGeneralClass();
+  },
   login: function (loginData) {
     return login(loginData);
   },
@@ -165,7 +168,36 @@ async function GetClassClass(SelDepNo, SelClassNo) {
       });
   });
 }
-
+async function getGeneralClass() {
+  return new Promise((resolve, reject) => {
+    var MyClass;
+    axios
+      .get(
+        "https://stucis.ttu.edu.tw/selcourse/ListGeneral.php",
+        {
+          responseType: "arraybuffer",
+          headers: {
+            Cookie: cookie,
+            Accept:
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0",
+          },
+        },
+        {
+          withCredentials: true,
+        }
+      )
+      .then(function (myClass) {
+        console.log(cookie);
+        MyClass = myClass;
+        resolve(MyClass);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  });
+}
 async function getUserGrade() {
   return new Promise((resolve, reject) => {
     axios

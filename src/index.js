@@ -305,7 +305,51 @@ ipc.on("getClassClass", async function (e, SelDepNo, SelClassNo) {
   //     console.log(fail);
   //   });
 });
-
+ipc.on("getGeneralClass", async function (e) {
+  console.log("getGeneralClass");
+  let response = getWeb.getGeneralClass();
+  let allGeneralClass;
+  let allPromise = [];
+  let generalClass = parser.classClassParser(response, "G", "");
+  generalClass
+    .then(async function (success) {
+      allGeneralClass = success;
+      for (let i = 0; i < allGeneralClass.length; i++) {
+        allPromise.push(
+          new Promise(function (resolve, reject) {
+            console.log("parser RE " + allGeneralClass[i]["id"]);
+            response = getWeb.getMyClassDate(allGeneralClass[i]["id"]);
+            let addClassTime = parser.myClassDateParser(response);
+            addClassTime
+              .then(async function (success) {
+                allGeneralClass[i]["time"] = success;
+                console.log("111111");
+                resolve();
+              })
+              .catch((fail) => {
+                console.log(fail);
+              });
+          })
+        );
+      }
+    })
+    .then((success) => {
+      Promise.all(allPromise).then(function (values) {
+        console.log("2222222");
+        let makeFilePromise = makeJson.generalClassToJson(allGeneralClass);
+        makeFilePromise
+          .then(async function (success) {
+            win.webContents.send("readyToShowGeneralClass");
+          })
+          .catch((fail) => {
+            console.log(fail);
+          });
+      });
+    })
+    .catch((fail) => {
+      console.log(fail);
+    });
+});
 ipc.on("addPreSelectClass", async function (e, preSelectThisClass) {
   await preSelect.addPreSelectClass(preSelectThisClass);
   win.webContents.send("updatePreSelectClass");

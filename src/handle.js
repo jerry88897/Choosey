@@ -45,6 +45,7 @@ const sidebar = document.getElementById("sidebar");
 const main_frame = document.getElementById("main_frame");
 const right_frame = document.getElementById("right_frame");
 const classClass = document.getElementById("classClass");
+const generalClass = document.getElementById("generalClass");
 const getMyClass = document.getElementById("getMyClass");
 const preSelectClass = document.getElementById("preSelectClass");
 const fastSelectClass = document.getElementById("fastSelectClass");
@@ -103,16 +104,16 @@ async function fastSelect() {
     isLock: false,
     preSelectBlock: [],
   };
-  let tableHead = ["分組", "啟用", "發送時刻(秒)", "酬載1", "酬載2"];
-  let tableHead2 = ["分組", "啟用", "發送間隔(秒)", "酬載1", "酬載2"];
+  let tableHead = ["分組", "發送時刻(秒)", "酬載1"];
+  let tableHead2 = ["分組", "發送間隔(秒)", "酬載1"];
   let table = document.createElement("table");
-  table.className = "preTable";
+  table.className = "mtable";
   tr = table.insertRow(-1);
-  tr.className = "ptr";
+  tr.className = "mtr";
 
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 3; i++) {
     let th = document.createElement("th"); // TABLE HEADER.
-    th.setAttribute("id", "pheader");
+    th.setAttribute("id", "mheader");
     th.innerHTML = tableHead[i];
     tr.appendChild(th);
   }
@@ -129,7 +130,7 @@ async function fastSelect() {
               id: 0,
               enable: false,
               trigger: 0,
-              list: ["", ""],
+              list: [],
             };
             preSelectBlock.id = i;
             preSelectList.preSelectBlock.push(preSelectBlock);
@@ -161,13 +162,11 @@ async function fastSelect() {
   });
 
   preSelectPromise.then(function (success) {
-    console.log(3);
-    console.log(success);
     for (let i = 0; i < 5; i++) {
       if (i == 4) {
         tr = table.insertRow(-1);
-        tr.className = "ptr";
-        for (let i = 0; i < 5; i++) {
+        tr.className = "mtr";
+        for (let i = 0; i < 3; i++) {
           let th = document.createElement("th"); // TABLE HEADER.
           th.setAttribute("id", "mheader");
           th.innerHTML = tableHead2[i];
@@ -175,27 +174,15 @@ async function fastSelect() {
         }
       }
       tr = table.insertRow(-1);
-      tr.className = "ptr";
+      tr.className = "mtr";
 
       let td = document.createElement("td");
-      td.className = "ptd";
+      td.className = "mtd";
       td.innerHTML = i + 1;
       tr.appendChild(td);
 
       td = document.createElement("td");
-      td.className = "ptd";
-      let checkbox = document.createElement("input");
-      checkbox.setAttribute("type", "checkbox");
-      checkbox.className = "preInput";
-      checkbox.id = "checkbox" + i;
-      if (preSelectList.preSelectBlock[i].enable == true) {
-        checkbox.setAttribute("checked", true);
-      }
-      td.appendChild(checkbox);
-      tr.appendChild(td);
-
-      td = document.createElement("td");
-      td.className = "ptd";
+      td.className = "mtd";
       let timeSelect = document.createElement("input");
       timeSelect.id = "timeSelect" + i;
       timeSelect.setAttribute("type", "number");
@@ -206,18 +193,17 @@ async function fastSelect() {
       timeSelect.className = "preTime  preInput";
       td.appendChild(timeSelect);
       tr.appendChild(td);
-
-      for (let j = 0; j < 2; j++) {
-        let td = document.createElement("td");
-        td.className = "ptd";
-        let textarea = document.createElement("textarea");
-        textarea.id = "textarea" + (i * 2 + j);
-        textarea.className = "preTextrea  preInput";
-        textarea.setAttribute("max-rows", 5);
-        textarea.innerHTML = preSelectList.preSelectBlock[i].list[j];
-        td.appendChild(textarea);
-        tr.appendChild(td);
+      td = document.createElement("td");
+      let newTabe = document.createElement("table");
+      for (let j = 0; j < preSelectList.preSelectBlock[i]; j++) {
+        for (let k = 0; k < preSelectList.preSelectBlock[i].list.length; k++) {
+          let newtr = newTabe.insertRow(-1);
+          newtr.innerText = "123";
+          newTabe.appendChild(newtr);
+        }
       }
+      td.appendChild(newTabe);
+      tr.appendChild(td);
     }
     let save = document.createElement("button");
     save.setAttribute("type", "button");
@@ -669,6 +655,234 @@ async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
           viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
         }
         showClassClass(SelectedDepNo, SelectedClassNo, classList);
+      });
+    });
+  });
+}
+async function showGeneralClass() {
+  await cleanFrame();
+  let actionDiv = document.createElement("div");
+  let table = document.createElement("table");
+  let tHead = document.createElement("thead");
+  let viewTypeDiv = document.createElement("div");
+  let viewTypeImg = document.createElement("img");
+  actionDiv.setAttribute("class", "actionDiv");
+  fs.readFile("./src/data/generalClass.json", function (err, myClass) {
+    let preSelectThisClassDivArray = [];
+    let preSelectlist;
+    if (err) {
+      return console.log(err);
+    }
+    console.log("start");
+    //將二進制數據轉換為字串符
+    let myclass = myClass.toString();
+    //將字符串轉換為 JSON 對象
+    try {
+      myclass = JSON.parse(myclass);
+    } catch (error) {}
+    let readshoppingCart = new Promise(function (resolve, reject) {
+      fs.readFile(
+        "./src/data/shoppingCart.json",
+        function (err, preSelectlistData) {
+          if (err) {
+            console.error(err);
+            preSelectlist = "[]";
+            preSelectlist = JSON.parse(preSelectlist);
+            resolve();
+          } else {
+            preSelectlist = preSelectlistData.toString();
+            preSelectlist = JSON.parse(preSelectlist);
+            resolve();
+          }
+        }
+      );
+    });
+    readshoppingCart.then(function () {
+      if (showClassClassType == 0) {
+        //以列表方式顯示
+        table.className = "mtable";
+        for (let key of tableHead) {
+          let th = document.createElement("th"); // TABLE HEADER.
+          th.setAttribute("id", "mheader");
+          th.innerHTML = key;
+          tHead.appendChild(th);
+        }
+        table.appendChild(tHead);
+        for (let element of myclass) {
+          tr = table.insertRow(-1);
+          tr.className = "mtr";
+          let td = document.createElement("td");
+          let selectThisClass = document.createElement("img");
+          let preSelectThisClass = document.createElement("img");
+          let selectThisClassDiv = document.createElement("div");
+          let preSelectThisClassDiv = document.createElement("div");
+          let classActionBox = document.createElement("div");
+          selectThisClassDiv.setAttribute("class", "classActionDiv");
+          if (element[tableKey[0]] == 1) {
+            selectThisClass.setAttribute(
+              "src",
+              "./icon/add_circle_outline_white_24dp.svg"
+            );
+          } else if (element[tableKey[0]] == 2) {
+            selectThisClass.setAttribute("src", "./icon/cancel_white_24dp.svg");
+          } else {
+            selectThisClassDiv.setAttribute("class", "classNoActionDiv");
+            selectThisClass.setAttribute(
+              "src",
+              "./icon/selectThisClassEmpty.svg"
+            );
+          }
+          preSelectThisClass.setAttribute("src", "./icon/bx-cart-arrow-in.svg");
+          preSelectThisClass.setAttribute("id", element[tableKey[1]]);
+          preSelectThisClassDiv.setAttribute("id", "0" + element[tableKey[1]]);
+          if (!(preSelectlist === undefined)) {
+            for (
+              let preSelectlistPos = 0;
+              preSelectlistPos < preSelectlist.length;
+              preSelectlistPos++
+            ) {
+              if (preSelectlist[preSelectlistPos].id === element[tableKey[1]]) {
+                preSelectThisClass.setAttribute(
+                  "src",
+                  "./icon/bx-cart-arrow-out.svg"
+                );
+                preSelectThisClassDiv.setAttribute(
+                  "id",
+                  "1" + element[tableKey[1]]
+                );
+                break;
+              }
+            }
+          }
+          selectThisClass.setAttribute("class", "classAction");
+          preSelectThisClass.setAttribute("class", "classAction");
+          selectThisClassDiv.appendChild(selectThisClass);
+          preSelectThisClassDiv.appendChild(preSelectThisClass);
+          preSelectThisClassDiv.setAttribute("class", "classActionDiv");
+          preSelectThisClassDivArray.push(preSelectThisClassDiv);
+          classActionBox.appendChild(selectThisClassDiv);
+          classActionBox.appendChild(preSelectThisClassDiv);
+          classActionBox.setAttribute("class", "classActionBox");
+          td.appendChild(classActionBox);
+          td.className = "mtd";
+          tr.appendChild(td);
+          for (let tabletd = 1; tabletd < 4; tabletd++) {
+            let td = document.createElement("td");
+            td.className = "mtd";
+            td.innerHTML = element[tableKey[tabletd]];
+            tr.appendChild(td);
+          }
+          td = document.createElement("td");
+          td.className = "mtd";
+          if (element[tableKey[4]] === "必修") {
+            td.style.color = "yellow";
+          } else {
+            td.style.color = "var(--yes-color)";
+          }
+          td.innerHTML = element[tableKey[4]];
+          tr.appendChild(td);
+          td = document.createElement("td");
+          td.className = "mtd";
+          td.innerHTML = element[tableKey[5]];
+          tr.appendChild(td);
+          td = document.createElement("td");
+          td.className = "mtd";
+          if (element[tableKey[7]]) {
+            td.style.color = "var(--no-color)";
+          } else {
+            td.style.color = "var(--yes-color)";
+          }
+          td.innerHTML = element[tableKey[6]];
+          tr.appendChild(td);
+          for (let tabletd = 8; tabletd < tableKey.length; tabletd++) {
+            let td = document.createElement("td");
+            td.className = "mtd";
+            td.innerHTML = element[tableKey[tabletd]];
+            tr.appendChild(td);
+          }
+        }
+      } else {
+        //以課表方式顯示
+        table.className = "mBtable";
+        let trSet = [];
+        for (let key of dateHead) {
+          let th = document.createElement("th"); // TABLE HEADER.
+          th.setAttribute("id", "mheader");
+          th.innerHTML = key;
+          tHead.appendChild(th);
+        }
+        table.appendChild(tHead);
+        for (let i = 0; i < 14; i++) {
+          let tdSet = [];
+          let tr = table.insertRow(-1); // TABLE ROW.
+          for (let j = 0; j < 7; j++) {
+            let td = document.createElement("td");
+            if (j == 0) {
+              td.innerHTML = timeSeg[i];
+            }
+            td.className = "mBtd";
+            tdSet.push(td);
+            tr.appendChild(td);
+          }
+          tr.className = "mBtr";
+          trSet.push(tdSet);
+        }
+        for (let element of myclass) {
+          for (let time of element["time"]) {
+            let day = time.day + 1;
+            let seg = time.seg;
+            trSet[seg][day].innerHTML += element["name"] + "<br>";
+          }
+        }
+      }
+      viewTypeDiv.setAttribute("class", "viewType");
+      viewTypeImg.setAttribute("class", "icon");
+      if (showClassClassType == 0) {
+        viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
+      } else {
+        viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
+      }
+      viewTypeDiv.appendChild(viewTypeImg);
+      actionDiv.appendChild(viewTypeDiv);
+      main_frame.appendChild(table);
+      let placeHolder = document.createElement("div");
+      placeHolder.setAttribute("class", "placeHolder");
+      main_frame.appendChild(actionDiv);
+      main_frame.appendChild(placeHolder);
+
+      for (
+        let preSelectButton = 0;
+        preSelectButton < preSelectThisClassDivArray.length;
+        preSelectButton++
+      ) {
+        preSelectThisClassDivArray[preSelectButton].addEventListener(
+          "click",
+          async function () {
+            let cart = document.getElementById(this.id.substring(1));
+            if (this.id[0] === "1") {
+              console.log("remove");
+              ipc.send("removePreSelectClass", myclass[preSelectButton]);
+              cart.src = "./icon/bx-cart-arrow-in.svg";
+              this.id = "0" + this.id.substring(1);
+            } else {
+              console.log("add");
+              ipc.send("addPreSelectClass", myclass[preSelectButton]);
+              cart.src = "./icon/bx-cart-arrow-out.svg";
+              this.id = "1" + this.id.substring(1);
+            }
+          }
+        );
+      }
+      viewTypeDiv.addEventListener("click", async function () {
+        console.log("change");
+        if (showClassClassType == 0) {
+          showClassClassType = 1;
+          viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
+        } else {
+          showClassClassType = 0;
+          viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
+        }
+        showGeneralClass();
       });
     });
   });
@@ -1661,6 +1875,11 @@ classClass.addEventListener("click", async function () {
   showPreSelectClass();
   console.log("getClassClass");
 });
+generalClass.addEventListener("click", async function () {
+  ipc.send("getGeneralClass");
+  showPreSelectClassAtPreSelectPage();
+  console.log("getGeneralClass");
+});
 
 getMyClass.addEventListener("click", async function () {
   ipc.send("getMyClass");
@@ -1686,6 +1905,13 @@ ipc.on(
   function (evt, SelDepNo, SelClassNo, classList) {
     console.log("showClassClass");
     showClassClass(SelDepNo, SelClassNo, classList);
+  }
+);
+ipc.on(
+  "readyToShowGeneralClass",
+  function (evt, SelDepNo, SelClassNo, classList) {
+    console.log("showClassClass");
+    showGeneralClass();
   }
 );
 ipc.on("updatePreSelectClass", function (evt) {
