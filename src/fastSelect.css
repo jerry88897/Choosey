@@ -1,0 +1,217 @@
+.pasteButtonBox {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pasteButton {
+  width: 30px;
+  height: 30px;
+  color: var(--word-color);
+  text-align: center;
+  line-height: 30px;
+  transition: all 0.4s ease;
+  user-select: none;
+}
+
+.pasteButton:hover {
+  border-radius: 50%;
+  background: rgb(129, 129, 129);
+}
+
+.flexTableHeadBox {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  margin-top: 120px;
+  width: 60vw;
+}
+
+.fheader {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 130px;
+  height: 50px;
+  background-color: var(--tableHead-color);
+  color: var(--word-color);
+  font-weight: bold;
+}
+
+.fheaderButton {
+  width: 8%;
+}
+
+.fheaderTime {
+  width: 15%;
+}
+
+.fheaderClass {
+  width: 69%;
+}
+
+.fheader:first-child {
+  border-top-left-radius: 10px;
+  /* border-bottom-left-radius: 10px; */
+}
+
+.fheader:last-child {
+  border-top-right-radius: 10px;
+  /* border-bottom-right-radius: 10px; */
+}
+
+.flexSendBlockListBox {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: center;
+  width: 60vw;
+  background-color: var(--tableTr-color);
+}
+
+.flexSendBlockBox:last-child {
+  border-bottom-width: 0;
+}
+
+.flexSendBlockBox {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  width: 100%;
+  border-bottom-width: 2px;
+  border-bottom-style: solid;
+  border-bottom-color: white;
+}
+
+.flexInputBox {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  width: 31%;
+  height: 100%;
+  border-right-width: 1px;
+  border-right-style: solid;
+  border-right-color: white;
+}
+
+.fInputButton {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  width: calc(60vw * 0.08);
+  height: 100%;
+}
+
+.fCheckbox {
+  width: 20px;
+  height: 20px;
+}
+
+.fInputTime {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  width: calc(60vw * 0.15);
+  height: 100%;
+}
+
+.fTime {
+  width: 50px;
+}
+
+.flexClassListBox {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.flexClass {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  min-height: 60px;
+  width: 100%;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: var(--first-color);
+  transition: all 0.2s ease-in;
+}
+
+.flexClass:hover {
+  background-color: var(--tableTrHover-color);
+}
+
+.flexClass:hover {
+  border-radius: 2%;
+  box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2), -1px -1px 8px rgba(0, 0, 0, 0.2);
+  transform: scale(1.02);
+}
+
+.flexClass:last-child {
+  border-bottom-width: 0;
+}
+
+.flexClassInfo {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  height: 100%;
+  color: var(--word-color);
+}
+
+.classDeleteButton {
+  width: 10%;
+}
+
+.classId {
+  width: 15%;
+}
+
+.className {
+  width: 40%;
+}
+
+.classTeacher {
+  width: 15%;
+}
+
+.classType {
+  width: 10%;
+}
+
+.classPoint {
+  width: 10%;
+}

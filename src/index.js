@@ -10,6 +10,7 @@ const makeJson = require("./makeJson");
 const preSelect = require("./preSelect");
 const preSelectPage = require("./preSelectPage");
 const preSelectPageAction = require("./preSelectPageAction");
+const fastSelect = require("./fastSelect");
 const iconv = require("iconv-lite");
 const { Console } = require("console");
 const screen = require("electron").screen;
@@ -377,6 +378,17 @@ ipc.on("preSelectPageRemoveClass", async function (e, removeThisClass) {
 ipc.on("exportPreSelectClass", async function (e, exportThisClass) {
   await preSelect.exportPreSelectClass(exportThisClass);
   win.webContents.send("updatePreSelectPage");
+});
+ipc.on("copyPreSelectClass", async function (e, exportThisClass) {
+  await preSelect.copyPreSelectClass(exportThisClass);
+});
+
+ipc.on("fastSelectPaste", async function (e, fastSelectNo) {
+  await fastSelect.pasteSelectClass(
+    preSelect.getCopiedPreSelectClass(),
+    fastSelectNo
+  );
+  win.webContents.send("updateFastSelectPage");
 });
 
 ipc.on("updatePreSelect", async function (e, data) {

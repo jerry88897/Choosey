@@ -196,6 +196,7 @@ async function myClassParser(response) {
   let done = false;
   let tr = 0;
   let td = 0;
+  let word = 0;
   var allClass = [];
   var outText = "";
   var nowClass;
@@ -225,6 +226,7 @@ async function myClassParser(response) {
               action: 0,
               id: "",
               name: "",
+              engName: "",
               teacher: "",
               type: "",
               point: "",
@@ -242,7 +244,8 @@ async function myClassParser(response) {
           } else if (td == 1) {
             if (text != " ") nowClass.id += text;
           } else if (td == 2) {
-            if (text != " " && text != "\n") nowClass.name += text;
+            if (word < 3) nowClass.name += text;
+            else nowClass.engName += text;
           } else if (td == 3) {
             nowClass.teacher += text;
           } else if (td == 4) {
@@ -273,6 +276,7 @@ async function myClassParser(response) {
             if (inStudent >= wantStudent) nowClass.overflow = true;
             allClass.push(nowClass);
           }
+          word++;
         }
       },
       onclosetag(tagname) {
@@ -282,6 +286,7 @@ async function myClassParser(response) {
         } else if (tagname === "table") {
           inTable = false;
         } else if (tagname === "td") {
+          word = 0;
           td++;
         }
       },
@@ -331,6 +336,9 @@ async function pointParser(response) {
         } else if (tagname === "font") {
           inTd = false;
           outText = outText.replace(/\s+/g, "");
+        } else if (tagname === "td") {
+          word = 0;
+          td++;
         }
       },
     },

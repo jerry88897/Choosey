@@ -2,42 +2,6 @@ const { getElementById } = require("domutils");
 const electron = require("electron");
 const ipc = electron.ipcRenderer;
 
-/*//const button = document.getElementById('getClass')
-//1
-const body =document.getElementById("body")
-const loginBox = document.getElementById('login_box')
-const login = document.getElementById('login')
-const wave =document.getElementById("wave")
-
-
-
-//button.addEventListener('click',async function(){
-//    ipc.send('getClass')
-//
-//})
-login.addEventListener('click',async function(){
-    let Id = document.getElementById('id').value;
-    let Ps = document.getElementById('ps').value;
-    ipc.send('login',{id: Id,ps:Ps});
-    console.log({id: Id,ps:Ps});
-})
-
-ipc.on('myClass', function (evt, message) {
-    console.log(message);
-    document.getElementById("classList").innerHTML = message;
-});
-
-ipc.on('loginRe', function (evt, resoult) {
-    console.log(resoult);
-    if(resoult==0){
-        loginBox.style.animation = "flyout 1s forwards";
-        wave.style.animation = "down 2s forwards";
-    }
-    //document.getElementById("classList").innerHTML = message;
-});
-*/
-
-//2
 const fs = require("fs");
 const { resolve } = require("path");
 const menu = document.getElementById("menu");
@@ -100,44 +64,51 @@ async function cleanRightFrame() {
 }
 async function fastSelect() {
   await cleanFrame();
-  let preSelectList = {
+  let fastSelectList = {
     isLock: false,
-    preSelectBlock: [],
+    fastSelectBlock: [],
   };
-  let tableHead = ["分組", "發送時刻(秒)", "酬載1"];
-  let tableHead2 = ["分組", "發送間隔(秒)", "酬載1"];
-  let table = document.createElement("table");
-  table.className = "mtable";
-  tr = table.insertRow(-1);
-  tr.className = "mtr";
+  let tableHead = ["貼上", "啟用", "發送時刻(秒)", "課程"];
+  let tableHead2 = ["貼上", "啟用", "發送間隔(秒)", "課程"];
+  let flexTableHeadBox = document.createElement("div");
+  flexTableHeadBox.setAttribute("class", "flexTableHeadBox");
+  let flexTableHead;
+  for (let i = 0; i < 4; i++) {
+    flexTableHead = document.createElement("div"); // TABLE HEADER.
+    if (i < 2) {
+      flexTableHead.setAttribute("class", "fheader fheaderButton");
+    } else if (i == 2) {
+      flexTableHead.setAttribute("class", "fheader fheaderTime");
+    } else {
+      flexTableHead.setAttribute("class", "fheader fheaderClass");
+    }
 
-  for (let i = 0; i < 3; i++) {
-    let th = document.createElement("th"); // TABLE HEADER.
-    th.setAttribute("id", "mheader");
-    th.innerHTML = tableHead[i];
-    tr.appendChild(th);
+    flexTableHead.innerText = tableHead[i];
+    flexTableHeadBox.appendChild(flexTableHead);
   }
 
-  let preSelectPromise = new Promise(function (resolve, reject) {
+  main_frame.appendChild(flexTableHeadBox);
+
+  let fastSelectPromise = new Promise(function (resolve, reject) {
     console.log(1);
     fs.readFile(
-      "./src/data/preSelect.json",
-      function (err, preSelectListSaved) {
+      "./src/data/fastSelect.json",
+      function (err, fastSelectListSaved) {
         if (err) {
-          console.log("no PRS make new file");
+          console.log("no FSS make new file");
           for (let i = 0; i < 5; i++) {
-            let preSelectBlock = {
+            let fastSelectBlock = {
               id: 0,
               enable: false,
               trigger: 0,
               list: [],
             };
-            preSelectBlock.id = i;
-            preSelectList.preSelectBlock.push(preSelectBlock);
+            fastSelectBlock.id = i;
+            fastSelectList.fastSelectBlock.push(fastSelectBlock);
           }
           fs.writeFile(
-            "./src/data/preSelect.json",
-            JSON.stringify(preSelectList),
+            "./src/data/fastSelect.json",
+            JSON.stringify(fastSelectList),
             function (err) {
               if (err) {
                 console.log(err);
@@ -149,11 +120,11 @@ async function fastSelect() {
             }
           );
         } else {
-          console.log("load PRS");
+          console.log("load FSS");
           //將二進制數據轉換為字串符
-          preSelectListSaved = preSelectListSaved.toString();
+          fastSelectListSaved = fastSelectListSaved.toString();
           //將字符串轉換為 JSON 對象
-          preSelectList = JSON.parse(preSelectListSaved);
+          fastSelectList = JSON.parse(fastSelectListSaved);
           console.log(2);
           resolve("success");
         }
@@ -161,85 +132,150 @@ async function fastSelect() {
     );
   });
 
-  preSelectPromise.then(function (success) {
+  fastSelectPromise.then(function (success) {
+    let pasteButtonArray = [];
+    let flexSendBlockListBox = document.createElement("div");
+    flexSendBlockListBox.setAttribute("class", "flexSendBlockListBox");
     for (let i = 0; i < 5; i++) {
       if (i == 4) {
-        tr = table.insertRow(-1);
-        tr.className = "mtr";
-        for (let i = 0; i < 3; i++) {
-          let th = document.createElement("th"); // TABLE HEADER.
-          th.setAttribute("id", "mheader");
-          th.innerHTML = tableHead2[i];
-          tr.appendChild(th);
+        flexTableHeadBox = document.createElement("div");
+        flexTableHeadBox.setAttribute("class", "flexTableHeadBox");
+        for (let i = 0; i < 4; i++) {
+          flexTableHead = document.createElement("div"); // TABLE HEADER.
+          if (i < 2) {
+            flexTableHead.setAttribute("class", "fheader fheaderTime");
+          } else if (i == 2) {
+            flexTableHead.setAttribute("class", "fheader fheaderClass");
+          } else {
+            flexTableHead.setAttribute("class", "fheader fheaderButton");
+          }
+
+          flexTableHead.innerText = tableHead2[i];
+          flexTableHeadBox.appendChild(flexTableHead);
         }
+        main_frame.appendChild(flexSendBlockListBox);
+        main_frame.appendChild(flexTableHeadBox);
+        flexSendBlockListBox = document.createElement("div");
+        flexSendBlockListBox.setAttribute("class", "flexSendBlockListBox");
       }
-      tr = table.insertRow(-1);
-      tr.className = "mtr";
 
-      let td = document.createElement("td");
-      td.className = "mtd";
-      td.innerHTML = i + 1;
-      tr.appendChild(td);
+      let flexSendBlockBox = document.createElement("div");
+      flexSendBlockBox.setAttribute("class", "flexSendBlockBox");
 
-      td = document.createElement("td");
-      td.className = "mtd";
+      let flexInputBox = document.createElement("div");
+      flexInputBox.setAttribute("class", "flexInputBox");
+
+      let pasteTd = document.createElement("div"); //貼上
+      pasteTd.className = "fInputButton";
+
+      let pasteButtonBox = document.createElement("div");
+      pasteButtonBox.setAttribute("class", "pasteButtonBox");
+      let pasteButton = document.createElement("div");
+      pasteButton.setAttribute("class", "pasteButton");
+      pasteButton.setAttribute("id", "pasteButton" + i);
+      let pasteButtonImg = document.createElement("img");
+      pasteButtonImg.setAttribute("src", "./icon/playlist_insert.svg");
+      pasteButtonImg.setAttribute("class", "icon");
+      pasteButton.appendChild(pasteButtonImg);
+      pasteButtonBox.appendChild(pasteButton);
+      pasteButtonArray.push(pasteButton);
+      pasteTd.appendChild(pasteButtonBox);
+
+      let actTd = document.createElement("div"); //啟用
+      actTd.className = "fInputButton";
+
+      let enableChecker = document.createElement("input");
+      enableChecker.setAttribute("type", "checkbox");
+      enableChecker.setAttribute("class", "fCheckbox");
+      enableChecker.id = "checkbox" + i;
+      actTd.appendChild(enableChecker);
+
+      let timeTd = document.createElement("div"); //發送時刻(秒)
+      timeTd.className = "fInputTime";
+
       let timeSelect = document.createElement("input");
       timeSelect.id = "timeSelect" + i;
       timeSelect.setAttribute("type", "number");
       timeSelect.setAttribute("min", -120);
       timeSelect.setAttribute("max", 120);
       timeSelect.setAttribute("step", 0.01);
-      timeSelect.setAttribute("value", preSelectList.preSelectBlock[i].trigger);
-      timeSelect.className = "preTime  preInput";
-      td.appendChild(timeSelect);
-      tr.appendChild(td);
-      td = document.createElement("td");
-      let newTabe = document.createElement("table");
-      for (let j = 0; j < preSelectList.preSelectBlock[i]; j++) {
-        for (let k = 0; k < preSelectList.preSelectBlock[i].list.length; k++) {
-          let newtr = newTabe.insertRow(-1);
-          newtr.innerText = "123";
-          newTabe.appendChild(newtr);
+      timeSelect.setAttribute(
+        "value",
+        fastSelectList["fastSelectBlock"][i].trigger
+      );
+      timeSelect.className = "fTime";
+      timeTd.appendChild(timeSelect);
+
+      flexInputBox.appendChild(pasteTd);
+      flexInputBox.appendChild(actTd);
+      flexInputBox.appendChild(timeTd);
+      flexSendBlockBox.appendChild(flexInputBox);
+
+      let flexClassListBox = document.createElement("div");
+      flexClassListBox.setAttribute("class", "flexClassListBox");
+      let flexClassBox = document.createElement("div");
+      flexClassBox.setAttribute("class", "flexClassBox");
+      let flexClass;
+      let flexClassInfo;
+      for (let element of fastSelectList["fastSelectBlock"][i]["list"]) {
+        flexClass = document.createElement("div");
+        flexClass.setAttribute("class", "flexClass");
+
+        flexClassInfo = document.createElement("div"); //刪除按鈕
+        flexClassInfo.className = "flexClassInfo classDeleteButton";
+        let deleteButton = document.createElement("div");
+        deleteButton.setAttribute("class", "pasteButton");
+        deleteButton.setAttribute("id", "deleteButton" + i);
+        let deleteButtonImg = document.createElement("img");
+        deleteButtonImg.setAttribute("src", "./icon/delete.svg");
+        deleteButtonImg.setAttribute("class", "icon");
+        deleteButton.appendChild(deleteButtonImg);
+        flexClassInfo.appendChild(deleteButton);
+        flexClass.appendChild(flexClassInfo);
+
+        flexClassInfo = document.createElement("div"); //課程代碼
+        flexClassInfo.className = "flexClassInfo classId";
+        flexClassInfo.innerText = element["id"];
+        flexClass.appendChild(flexClassInfo);
+
+        flexClassInfo = document.createElement("div"); //課程名稱
+        flexClassInfo.className = "flexClassInfo className";
+        flexClassInfo.innerText = element["name"];
+        flexClass.appendChild(flexClassInfo);
+
+        flexClassInfo = document.createElement("div"); //教師
+        flexClassInfo.className = "flexClassInfo classTeacher";
+        flexClassInfo.innerText = element["teacher"];
+        flexClass.appendChild(flexClassInfo);
+
+        flexClassInfo = document.createElement("div"); //必選修
+        flexClassInfo.className = "flexClassInfo classType";
+        flexClassInfo.innerText = element["type"];
+        if (element["type"] === "必修") {
+          flexClassInfo.style.color = "yellow";
+        } else {
+          flexClassInfo.style.color = "var(--yes-color)";
         }
+        flexClass.appendChild(flexClassInfo);
+
+        flexClassInfo = document.createElement("div"); //學分
+        flexClassInfo.className = "flexClassInfo classPoint";
+        flexClassInfo.innerText = element["point"];
+        flexClass.appendChild(flexClassInfo);
+
+        flexClassListBox.appendChild(flexClass);
       }
-      td.appendChild(newTabe);
-      tr.appendChild(td);
+      flexSendBlockBox.appendChild(flexClassListBox);
+      flexSendBlockListBox.appendChild(flexSendBlockBox);
     }
+    main_frame.appendChild(flexSendBlockListBox);
     let save = document.createElement("button");
     save.setAttribute("type", "button");
     save.className = "saveBTN";
 
-    console.log(preSelectList.isLock);
+    console.log(fastSelectList.isLock);
 
-    main_frame.appendChild(table);
     main_frame.appendChild(save);
-
-    document.getElementById("textarea9").style.visibility = "hidden";
-
-    let preInput = document.querySelectorAll(".preInput");
-    console.log(preInput);
-    if (preSelectList.isLock == false) {
-      save.innerHTML = "保存並鎖定";
-      for (var i = 0; i < preInput.length; i++) {
-        preInput[i].disabled = false;
-      }
-      for (let i = 0; i < 5; i++) {
-        document.getElementById("textarea" + i * 2).className = "preTextrea";
-        document.getElementById("textarea" + (i * 2 + 1)).className =
-          "preTextrea";
-      }
-    } else {
-      save.innerHTML = "解除鎖定";
-      for (var i = 0; i < preInput.length; i++) {
-        preInput[i].disabled = true;
-      }
-      for (let i = 0; i < 5; i++) {
-        document.getElementById("textarea" + i * 2).className =
-          "preTextreaDark";
-        document.getElementById("textarea" + (i * 2 + 1)).className =
-          "preTextreaDark";
-      }
-    }
 
     save.addEventListener("click", async function () {
       if (preSelectList.isLock == false) {
@@ -305,6 +341,14 @@ async function fastSelect() {
         );
       }
     });
+
+    for (let element of pasteButtonArray) {
+      element.addEventListener("click", async function () {
+        console.log(element.id);
+        fastSelectNo = element.id[11];
+        ipc.send("fastSelectPaste", fastSelectNo);
+      });
+    }
   });
 }
 
@@ -1152,6 +1196,164 @@ async function showPreSelectClassAtPreSelectPage() {
   });
 }
 
+async function showPreSelectClassAtFastSelectPage() {
+  await cleanRightFrame();
+  let table = document.createElement("table");
+  let tHead = document.createElement("thead");
+  let viewShoppingCartDiv = document.createElement("div");
+  let viewShoppingCartImg = document.createElement("img");
+  let miniTableHead = ["動作", "課程代碼", "課程名稱", "教師", "類別", "學分"];
+  fs.readFile("./src/data/shoppingCart.json", function (err, myClassData) {
+    let preSelectThisClassDivArray = [];
+    let copyThisClassDivArray = [];
+    let copyThisClassArray = [];
+    let myclass;
+    if (err) {
+      console.log(err);
+      myclass = "[]";
+    } else {
+      myclass = myClassData.toString();
+    }
+    console.log("start");
+    //將二進制數據轉換為字串符
+    let preSelectlist;
+    let readPreSelectPage = new Promise(function (resolve, reject) {
+      fs.readFile(
+        "./src/data/PreSelectPage.json",
+        function (err, preSelectlistData) {
+          if (err) {
+            console.error(err);
+            preSelectlist = "[]";
+            preSelectlist = JSON.parse(preSelectlist);
+            resolve();
+          } else {
+            preSelectlist = preSelectlistData.toString();
+            preSelectlist = JSON.parse(preSelectlist);
+            resolve();
+          }
+        }
+      );
+    });
+    readPreSelectPage.then(function () {
+      //將字符串轉換為 JSON 對象
+      try {
+        myclass = JSON.parse(myClassData);
+      } catch (error) {}
+      table.className = "sctable";
+      for (let key of miniTableHead) {
+        let th = document.createElement("th"); // TABLE HEADER.
+        th.setAttribute("id", "scheader");
+        th.innerHTML = key;
+        tHead.appendChild(th);
+      }
+      table.appendChild(tHead);
+      for (let element of myclass) {
+        tr = table.insertRow(-1);
+        tr.className = "sctr";
+        let td = document.createElement("td");
+        let preSelectThisClass = document.createElement("img");
+        let preSelectThisClassDiv = document.createElement("div");
+        let copyThisClass = document.createElement("img");
+        let copyThisClassDiv = document.createElement("div");
+        let classActionBox = document.createElement("div");
+        preSelectThisClass.setAttribute("src", "./icon/bx-cart-arrow-out.svg");
+        preSelectThisClassDiv.setAttribute("id", "s" + element[tableKey[1]]);
+        preSelectThisClass.setAttribute("class", "classAction");
+        preSelectThisClassDiv.appendChild(preSelectThisClass);
+        preSelectThisClassDiv.setAttribute("class", "classActionDiv");
+        preSelectThisClassDivArray.push(preSelectThisClassDiv);
+        copyThisClass.setAttribute("src", "./icon/bxs-eyedropper.svg");
+        copyThisClassDiv.setAttribute("id", "e" + element[tableKey[1]]);
+        copyThisClass.setAttribute("class", "classAction");
+        copyThisClassDiv.appendChild(copyThisClass);
+        copyThisClassDiv.setAttribute("class", "classActionDiv");
+        let isIn = false;
+        for (let i = 0; i < preSelectlist.length; i++) {
+          if (preSelectlist[i].id === element.id) {
+            isIn = true;
+            break;
+          }
+        }
+        copyThisClassArray.push(element);
+        copyThisClassDivArray.push(copyThisClassDiv);
+        classActionBox.appendChild(copyThisClassDiv);
+        classActionBox.appendChild(preSelectThisClassDiv);
+        classActionBox.setAttribute("class", "classActionBox");
+        td.appendChild(classActionBox);
+        td.className = "sctd";
+        tr.appendChild(td);
+        for (let tabletd = 1; tabletd < 4; tabletd++) {
+          let td = document.createElement("td");
+          td.className = "sctd";
+          td.innerHTML = element[tableKey[tabletd]];
+          tr.appendChild(td);
+        }
+        td = document.createElement("td");
+        td.className = "sctd";
+        if (element[tableKey[4]] === "必修") {
+          td.style.color = "yellow";
+        } else {
+          td.style.color = "var(--yes-color)";
+        }
+        td.innerHTML = element[tableKey[4]];
+        tr.appendChild(td);
+        td = document.createElement("td");
+        td.className = "sctd";
+        td.innerHTML = element[tableKey[5]];
+        tr.appendChild(td);
+      }
+      viewShoppingCartDiv.setAttribute("class", "viewShoppingCart");
+      viewShoppingCartImg.setAttribute("class", "icon");
+      viewShoppingCartImg.setAttribute(
+        "src",
+        "./icon/shopping_cart_white_24dp.svg"
+      );
+      viewShoppingCartDiv.appendChild(viewShoppingCartImg);
+      right_frame.appendChild(table);
+      let placeHolder = document.createElement("div");
+      placeHolder.setAttribute("class", "placeHolder");
+      right_frame.appendChild(placeHolder);
+
+      for (
+        let preSelectButton = 0;
+        preSelectButton < preSelectThisClassDivArray.length;
+        preSelectButton++
+      ) {
+        preSelectThisClassDivArray[preSelectButton].addEventListener(
+          "click",
+          async function () {
+            console.log("remove");
+            ipc.send(
+              "preSelectPageRemovePreSelectClass",
+              myclass[preSelectButton]
+            );
+          }
+        );
+      }
+      for (
+        let copySelectButton = 0;
+        copySelectButton < copyThisClassDivArray.length;
+        copySelectButton++
+      ) {
+        copyThisClassDivArray[copySelectButton].addEventListener(
+          "click",
+          async function () {
+            console.log("copied");
+            ipc.send(
+              "copyPreSelectClass",
+              copyThisClassArray[copySelectButton]
+            );
+          }
+        );
+      }
+      right_frame.appendChild(viewShoppingCartDiv);
+      viewShoppingCartDiv.addEventListener("click", async function () {
+        showPreSelectClass();
+      });
+    });
+  });
+}
+
 let shadow;
 
 let showpreSelectClassType = 0;
@@ -1397,6 +1599,7 @@ async function preSelectClassPage() {
       for (let trCount = 0; trCount < trArray.length; trCount++) {
         trArray[trCount].addEventListener("dragstart", function dragit(event) {
           console.log("ondragstart");
+          this.classList.add("dragging");
           shadow = event.target;
         });
         trArray[trCount].addEventListener("dragenter", function dragover(e) {
@@ -1864,6 +2067,7 @@ preSelectClass.addEventListener("click", async function () {
 });
 fastSelectClass.addEventListener("click", async function () {
   fastSelect();
+  showPreSelectClassAtFastSelectPage();
 });
 
 window.onload = function () {
@@ -1932,6 +2136,13 @@ ipc.on("updatePreSelectPage", function (evt) {
   preSelectClassPage();
   showPreSelectClassAtPreSelectPage();
 });
+
+ipc.on("updateFastSelectPage", function (evt) {
+  console.log("showFastSelectPage");
+  fastSelect();
+  showPreSelectClassAtFastSelectPage();
+});
+
 ipc.on("readyToShow", function (evt, myClass) {
   console.log("show");
   showMyClass();

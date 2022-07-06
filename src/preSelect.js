@@ -1,4 +1,5 @@
 const fs = require("fs");
+let copiedClass = "";
 module.exports = {
   addPreSelectClass: function (aClass) {
     return addPreSelectClass(aClass);
@@ -8,6 +9,12 @@ module.exports = {
   },
   exportPreSelectClass: function (aClass) {
     return exportPreSelectClass(aClass);
+  },
+  copyPreSelectClass: function (aClass) {
+    return copyPreSelectClass(aClass);
+  },
+  getCopiedPreSelectClass: function () {
+    return copiedClass;
   },
 };
 
@@ -166,5 +173,13 @@ async function exportPreSelectClass(aClass) {
       .catch(function (error) {
         console.log(error);
       });
+  });
+}
+async function copyPreSelectClass(aClass) {
+  //console.log(myClass)
+  return new Promise((resolve, reject) => {
+    copiedClass = aClass;
+    console.log(copiedClass);
+    resolve();
   });
 }
