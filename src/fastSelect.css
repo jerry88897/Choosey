@@ -33,6 +33,16 @@
   width: 60vw;
 }
 
+.flexTableSecondHeadBox {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  width: 60vw;
+}
+
 .fheader {
   display: flex;
   align-content: center;
@@ -78,6 +88,7 @@
   justify-content: center;
   width: 60vw;
   background-color: var(--tableTr-color);
+  margin-bottom: 20px;
 }
 
 .flexSendBlockBox:last-child {

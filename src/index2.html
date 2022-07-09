@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>P Agent</title>
+  <title>Choosey</title>
   <link rel="stylesheet" href="index2.css" />
   <link rel="stylesheet" href="myClass.css" />
   <link rel="stylesheet" href="preSelect.css" />
@@ -19,7 +19,7 @@
 
 <body>
   <header>
-    <a class="logo">選課機器</a>
+    <img src="./icon/logoWithName.png" class="logo">
     <ul>
       <li><a>距離選課剩餘:</a></li>
       <li><a id="leftDay">-</a></li>
@@ -34,78 +34,106 @@
   </header>
   <div class="sidebar">
     <div class="logo-details">
-      <i class="bx bxs-parking icon"></i>
-      <div class="logo_name">Agent</div>
-      <i class="bx bx-menu" id="btn"></i>
+      <div class="logo_name">Choosey</div>
+      <i class="bx">
+        <img src="./icon/bx-menu.svg" id="btn">
+      </i>
     </div>
     <ul class="nav-list">
       <li>
-        <i class="bx bx-search"></i>
-        <input type="text" placeholder="搜尋課程..." />
-        <span class="tooltip">Search</span>
-      </li>
-      <li>
         <a>
-          <i class="bx bx-grid-alt"></i>
-          <span class="links_name">修課狀態</span>
+          <i class='bx'>
+            <svg class="boxIcon" viewBox="0 0 24 24">
+              <use href="#chip-icon"></use>
+            </svg>
+          </i>
+          <span class="links_name">系統狀態</span>
         </a>
-        <span class="tooltip">修課狀態</span>
+        <span class="tooltip">系統狀態</span>
       </li>
       <li>
         <a id="classClass">
-          <i class="bx bx-user"></i>
+          <i class='bx'>
+            <svg class="boxIcon" viewBox="0 0 24 24">
+              <use href="#duplicate-icon"></use>
+            </svg>
+          </i>
           <span class="links_name">各班課程</span>
         </a>
         <span class="tooltip">各班課程</span>
       </li>
       <li>
         <a id="generalClass">
-          <i class="bx bx-folder"></i>
+          <i class='bx'>
+            <svg class="boxIcon" viewBox="0 0 24 24">
+              <use href="#coffee-icon"></use>
+            </svg>
+          </i>
           <span class="links_name">通識課程</span>
         </a>
         <span class="tooltip">通識課程</span>
       </li>
       <li>
         <a id="preSelectClass">
-          <i class="bx bx-cart-alt"></i>
-          <span class="links_name">選課邏輯</span>
+          <i class='bx'>
+            <svg class="boxIcon" viewBox="0 0 24 24">
+              <use href="#manage-Search-icon"></use>
+            </svg>
+          </i>
+          <span class="links_name">觀測選課</span>
         </a>
-        <span class="tooltip">選課邏輯</span>
+        <span class="tooltip">觀測選課</span>
       </li>
       <li>
         <a id="fastSelectClass">
-          <i class="bx bx-chat"></i>
-          <span class="links_name">已預選課程</span>
+          <i class='bx'>
+            <svg class="boxIcon" viewBox="0 0 24 24">
+              <use href="#flash-icon"></use>
+            </svg>
+          </i>
+          <span class="links_name">快速選課</span>
         </a>
-        <span class="tooltip">已預選課程</span>
+        <span class="tooltip">快速選課</span>
       </li>
       <li>
         <a id="getMyClass">
-          <i class="bx bx-pie-chart-alt-2"></i>
-          <span class="links_name">已中選課程</span>
+          <i class='bx'>
+            <svg class="boxIcon" viewBox="0 0 24 24">
+              <use href="#addTask-icon"></use>
+            </svg>
+          </i>
+          <span class="links_name">中選課程</span>
         </a>
-        <span class="tooltip">已中選課程</span>
+        <span class="tooltip">中選課程</span>
       </li>
       <li>
         <a href="#">
-          <i class="bx bx-heart"></i>
-          <span class="links_name">最愛課程</span>
+          <i class='bx'>
+            <svg class="boxIcon" viewBox="0 0 24 24">
+              <use href="#info-icon"></use>
+            </svg>
+          </i>
+          <span class="links_name">資訊</span>
         </a>
-        <span class="tooltip">最愛課程</span>
+        <span class="tooltip">資訊</span>
       </li>
       <li>
         <a id="setting">
-          <i class="bx bx-cog"></i>
+          <i class='bx'>
+            <svg class="boxIcon" viewBox="0 0 24 24">
+              <use href="#set-icon"></use>
+            </svg>
+          </i>
           <span class="links_name">設定</span>
         </a>
         <span class="tooltip">設定</span>
       </li>
       <li class="profile">
         <div class="profile-details">
-          <img src="./icon/account_circle_white_24dp.svg" alt="profileImg" />
-          <div class="name_job">
-            <div class="name">name</div>
-            <div class="id">student</div>
+          <img src="./icon/badge.svg" alt="profileImg" />
+          <div class="nameClass">
+            <div id="userName">無法取得</div>
+            <div id="userClassAndNo"></div>
           </div>
         </div>
         <i class="bx bx-log-out" id="log_out"></i>
@@ -128,5 +156,34 @@
 <script>
   require("./handle.js");
 </script>
+<svg class="icon-svg" style="display: none">
+  <symbol id="chip-icon" viewBox="0 0 24 24">
+    <path d="M9,15V9h6v6H9z M11,13h2v-2h-2V13z M9,21v-2H7c-0.5,0-1-0.2-1.4-0.6C5.2,18,5,17.6,5,17v-2H3v-2h2v-2H3V9h2V7
+	c0-0.5,0.2-1,0.6-1.4C6,5.2,6.5,5,7,5h2V3h2v2h2V3h2v2h2c0.6,0,1,0.2,1.4,0.6C18.8,6,19,6.5,19,7v2h2v2h-2v2h2v2h-2v2
+	c0,0.6-0.2,1-0.6,1.4C18,18.8,17.6,19,17,19h-2v2h-2v-2h-2v2H9z M17,17V7H7v10H17z" />
+  </symbol>
+  <symbol id="duplicate-icon" viewBox="0 0 24 24">
+    <path d="M11 10H9v3H6v2h3v3h2v-3h3v-2h-3z"></path><path d="M4 22h12c1.103 0 2-.897 2-2V8c0-1.103-.897-2-2-2H4c-1.103 0-2 .897-2 2v12c0 1.103.897 2 2 2zM4 8h12l.002 12H4V8z"></path>
+    <path d="M20 2H8v2h12v12h2V4c0-1.103-.897-2-2-2z"></path>
+  </symbol>
+  <symbol id="coffee-icon" viewBox="0 0 24 24">
+    <path d="M5 2h2v3H5zm4 0h2v3H9zm4 0h2v3h-2zm6 7h-2V7H3v11c0 1.654 1.346 3 3 3h8c1.654 0 3-1.346 3-3h2c1.103 0 2-.897 2-2v-5c0-1.103-.897-2-2-2zm-4 9a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V9h10v9zm2-2v-5h2l.002 5H17z"/>
+  </symbol>
+  <symbol id="manage-Search-icon" viewBox="0 0 24 24">
+    <path d="M2 19v-2h10v2Zm0-5v-2h5v2Zm0-5V7h5v2Zm18.6 10-3.85-3.85q-.6.425-1.312.637Q14.725 16 14 16q-2.075 0-3.537-1.463Q9 13.075 9 11t1.463-3.538Q11.925 6 14 6t3.538 1.462Q19 8.925 19 11q0 .725-.212 1.438-.213.712-.638 1.312L22 17.6ZM14 14q1.25 0 2.125-.875T17 11q0-1.25-.875-2.125T14 8q-1.25 0-2.125.875T11 11q0 1.25.875 2.125T14 14Z"/>
+  </symbol>
+  <symbol id="flash-icon" viewBox="0 0 24 24">
+    <path d="M10 23v-9H7V2h10l-4 9h4Z"/>
+  </symbol>
+  <symbol id="addTask-icon" viewBox="0 0 24 24">
+    <path d="M12 22q-2.075 0-3.9-.788-1.825-.787-3.175-2.137-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175 1.35-1.35 3.175-2.138Q9.925 2 12 2q1.625 0 3.075.475 1.45.475 2.675 1.325L16.3 5.275q-.95-.6-2.025-.938Q13.2 4 12 4 8.675 4 6.338 6.337 4 8.675 4 12t2.338 5.663Q8.675 20 12 20q.8 0 1.55-.15t1.45-.425l1.5 1.525q-1.025.5-2.15.775T12 22Zm7-2v-3h-3v-2h3v-3h2v3h3v2h-3v3Zm-8.4-3.4-4.25-4.25 1.4-1.4 2.85 2.85 10-10.025 1.4 1.4Z"/>
+  </symbol>
+  <symbol id="info-icon" viewBox="0 0 24 24">
+    <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"/><path d="M11 11h2v6h-2zm0-4h2v2h-2z"/>
+  </symbol>
+  <symbol id="set-icon" viewBox="0 0 24 24">
+    <path d="M12 16c2.206 0 4-1.794 4-4s-1.794-4-4-4-4 1.794-4 4 1.794 4 4 4zm0-6c1.084 0 2 .916 2 2s-.916 2-2 2-2-.916-2-2 .916-2 2-2z"/><path d="m2.845 16.136 1 1.73c.531.917 1.809 1.261 2.73.73l.529-.306A8.1 8.1 0 0 0 9 19.402V20c0 1.103.897 2 2 2h2c1.103 0 2-.897 2-2v-.598a8.132 8.132 0 0 0 1.896-1.111l.529.306c.923.53 2.198.188 2.731-.731l.999-1.729a2.001 2.001 0 0 0-.731-2.732l-.505-.292a7.718 7.718 0 0 0 0-2.224l.505-.292a2.002 2.002 0 0 0 .731-2.732l-.999-1.729c-.531-.92-1.808-1.265-2.731-.732l-.529.306A8.1 8.1 0 0 0 15 4.598V4c0-1.103-.897-2-2-2h-2c-1.103 0-2 .897-2 2v.598a8.132 8.132 0 0 0-1.896 1.111l-.529-.306c-.924-.531-2.2-.187-2.731.732l-.999 1.729a2.001 2.001 0 0 0 .731 2.732l.505.292a7.683 7.683 0 0 0 0 2.223l-.505.292a2.003 2.003 0 0 0-.731 2.733zm3.326-2.758A5.703 5.703 0 0 1 6 12c0-.462.058-.926.17-1.378a.999.999 0 0 0-.47-1.108l-1.123-.65.998-1.729 1.145.662a.997.997 0 0 0 1.188-.142 6.071 6.071 0 0 1 2.384-1.399A1 1 0 0 0 11 5.3V4h2v1.3a1 1 0 0 0 .708.956 6.083 6.083 0 0 1 2.384 1.399.999.999 0 0 0 1.188.142l1.144-.661 1 1.729-1.124.649a1 1 0 0 0-.47 1.108c.112.452.17.916.17 1.378 0 .461-.058.925-.171 1.378a1 1 0 0 0 .471 1.108l1.123.649-.998 1.729-1.145-.661a.996.996 0 0 0-1.188.142 6.071 6.071 0 0 1-2.384 1.399A1 1 0 0 0 13 18.7l.002 1.3H11v-1.3a1 1 0 0 0-.708-.956 6.083 6.083 0 0 1-2.384-1.399.992.992 0 0 0-1.188-.141l-1.144.662-1-1.729 1.124-.651a1 1 0 0 0 .471-1.108z"/>
+  </symbol>
+</svg>
 
 </html>

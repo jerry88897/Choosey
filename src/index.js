@@ -59,6 +59,7 @@ const createWindow = () => {
     minHeight: 850,
     show: false,
     backgroundColor: "#2b2a33",
+    icon: __dirname + "./icon/Icon.ico",
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -388,6 +389,11 @@ ipc.on("fastSelectPaste", async function (e, fastSelectNo) {
     preSelect.getCopiedPreSelectClass(),
     fastSelectNo
   );
+  win.webContents.send("updateFastSelectPage");
+});
+ipc.on("fastSelectdelete", async function (e, pos) {
+  //let jpos = JSON.parse(pos);
+  await fastSelect.deleteClass(pos.row, pos.column);
   win.webContents.send("updateFastSelectPage");
 });
 

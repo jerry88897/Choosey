@@ -62,6 +62,8 @@ async function cleanFrame() {
 async function cleanRightFrame() {
   right_frame.innerHTML = "";
 }
+
+let fastSelectSaveState = 0;
 async function fastSelect() {
   await cleanFrame();
   let fastSelectList = {
@@ -134,23 +136,28 @@ async function fastSelect() {
 
   fastSelectPromise.then(function (success) {
     let pasteButtonArray = [];
+    let deleteButtonArray = [[], [], [], [], []];
     let flexSendBlockListBox = document.createElement("div");
     flexSendBlockListBox.setAttribute("class", "flexSendBlockListBox");
+    let actionDiv = document.createElement("div");
+    actionDiv.setAttribute("class", "actionDiv");
+    let saveDiv = document.createElement("div");
+    let saveImg = document.createElement("img");
     for (let i = 0; i < 5; i++) {
       if (i == 4) {
         flexTableHeadBox = document.createElement("div");
-        flexTableHeadBox.setAttribute("class", "flexTableHeadBox");
-        for (let i = 0; i < 4; i++) {
+        flexTableHeadBox.setAttribute("class", "flexTableSecondHeadBox");
+        for (let j = 0; j < 4; j++) {
           flexTableHead = document.createElement("div"); // TABLE HEADER.
-          if (i < 2) {
+          if (j < 2) {
             flexTableHead.setAttribute("class", "fheader fheaderTime");
-          } else if (i == 2) {
+          } else if (j == 2) {
             flexTableHead.setAttribute("class", "fheader fheaderClass");
           } else {
             flexTableHead.setAttribute("class", "fheader fheaderButton");
           }
 
-          flexTableHead.innerText = tableHead2[i];
+          flexTableHead.innerText = tableHead2[j];
           flexTableHeadBox.appendChild(flexTableHead);
         }
         main_frame.appendChild(flexSendBlockListBox);
@@ -186,7 +193,10 @@ async function fastSelect() {
 
       let enableChecker = document.createElement("input");
       enableChecker.setAttribute("type", "checkbox");
-      enableChecker.setAttribute("class", "fCheckbox");
+      enableChecker.setAttribute("class", "fCheckbox userInput");
+      if (fastSelectList["fastSelectBlock"][i].enable == true) {
+        enableChecker.setAttribute("checked", "checked");
+      }
       enableChecker.id = "checkbox" + i;
       actTd.appendChild(enableChecker);
 
@@ -203,7 +213,7 @@ async function fastSelect() {
         "value",
         fastSelectList["fastSelectBlock"][i].trigger
       );
-      timeSelect.className = "fTime";
+      timeSelect.className = "fTime userInput";
       timeTd.appendChild(timeSelect);
 
       flexInputBox.appendChild(pasteTd);
@@ -232,6 +242,7 @@ async function fastSelect() {
         deleteButton.appendChild(deleteButtonImg);
         flexClassInfo.appendChild(deleteButton);
         flexClass.appendChild(flexClassInfo);
+        deleteButtonArray[i].push(deleteButton);
 
         flexClassInfo = document.createElement("div"); //課程代碼
         flexClassInfo.className = "flexClassInfo classId";
@@ -269,85 +280,60 @@ async function fastSelect() {
       flexSendBlockListBox.appendChild(flexSendBlockBox);
     }
     main_frame.appendChild(flexSendBlockListBox);
-    let save = document.createElement("button");
-    save.setAttribute("type", "button");
-    save.className = "saveBTN";
-
-    console.log(fastSelectList.isLock);
-
-    main_frame.appendChild(save);
-
-    save.addEventListener("click", async function () {
-      if (preSelectList.isLock == false) {
-        save.innerHTML = "解除鎖定";
-        preSelectList.isLock = true;
-        for (var i = 0; i < preInput.length; i++) {
-          preInput[i].disabled = true;
-        }
-        for (let i = 0; i < 5; i++) {
-          preSelectList.preSelectBlock[i].enable = document.getElementById(
-            "checkbox" + i
-          ).checked;
-          preSelectList.preSelectBlock[i].trigger = document.getElementById(
-            "timeSelect" + i
-          ).value;
-          preSelectList.preSelectBlock[i].list[0] = document.getElementById(
-            "textarea" + i * 2
-          ).value;
-          document.getElementById("textarea" + i * 2).className =
-            "preTextreaDark";
-          preSelectList.preSelectBlock[i].list[1] = document.getElementById(
-            "textarea" + (i * 2 + 1)
-          ).value;
-          document.getElementById("textarea" + (i * 2 + 1)).className =
-            "preTextreaDark";
-        }
-        fs.writeFile(
-          "./src/data/preSelect.json",
-          JSON.stringify(preSelectList),
-          function (err) {
-            if (err) console.log(err);
-            else {
-              ipc.send("updatePreSelect", {
-                engage: true,
-              });
-              console.log("save file complete.");
-            }
-          }
-        );
-      } else {
-        save.innerHTML = "保存並鎖定";
-        preSelectList.isLock = false;
-        ipc.send("updatePreSelect", {
-          engage: false,
-        });
-        for (var i = 0; i < preInput.length; i++) {
-          preInput[i].disabled = false;
-        }
-        for (let i = 0; i < 5; i++) {
-          document.getElementById("textarea" + i * 2).className = "preTextrea";
-          document.getElementById("textarea" + (i * 2 + 1)).className =
-            "preTextrea";
-        }
-        fs.writeFile(
-          "./src/data/preSelect.json",
-          JSON.stringify(preSelectList),
-          function (err) {
-            if (err) console.log(err);
-            else {
-              console.log("save file complete.");
-            }
-          }
-        );
+    saveDiv.setAttribute("class", "save");
+    saveImg.setAttribute("class", "icon");
+    saveImg.setAttribute("src", "./icon/bx-save-check.svg");
+    saveDiv.appendChild(saveImg);
+    actionDiv.appendChild(saveDiv);
+    main_frame.appendChild(actionDiv);
+    saveDiv.addEventListener("click", async function () {
+      for (let i = 0; i < 5; i++) {
+        fastSelectList["fastSelectBlock"][i].enable = document.getElementById(
+          "checkbox" + i
+        ).checked;
+        fastSelectList["fastSelectBlock"][i].trigger = document.getElementById(
+          "timeSelect" + i
+        ).value;
       }
+      fs.writeFile(
+        "./src/data/fastSelect.json",
+        JSON.stringify(fastSelectList),
+        function (err) {
+          if (err) console.log(err);
+          else {
+            console.log("save file complete.");
+            saveImg.setAttribute("src", "./icon/bx-save-check.svg");
+          }
+        }
+      );
     });
-
+    let userInput = document.getElementsByClassName("userInput");
+    for (let element of userInput) {
+      element.addEventListener("click", async function () {
+        saveImg.setAttribute("src", "./icon/bx-save.svg");
+      });
+    }
     for (let element of pasteButtonArray) {
       element.addEventListener("click", async function () {
         console.log(element.id);
         fastSelectNo = element.id[11];
         ipc.send("fastSelectPaste", fastSelectNo);
       });
+    }
+    for (let i = 0; i < deleteButtonArray.length; i++) {
+      for (let j = 0; j < deleteButtonArray[i].length; j++) {
+        deleteButtonArray[i][j].addEventListener("click", async function () {
+          console.log("fs delete " + i + " " + j);
+          let pos = {
+            row: i,
+            column: j,
+          };
+          console.log(pos);
+          console.log(i);
+          console.log(j);
+          ipc.send("fastSelectdelete", pos);
+        });
+      }
     }
   });
 }
@@ -1443,7 +1429,7 @@ async function preSelectClassPage() {
           let preSelectThisClassDiv = document.createElement("div");
           let classActionBox = document.createElement("div");
           selectThisClassDiv.setAttribute("class", "classActionDiv");
-          lockThisClassDiv.setAttribute("class", "classActionDiv");
+          lockThisClassDiv.setAttribute("class", "classActionDiv classLock");
           if (element[tableKey[0]] == 1) {
             selectThisClass.setAttribute(
               "src",
@@ -1460,8 +1446,10 @@ async function preSelectClassPage() {
           }
           if (element["isLock"] == true) {
             lockThisClass.setAttribute("src", "./icon/bxs-lock.svg");
+            lockThisClassDiv.classList.add("isLock");
           } else {
             lockThisClass.setAttribute("src", "./icon/bxs-lock-open.svg");
+            lockThisClassDiv.classList.add("isUnLock");
           }
           lockThisClass.setAttribute("class", "classAction");
           lockThisClassDiv.appendChild(lockThisClass);
@@ -1671,6 +1659,22 @@ async function preSelectClassPage() {
           saveImg.setAttribute("src", "./icon/bx-save-check.svg");
         });
       });
+      let classLockList = document.getElementsByClassName("classLock");
+      for (let element of classLockList) {
+        element.addEventListener("click", async function () {
+          let lockSvg = this.firstChild;
+          if (element.classList.contains("isLock")) {
+            this.classList.remove("isLock");
+            this.classList.add("isUnLock");
+            lockSvg.setAttribute("src", "./icon/bxs-lock-open.svg");
+          } else {
+            this.classList.remove("isUnLock");
+            this.classList.add("isLock");
+            lockSvg.setAttribute("src", "./icon/bxs-lock.svg");
+          }
+          saveImg.setAttribute("src", "./icon/bx-save.svg");
+        });
+      }
       playDiv.addEventListener("click", async function () {
         if (preSelectClassPagePlay) {
           console.log("stop");
@@ -1706,10 +1710,12 @@ async function preSelectClassPage() {
       saveDiv.addEventListener("click", async function () {
         console.log("save");
         let classList = document.getElementsByClassName("candidate");
+        let classLockList = document.getElementsByClassName("classLock");
         let newSave = [];
         for (let i = 0; i < classList.length; i++) {
           for (let element of myclass) {
             if (element.id === classList[i].innerHTML) {
+              element.isLock = classLockList[i].classList.contains("isLock");
               newSave.push(element);
               break;
             }
@@ -1741,6 +1747,8 @@ async function showMyClass() {
   await cleanFrame();
   let table = document.createElement("table");
   let tHead = document.createElement("thead");
+  let actionDiv = document.createElement("div");
+  actionDiv.setAttribute("class", "actionDiv");
   let viewTypeDiv = document.createElement("div");
   let viewTypeImg = document.createElement("img");
 
@@ -1871,9 +1879,10 @@ async function showMyClass() {
       viewTypeImg.setAttribute("src", "./icon/view_list_white_24dp.svg");
     }
     viewTypeDiv.appendChild(viewTypeImg);
+    actionDiv.appendChild(viewTypeDiv);
 
     main_frame.appendChild(table);
-    main_frame.appendChild(viewTypeDiv);
+    main_frame.appendChild(actionDiv);
     let placeHolder = document.createElement("div");
     placeHolder.setAttribute("class", "placeHolder");
     main_frame.appendChild(placeHolder);
@@ -1959,9 +1968,7 @@ async function showSetting() {
   let settingName = ["選課開始時間"];
   let settingType = ["datetime-local"];
   let table = document.createElement("table");
-  table.className = "sTable";
-  tr = table.insertRow(-1);
-  tr.className = "str";
+  table.className = "mtable";
   let setting = {
     選課開始時間: "2022-01-27T10:30",
   };
@@ -1996,25 +2003,26 @@ async function showSetting() {
       }
     });
   });
-
+  let tableHeader = document.createElement("thead");
   for (let i = 0; i < 2; i++) {
     let th = document.createElement("th"); // TABLE HEADER.
     th.setAttribute("id", "mheader");
     th.innerHTML = tableHead[i];
-    tr.appendChild(th);
+    tableHeader.appendChild(th);
   }
+  table.appendChild(tableHeader);
   settingPromise.then(function (success) {
     for (let i = 0; i < settingName.length; i++) {
       tr = table.insertRow(-1);
-      tr.className = "ptr";
+      tr.className = "mtr";
 
       let td = document.createElement("td");
-      td.className = "ptd";
+      td.className = "mtd";
       td.innerHTML = settingName[i];
       tr.appendChild(td);
 
       td = document.createElement("td");
-      td.className = "ptd";
+      td.className = "mtd";
       let input = document.createElement("input");
       input.setAttribute("type", settingType[i]);
       input.className = "preInput";
