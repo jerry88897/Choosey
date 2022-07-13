@@ -4,10 +4,12 @@ const ipc = electron.ipcRenderer;
 
 const fs = require("fs");
 const { resolve } = require("path");
+const titleCountDown = document.getElementById("titleCountDown");
 const menu = document.getElementById("menu");
 const sidebar = document.getElementById("sidebar");
 const main_frame = document.getElementById("main_frame");
 const right_frame = document.getElementById("right_frame");
+const controlCenter = document.getElementById("controlCenter");
 const classClass = document.getElementById("classClass");
 const generalClass = document.getElementById("generalClass");
 const getMyClass = document.getElementById("getMyClass");
@@ -15,7 +17,16 @@ const preSelectClass = document.getElementById("preSelectClass");
 const fastSelectClass = document.getElementById("fastSelectClass");
 const setting = document.getElementById("setting");
 
+window.addEventListener("load", ipc.send("getControlCenter"), false);
+
+let _second = 1000;
+let _minute = _second * 60;
+let _hour = _minute * 60;
+let _day = _hour * 24;
+
 let myClassTableType = false;
+
+let tickTimer;
 let countDownTimer;
 let tableHead = [
   "動作",
@@ -62,8 +73,172 @@ async function cleanFrame() {
 async function cleanRightFrame() {
   right_frame.innerHTML = "";
 }
+async function showControlCenter(evt, ntpTimeDiff) {
+  await cleanFrame();
+  await cleanRightFrame();
+  titleCountDown.innerHTML = "";
+  let setting = {
+    selectStartDate: "2022-01-27T10:30",
+  };
+  let timeHead = [
+    "localTime",
+    "NTPTime",
+    "timeDiff",
+    "selTime",
+    "countDownTime",
+    "systemDelay",
+  ];
+  let timeNumList = [];
+  let settingSaved;
+  let settingPromise = new Promise(function (resolve, reject) {
+    console.log(1);
+    fs.readFile("./src/data/setting.json", function (err, settingData) {
+      if (err) {
+        console.log("no setting make new file");
+        fs.writeFile(
+          "./src/data/setting.json",
+          JSON.stringify(setting),
+          function (err) {
+            if (err) {
+              console.log(err);
+              reject(err);
+            } else {
+              console.log("make new setting file complete.");
+              resolve("make new save");
+            }
+          }
+        );
+      } else {
+        console.log("load setting");
+        //將二進制數據轉換為字串符
+        settingData = settingData.toString();
+        //將字符串轉換為 JSON 對象
+        settingSaved = JSON.parse(settingData);
+        resolve("success");
+      }
+    });
+  });
+  settingPromise.then(function (success) {
+    let timeCenterHTML = new Promise(function (resolve, reject) {
+      fs.readFile("./src/timeCenter.html", function (err, timeCenterHTMLData) {
+        if (err) {
+          reject("no file");
+        } else {
+          console.log("load HTML");
+          //將二進制數據轉換為字串符
+          resolve(timeCenterHTMLData);
+        }
+      });
+    });
+    timeCenterHTML.then(function (timeCenterHTMLData) {
+      timeCenterHTMLData = timeCenterHTMLData.toString();
+      let controlPanel = document.createElement("div");
+      controlPanel.setAttribute("class", "controlPanel");
+      let timeDivBox = document.createElement("div");
+      timeDivBox.setAttribute("class", "timeDivBox");
 
-let fastSelectSaveState = 0;
+      timeDivBox.innerHTML = timeCenterHTMLData;
+
+      //let lowerPanelBox = document.createElement("div");
+      //lowerPanelBox.setAttribute("class", "lowerPanelBox");
+
+      let flowChartBox = document.createElement("div");
+      flowChartBox.setAttribute("class", "flowChartBox");
+      let launchBox = document.createElement("div");
+      launchBox.setAttribute("class", "launchBox");
+
+      let startBtm = document.createElement("div");
+      startBtm.setAttribute("class", "button");
+      let startBtmText = document.createElement("a");
+      startBtmText.innerText = "運行";
+      startBtm.appendChild(startBtmText);
+
+      let stopBtm = document.createElement("div");
+      stopBtm.setAttribute("class", "button");
+      let stopBtmText = document.createElement("a");
+      stopBtmText.innerText = "中止";
+      stopBtm.appendChild(stopBtmText);
+
+      launchBox.appendChild(startBtm);
+      launchBox.appendChild(stopBtm);
+      flowChartBox.innerHTML = "222";
+      controlPanel.appendChild(timeDivBox);
+      controlPanel.appendChild(flowChartBox);
+      controlPanel.appendChild(launchBox);
+      //lowerPanelBox.appendChild(flowChartBox);
+      //lowerPanelBox.appendChild(launchBox);
+      //controlPanel.appendChild(lowerPanelBox);
+
+      main_frame.appendChild(controlPanel);
+
+      for (let i = 0; i < 6; i++) {
+        let timeOutput = document.getElementsByClassName(timeHead[i]);
+        timeNumList.push(timeOutput);
+      }
+
+      let sDay = new Date(Date.parse(settingSaved["selectStartDate"]));
+      console.log(settingSaved["selectStartDate"]);
+      timeNumList[3][0].innerText = sDay.getFullYear();
+      timeNumList[3][1].innerText = sDay.getMonth();
+      timeNumList[3][2].innerText = sDay.getDate();
+      timeNumList[3][3].innerText = sDay.getHours();
+      timeNumList[3][4].innerText = sDay.getMinutes();
+      timeNumList[3][5].innerText = sDay.getSeconds();
+      console.log(ntpTimeDiff);
+      timeNumList[2][0].innerText = ntpTimeDiff * -1;
+      if (sDay > Date.now()) {
+        if (typeof countDownTimer != undefined) {
+          clearInterval(countDownTimer);
+        }
+        if (typeof tickTimer != undefined) {
+          clearInterval(tickTimer);
+        }
+        countDownTimer = setInterval(function () {
+          let calculateStart = Date.now();
+          let nowtime = new Date(Date.now());
+          timeNumList[0][0].innerText = nowtime.getFullYear();
+          timeNumList[0][1].innerText = nowtime.getMonth();
+          timeNumList[0][2].innerText = nowtime.getDate();
+          timeNumList[0][3].innerText = nowtime.getHours();
+          timeNumList[0][4].innerText = nowtime.getMinutes();
+          timeNumList[0][5].innerText = nowtime.getSeconds();
+
+          nowtime.setMilliseconds(nowtime.getMilliseconds() + ntpTimeDiff);
+          timeNumList[1][0].innerText = nowtime.getFullYear();
+          timeNumList[1][1].innerText = nowtime.getMonth();
+          timeNumList[1][2].innerText = nowtime.getDate();
+          timeNumList[1][3].innerText = nowtime.getHours();
+          timeNumList[1][4].innerText = nowtime.getMinutes();
+          timeNumList[1][5].innerText = nowtime.getSeconds();
+
+          let leftTime = sDay - Date.now();
+          if (leftTime > 0) {
+            let days = Math.floor(leftTime / _day);
+            leftTime -= days * _day;
+            let hours = Math.floor(leftTime / _hour);
+            leftTime -= hours * _hour;
+            let minutes = Math.floor(leftTime / _minute);
+            leftTime -= minutes * _minute;
+            let seconds = Math.floor(leftTime / _second);
+            timeNumList[4][0].innerText = days;
+            timeNumList[4][1].innerText = hours;
+            timeNumList[4][2].innerText = minutes;
+            timeNumList[4][3].innerText = seconds;
+            console.log(
+              days + "d" + hours + "h" + minutes + "m" + seconds + "s"
+            );
+          }
+          timeNumList[5][0].innerText = Date.now() - calculateStart;
+        }, 1000);
+      } else {
+        if (typeof countDownTimer != undefined) {
+          clearInterval(countDownTimer);
+          countDownTimer = undefined;
+        }
+      }
+    });
+  });
+}
 async function fastSelect() {
   await cleanFrame();
   let fastSelectList = {
@@ -1334,7 +1509,7 @@ async function showPreSelectClassAtFastSelectPage() {
       }
       right_frame.appendChild(viewShoppingCartDiv);
       viewShoppingCartDiv.addEventListener("click", async function () {
-        showPreSelectClass();
+        showPreSelectClassAtFastSelectPage();
       });
     });
   });
@@ -1745,6 +1920,8 @@ async function preSelectClassPage() {
 let showMyClassType = 0;
 async function showMyClass() {
   await cleanFrame();
+  await cleanRightFrame();
+  showPreSelectClass();
   let table = document.createElement("table");
   let tHead = document.createElement("thead");
   let actionDiv = document.createElement("div");
@@ -1918,29 +2095,30 @@ async function updateTime() {
     });
   });
   settingPromise.then(function (success) {
-    let sDay = Date.parse(setting["選課開始時間"]);
+    let sDay = Date.parse(setting["selectStartDate"]);
     if (sDay > Date.now()) {
       if (typeof countDownTimer != undefined) {
         clearInterval(countDownTimer);
       }
+      if (typeof tickTimer != undefined) {
+        clearInterval(tickTimer);
+      }
       countDownTimer = setInterval(function () {
-        let leftDay;
-        let leftHour;
-        let leftMinute;
-        let leftSecond;
+        let start = Date.now();
         let leftTime = sDay - Date.now();
         if (leftTime > 0) {
-          leftDay = Math.floor(leftTime / (24 * 3600 * 1000));
-          leftTime -= leftDay * (24 * 3600 * 1000);
-          leftHour = Math.floor(leftTime / (3600 * 1000));
-          leftTime -= leftHour * (3600 * 1000);
-          leftMinute = Math.floor(leftTime / (60 * 1000));
-          leftTime -= leftMinute * (60 * 1000);
-          leftSecond = Math.floor(leftTime / 1000);
-          document.getElementById("leftDay").innerHTML = leftDay;
-          document.getElementById("leftHour").innerHTML = leftHour;
-          document.getElementById("leftMinute").innerHTML = leftMinute;
-          document.getElementById("leftSecond").innerHTML = leftSecond;
+          let days = Math.floor(leftTime / _day);
+          leftTime -= days * _day;
+          let hours = Math.floor(leftTime / _hour);
+          leftTime -= hours * _hour;
+          let minutes = Math.floor(leftTime / _minute);
+          leftTime -= minutes * _minute;
+          let seconds = Math.floor(leftTime / _second);
+          document.getElementById("leftDay").innerHTML = days;
+          document.getElementById("leftHour").innerHTML = hours;
+          document.getElementById("leftMinute").innerHTML = minutes;
+          document.getElementById("leftSecond").innerHTML = seconds;
+          console.log(days + "d" + hours + "h" + minutes + "m" + seconds + "s");
         } else {
           document.getElementById("leftDay").innerHTML = "-";
           document.getElementById("leftHour").innerHTML = "-";
@@ -1949,9 +2127,7 @@ async function updateTime() {
           clearInterval(countDownTimer);
           countDownTimer = undefined;
         }
-        console.log(
-          leftDay + "d" + leftHour + "h" + leftMinute + "m" + leftSecond + "s"
-        );
+        console.log(Date.now() - start);
       }, 1000);
     } else {
       if (typeof countDownTimer != undefined) {
@@ -1964,13 +2140,19 @@ async function updateTime() {
 
 async function showSetting() {
   await cleanFrame();
+  await cleanRightFrame();
   let tableHead = ["項目", "設定"];
   let settingName = ["選課開始時間"];
+  let settingjsonName = ["selectStartDate"];
   let settingType = ["datetime-local"];
   let table = document.createElement("table");
+  let actionDiv = document.createElement("div");
+  actionDiv.setAttribute("class", "actionDiv");
+  let saveDiv = document.createElement("div");
+  let saveImg = document.createElement("img");
   table.className = "mtable";
   let setting = {
-    選課開始時間: "2022-01-27T10:30",
+    selectStartDate: "2022-01-27T10:30",
   };
   let settingPromise = new Promise(function (resolve, reject) {
     console.log(1);
@@ -2025,25 +2207,26 @@ async function showSetting() {
       td.className = "mtd";
       let input = document.createElement("input");
       input.setAttribute("type", settingType[i]);
-      input.className = "preInput";
-      input.value = setting[settingName[i]];
+      input.className = "preInput userInput";
+      input.value = setting[settingjsonName[i]];
       input.id = settingType[i] + i;
 
       td.appendChild(input);
       tr.appendChild(td);
     }
 
-    let save = document.createElement("button");
-    save.setAttribute("type", "button");
-    save.className = "saveBTN";
-    save.innerHTML = "保存";
-
+    saveDiv.setAttribute("class", "save");
+    saveImg.setAttribute("class", "icon");
+    saveImg.setAttribute("src", "./icon/bx-save-check.svg");
+    saveDiv.appendChild(saveImg);
+    saveDiv.appendChild(saveImg);
+    actionDiv.appendChild(saveDiv);
     main_frame.appendChild(table);
-    main_frame.appendChild(save);
+    main_frame.appendChild(actionDiv);
 
-    save.addEventListener("click", async function () {
+    saveDiv.addEventListener("click", async function () {
       for (let i = 0; i < settingName.length; i++) {
-        setting[settingName[i]] = document.getElementById(
+        setting[settingjsonName[i]] = document.getElementById(
           settingType[i] + i
         ).value;
       }
@@ -2066,6 +2249,12 @@ async function showSetting() {
         updateTime();
       });
     });
+    let userInput = document.getElementsByClassName("userInput");
+    for (let element of userInput) {
+      element.addEventListener("click", async function () {
+        saveImg.setAttribute("src", "./icon/bx-save.svg");
+      });
+    }
   });
 }
 
@@ -2081,7 +2270,9 @@ fastSelectClass.addEventListener("click", async function () {
 window.onload = function () {
   updateTime();
 };
-
+controlCenter.addEventListener("click", async function () {
+  ipc.send("getControlCenter");
+});
 classClass.addEventListener("click", async function () {
   ipc.send("getClassClass", SelDepNo, SelClassNo);
   showPreSelectClass();
@@ -2089,7 +2280,7 @@ classClass.addEventListener("click", async function () {
 });
 generalClass.addEventListener("click", async function () {
   ipc.send("getGeneralClass");
-  showPreSelectClassAtPreSelectPage();
+  showPreSelectClass();
   console.log("getGeneralClass");
 });
 
@@ -2111,7 +2302,10 @@ getMyClass.addEventListener("click", async function () {
 setting.addEventListener("click", async function () {
   showSetting();
 });
-
+ipc.on("readyToShowControlCenter", function (evt, ntpTimeDiff) {
+  console.log("showControlCenter");
+  showControlCenter(evt, ntpTimeDiff);
+});
 ipc.on(
   "readyToShowClassClass",
   function (evt, SelDepNo, SelClassNo, classList) {

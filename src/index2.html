@@ -5,6 +5,7 @@
   <meta charset="utf-8" />
   <title>Choosey</title>
   <link rel="stylesheet" href="index2.css" />
+  <link rel="stylesheet" href="controlCenter.css" />
   <link rel="stylesheet" href="myClass.css" />
   <link rel="stylesheet" href="preSelect.css" />
   <link rel="stylesheet" href="fastSelect.css" />
@@ -20,7 +21,7 @@
 <body>
   <header>
     <img src="./icon/logoWithName.png" class="logo">
-    <ul>
+    <ul id="titleCountDown">
       <li><a>距離選課剩餘:</a></li>
       <li><a id="leftDay">-</a></li>
       <li><a>日</a></li>
@@ -41,15 +42,15 @@
     </div>
     <ul class="nav-list">
       <li>
-        <a>
+        <a id="controlCenter">
           <i class='bx'>
             <svg class="boxIcon" viewBox="0 0 24 24">
               <use href="#chip-icon"></use>
             </svg>
           </i>
-          <span class="links_name">系統狀態</span>
+          <span class="links_name">控制中心</span>
         </a>
-        <span class="tooltip">系統狀態</span>
+        <span class="tooltip">控制中心</span>
       </li>
       <li>
         <a id="classClass">

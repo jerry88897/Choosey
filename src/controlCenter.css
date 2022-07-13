@@ -1,0 +1,156 @@
+.controlPanel {
+  width: 100%;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.timeDivBox {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  width: 60vw;
+  background: #201f25;
+  border-radius: 15px;
+}
+
+.timeBoxLeft {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: center;
+  align-items: flex-start;
+  width: auto;
+}
+
+.timeBox {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: auto;
+}
+
+.timeName {
+  font-family: cubic11;
+  white-space: nowrap;
+  width: 12vw;
+  color: white;
+  font-size: 25px;
+  text-align: left;
+  max-width: 140px;
+}
+
+.timeSeg {
+  font-family: cubic11;
+  color: white;
+  font-size: 25px;
+  text-align: center;
+  white-space: nowrap;
+  width: auto;
+}
+
+.timeNum {
+  font-family: cubic11;
+  color: white;
+  font-size: 25px;
+  text-align: center;
+  white-space: nowrap;
+  width: 11vw;
+  max-width: 57px;
+}
+
+.timeNumLong {
+  font-family: cubic11;
+  color: white;
+  font-size: 25px;
+  text-align: center;
+  white-space: nowrap;
+  width: auto;
+  max-width: none;
+}
+
+.lowerPanelBox {
+  width: 60vw;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.flowChartBox {
+  width: 50%;
+  background-color: red;
+}
+
+.launchBox {
+  width: 50%;
+  background-color: green;
+}
+
+.button {
+  position: relative;
+  display: inline-block;
+  margin: 20px;
+}
+
+.button a {
+  color: white;
+  font-family: cubic11;
+  font-weight: bold;
+  font-size: 30px;
+  text-align: center;
+  text-decoration: none;
+  background-color: #ffa12b;
+  display: block;
+  position: relative;
+  padding: 10px 10px;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  text-shadow: 0px 1px 0px #000000;
+  filter: dropshadow(color=#000000, offx=0px, offy=1px);
+  -webkit-box-shadow: inset 0 1px 0 #ffe5c4, 0 10px 0 #915100;
+     -moz-box-shadow: inset 0 1px 0 #ffe5c4, 0 10px 0 #915100;
+          box-shadow: inset 0 1px 0 #ffe5c4, 0 10px 0 #915100;
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+  user-select: none;
+  z-index: 1;
+}
+
+.button a:active {
+  top: 10px;
+  background-color: #f78900;
+  -webkit-box-shadow: inset 0 1px 0 #ffe5c4, inset 0 -3px 0 #915100;
+     -moz-box-shadow: inset 0 1px 0 #ffe5c4, inset 0 -3pxpx 0 #915100;
+          box-shadow: inset 0 1px 0 #ffe5c4, inset 0 -3px 0 #915100;
+}
+
+.button:after {
+  content: "";
+  height: 100%;
+  width: 100%;
+  padding: 4px;
+  position: absolute;
+  bottom: -15px;
+  left: -4px;
+  z-index: 0;
+  background-color: #2b1800;
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+}

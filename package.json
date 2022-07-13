@@ -1,8 +1,8 @@
 {
-  "name": "auto",
-  "productName": "auto",
+  "name": "choosey",
+  "productName": "choosey",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "",
   "main": "src/index.js",
   "scripts": {
     "start": "electron-forge start",
@@ -21,7 +21,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "auto"
+            "name": "Choosey"
           }
         },
         {
@@ -46,6 +46,8 @@
     "electron-squirrel-startup": "^1.0.0",
     "htmlparser2": "^7.2.0",
     "iconv-lite": "^0.6.3",
+    "ntp-client": "^0.5.3",
+    "ntp-time-sync": "^0.2.1",
     "puppeteer": "^10.4.0"
   },
   "devDependencies": {
