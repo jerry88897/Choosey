@@ -73,10 +73,13 @@ async function cleanFrame() {
 async function cleanRightFrame() {
   right_frame.innerHTML = "";
 }
+
+let newNTPTimeDiff;
 async function showControlCenter(evt, ntpTimeDiff) {
   await cleanFrame();
   await cleanRightFrame();
   titleCountDown.innerHTML = "";
+  newNTPTimeDiff = ntpTimeDiff;
   let setting = {
     selectStartDate: "2022-01-27T10:30",
   };
@@ -104,6 +107,7 @@ async function showControlCenter(evt, ntpTimeDiff) {
               reject(err);
             } else {
               console.log("make new setting file complete.");
+              settingSaved = setting;
               resolve("make new save");
             }
           }
@@ -176,66 +180,73 @@ async function showControlCenter(evt, ntpTimeDiff) {
         timeNumList.push(timeOutput);
       }
 
-      let sDay = new Date(Date.parse(settingSaved["selectStartDate"]));
+      let sDay = new Date(settingSaved["selectStartDate"]);
       console.log(settingSaved["selectStartDate"]);
       timeNumList[3][0].innerText = sDay.getFullYear();
-      timeNumList[3][1].innerText = sDay.getMonth();
+      timeNumList[3][1].innerText = sDay.getMonth() + 1;
       timeNumList[3][2].innerText = sDay.getDate();
       timeNumList[3][3].innerText = sDay.getHours();
       timeNumList[3][4].innerText = sDay.getMinutes();
       timeNumList[3][5].innerText = sDay.getSeconds();
-      console.log(ntpTimeDiff);
-      timeNumList[2][0].innerText = ntpTimeDiff * -1;
-      if (sDay > Date.now()) {
-        if (typeof countDownTimer != undefined) {
-          clearInterval(countDownTimer);
-        }
-        if (typeof tickTimer != undefined) {
-          clearInterval(tickTimer);
-        }
-        countDownTimer = setInterval(function () {
-          let calculateStart = Date.now();
-          let nowtime = new Date(Date.now());
-          timeNumList[0][0].innerText = nowtime.getFullYear();
-          timeNumList[0][1].innerText = nowtime.getMonth();
-          timeNumList[0][2].innerText = nowtime.getDate();
-          timeNumList[0][3].innerText = nowtime.getHours();
-          timeNumList[0][4].innerText = nowtime.getMinutes();
-          timeNumList[0][5].innerText = nowtime.getSeconds();
-
-          nowtime.setMilliseconds(nowtime.getMilliseconds() + ntpTimeDiff);
-          timeNumList[1][0].innerText = nowtime.getFullYear();
-          timeNumList[1][1].innerText = nowtime.getMonth();
-          timeNumList[1][2].innerText = nowtime.getDate();
-          timeNumList[1][3].innerText = nowtime.getHours();
-          timeNumList[1][4].innerText = nowtime.getMinutes();
-          timeNumList[1][5].innerText = nowtime.getSeconds();
-
-          let leftTime = sDay - Date.now();
-          if (leftTime > 0) {
-            let days = Math.floor(leftTime / _day);
-            leftTime -= days * _day;
-            let hours = Math.floor(leftTime / _hour);
-            leftTime -= hours * _hour;
-            let minutes = Math.floor(leftTime / _minute);
-            leftTime -= minutes * _minute;
-            let seconds = Math.floor(leftTime / _second);
-            timeNumList[4][0].innerText = days;
-            timeNumList[4][1].innerText = hours;
-            timeNumList[4][2].innerText = minutes;
-            timeNumList[4][3].innerText = seconds;
-            console.log(
-              days + "d" + hours + "h" + minutes + "m" + seconds + "s"
-            );
-          }
-          timeNumList[5][0].innerText = Date.now() - calculateStart;
-        }, 1000);
-      } else {
-        if (typeof countDownTimer != undefined) {
-          clearInterval(countDownTimer);
-          countDownTimer = undefined;
-        }
+      console.log(sDay.getMonth());
+      if (typeof countDownTimer != undefined) {
+        clearInterval(countDownTimer);
       }
+      if (typeof tickTimer != undefined) {
+        clearInterval(tickTimer);
+      }
+      let flash = 0;
+      countDownTimer = setInterval(function () {
+        let calculateStart = Date.now();
+        ntpTimeDiff = newNTPTimeDiff;
+        let nowtime = new Date(Date.now());
+        timeNumList[0][0].innerText = nowtime.getFullYear();
+        timeNumList[0][1].innerText = nowtime.getMonth() + 1;
+        timeNumList[0][2].innerText = nowtime.getDate();
+        timeNumList[0][3].innerText = nowtime.getHours();
+        timeNumList[0][4].innerText = nowtime.getMinutes();
+        timeNumList[0][5].innerText = nowtime.getSeconds();
+
+        nowtime.setMilliseconds(nowtime.getMilliseconds() + ntpTimeDiff);
+        timeNumList[1][0].innerText = nowtime.getFullYear();
+        timeNumList[1][1].innerText = nowtime.getMonth() + 1;
+        timeNumList[1][2].innerText = nowtime.getDate();
+        timeNumList[1][3].innerText = nowtime.getHours();
+        timeNumList[1][4].innerText = nowtime.getMinutes();
+        timeNumList[1][5].innerText = nowtime.getSeconds();
+
+        let leftTime = sDay - Date.now();
+        if (leftTime > 0) {
+          let days = Math.floor(leftTime / _day);
+          leftTime -= days * _day;
+          let hours = Math.floor(leftTime / _hour);
+          leftTime -= hours * _hour;
+          let minutes = Math.floor(leftTime / _minute);
+          leftTime -= minutes * _minute;
+          let seconds = Math.floor(leftTime / _second);
+          timeNumList[4][0].innerText = days;
+          timeNumList[4][1].innerText = hours;
+          timeNumList[4][2].innerText = minutes;
+          timeNumList[4][3].innerText = seconds;
+          console.log(days + "d" + hours + "h" + minutes + "m" + seconds + "s");
+        } else {
+          if (flash == 0) {
+            flash = 1;
+            timeNumList[4][0].innerText = "-";
+            timeNumList[4][1].innerText = "-";
+            timeNumList[4][2].innerText = "-";
+            timeNumList[4][3].innerText = "-";
+          } else {
+            flash = 0;
+            timeNumList[4][0].innerText = " ";
+            timeNumList[4][1].innerText = " ";
+            timeNumList[4][2].innerText = " ";
+            timeNumList[4][3].innerText = " ";
+          }
+        }
+        timeNumList[2][0].innerText = ntpTimeDiff * -1;
+        timeNumList[5][0].innerText = Date.now() - calculateStart;
+      }, 1000);
     });
   });
 }
@@ -2305,6 +2316,9 @@ setting.addEventListener("click", async function () {
 ipc.on("readyToShowControlCenter", function (evt, ntpTimeDiff) {
   console.log("showControlCenter");
   showControlCenter(evt, ntpTimeDiff);
+});
+ipc.on("updateNTP", function (evt, ntpTimeDiff) {
+  newNTPTimeDiff = ntpTimeDiff;
 });
 ipc.on(
   "readyToShowClassClass",

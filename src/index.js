@@ -40,6 +40,7 @@ let depNo = new Map([
   ["K", "17"],
   ["H", "19"],
 ]);
+let NTPTimeDiff = 0;
 // Make a request for a user with a given ID
 let preSelectPageTimer;
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -82,8 +83,18 @@ const createWindow = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
-  createWindow();
-
+  let date = timer.getNTPTime();
+  date.then(function (timeDiff) {
+    NTPTimeDiff = timeDiff;
+    createWindow();
+    setInterval(function () {
+      let date = timer.getNTPTime();
+      date.then(function (timeDiff) {
+        NTPTimeDiff = timeDiff;
+        win.webContents.send("updateNTP", NTPTimeDiff);
+      });
+    }, 25 * 60 * 1000);
+  });
   // Register a shortcut listener for Ctrl + Shift + I
   //globalShortcut.register('Control+Shift+I', () => {
   // When the user presses Ctrl + Shift + I, this function will get called
@@ -112,11 +123,12 @@ app.on("activate", () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 ipc.on("getControlCenter", async function (e) {
-  let date = timer.getNTPTime();
-  date.then(function (timeDiff) {
-    console.log(timeDiff);
-    win.webContents.send("readyToShowControlCenter", timeDiff);
-  });
+  // let date = timer.getNTPTime();
+  // date.then(function (timeDiff) {
+  //   console.log(timeDiff);
+  //   win.webContents.send("readyToShowControlCenter", timeDiff);
+  // });
+  win.webContents.send("readyToShowControlCenter", NTPTimeDiff);
 });
 
 ipc.on("getMyClass", async function (e) {
