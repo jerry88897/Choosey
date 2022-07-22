@@ -430,6 +430,7 @@ ipc.on("updatePreSelect", async function (e, data) {
 
 ipc.on("preSelectPagePlay", async function (e, state) {
   if (state == 1) {
+    console.log("start preSelectPageTimer");
     preSelectPageAction.setGetWeb(getWeb);
     preSelectPageAction.setParser(parser);
     if (
@@ -441,14 +442,17 @@ ipc.on("preSelectPagePlay", async function (e, state) {
     } else {
       preSelectPageAction.setMaxPoint(250);
     }
-    let patrolAction = preSelectPageAction.patrolActionPerformed();
-    patrolAction.then(function () {
-      let update = preSelectPageAction.updatedClassState();
-      update.then(function () {
-        win.webContents.send("updatePreSelectPage");
+    preSelectPageTimer = setInterval(function () {
+      let patrolAction = preSelectPageAction.patrolActionPerformed();
+      patrolAction.then(function () {
+        let update = preSelectPageAction.updatedClassState();
+        update.then(function () {
+          win.webContents.send("updatePreSelectPage");
+        });
       });
-    });
+    }, 1000);
   } else {
+    console.log("stop preSelectPageTimer");
     if (preSelectPageTimer != undefined) clearInterval(preSelectPageTimer);
   }
 });

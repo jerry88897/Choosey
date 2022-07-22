@@ -37,6 +37,9 @@ let depNo = new Map([
   ["K", "17"],
   ["H", "19"],
 ]);
+let tryAddHistory = new Map();
+let selectActionCount = 0;
+let deSelectActionCount = 0;
 async function updatedClassState() {
   return new Promise((resolve, reject) => {
     let allPromise = [];
@@ -110,6 +113,7 @@ async function patrolActionPerformed() {
     let parserNowPoint = parser.pointParser(getNowPoint);
     parserNowPoint.then(function (point) {
       point = parseInt(parseFloat(point) * 10);
+      let spacePoint = maxPoint - point;
       let readFileProm = new Promise(function (resolve, reject) {
         fs.readFile("./src/data/PreSelectPage.json", function (err, classList) {
           if (err) {
@@ -169,6 +173,7 @@ async function patrolActionPerformed() {
               if (classPoint + point <= maxPoint) {
                 point += classPoint;
                 getWeb.sendAddClass(updatedClass[item]["id"]);
+                selectActionCount++;
               } else {
                 let waitToAddClass = {
                   id: "",
@@ -181,16 +186,23 @@ async function patrolActionPerformed() {
               }
             } else if (
               updatedClass[item]["action"] === 0 &&
-              updatedClass[item]["overflow"] === false
+              updatedClass[item]["overflow"] === false &&
+              spacePoint < updatedClass[item]["point"]
             ) {
-              let waitToAddClass = {
-                id: "",
-                point: "",
-                priority: item,
-              };
-              waitToAddClass.id = updatedClass[item]["id"];
-              waitToAddClass.point = updatedClass[item]["point"];
-              waitToAdd.push(waitToAddClass);
+              let tryCount = tryAddHistory.get(waitToAdd[i]["id"]);
+              if (typeof tryCount == undefined) {
+                tryCount = 0;
+              }
+              if (tryCount < 3) {
+                let waitToAddClass = {
+                  id: "",
+                  point: "",
+                  priority: item,
+                };
+                waitToAddClass.id = updatedClass[item]["id"];
+                waitToAddClass.point = updatedClass[item]["point"];
+                waitToAdd.push(waitToAddClass);
+              }
             } else if (
               updatedClass[item]["action"] === 2 &&
               updatedClass[item]["isLock"] === false &&
@@ -227,13 +239,21 @@ async function patrolActionPerformed() {
                     delClassPromise.push(
                       getWeb.sendDelClass(waitToRemove[k]["id"])
                     );
+                    deSelectActionCount++;
                   }
                   for (let k = 0; k <= j; k++) {
                     waitToRemove.shift();
                   }
+                  let tryCount = tryAddHistory.get(waitToAdd[i]["id"]);
+                  if (typeof tryCount == undefined) {
+                    tryCount = 0;
+                  }
+                  tryCount++;
+                  tryAddHistory.set(waitToAdd[i]["id"], tryCount);
                   Promise.all(delClassPromise).then(function () {
                     point += waitToAdd[i]["point"];
                     getWeb.sendAddClass(waitToAdd[i]["id"]);
+                    selectActionCount++;
                   });
                   break;
                 } else if (retreatPoint > needPoint) {
@@ -260,6 +280,7 @@ async function patrolActionPerformed() {
                       delClassPromise.push(
                         getWeb.sendDelClass(waitToRemove[k]["id"])
                       );
+                      deSelectActionCount++;
                       point -= waitToRemove[k]["point"];
                     }
                     for (let k = 0; k <= j; k++) {
@@ -270,6 +291,7 @@ async function patrolActionPerformed() {
                       delClassPromise.push(
                         getWeb.sendDelClass(needDelClass[k]["id"])
                       );
+                      deSelectActionCount++;
                       point -= needDelClass[k]["point"];
                     }
                   }
@@ -279,17 +301,21 @@ async function patrolActionPerformed() {
                   for (let k = 0; k < freeClass.length; k++) {
                     waitToRemove.unshift(freeClass[k]);
                   }
+                  let tryCount = tryAddHistory.get(waitToAdd[i]["id"]);
+                  if (typeof tryCount == undefined) {
+                    tryCount = 0;
+                  }
+                  tryCount++;
+                  tryAddHistory.set(waitToAdd[i]["id"], tryCount);
                   Promise.all(delClassPromise).then(function () {
                     point += waitToAdd[i]["point"];
+                    selectActionCount++;
                     getWeb.sendAddClass(waitToAdd[i]["id"]);
                   });
                   break;
                 }
               }
             }
-          }
-          for (let k = 0; k < 20; k++) {
-            console.log(k);
           }
           console.log("countFin");
           resolve();

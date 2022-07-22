@@ -137,6 +137,7 @@ function checkToRestartTimer() {
           nowState.barPo = 100;
           nowState.isFastSelectFinish = true;
           upDateState();
+          win.webContents.send("preSelectPagePlay");
         } else if (sDay - Date.now() <= 70 * 1000) {
           if (typeof preLoadTimer != undefined) {
             clearTimeout(preLoadTimer);
@@ -304,7 +305,7 @@ function setFastSelectTimer(settingSaved) {
           intervalCount = 0;
           sender.setCookie(getWeb.getCookie());
           repeatSelectInterval = setInterval(function () {
-            if (intervalCount < 50) {
+            if (intervalCount < 10) {
               console.log("To" + intervalCount);
               repeatSelectPromise.push(
                 sender.sendFastSelect(

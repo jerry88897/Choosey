@@ -429,6 +429,7 @@ async function showControlCenter(evt, ntpTimeDiff) {
             stopBtmText.setAttribute("class", "stopDown");
           });
           ipc.send("stopSequence");
+          ipc.send("preSelectPagePlay", 0);
         }
       });
 
@@ -2558,74 +2559,67 @@ async function updateTime() {
       }
     });
   });
-  let titleCountDownPromise = new Promise(function (resolve, reject) {
-    console.log(1);
-    fs.readFile(
-      "./src/titleCountDown.html",
-      function (err, titleCountDownSave) {
-        if (err) {
-          reject("no file");
-        } else {
-          console.log("load setting");
-          //將二進制數據轉換為字串符
-          titleCountDownString = titleCountDownSave.toString();
-          resolve("success");
-        }
-      }
-    );
-  });
   settingPromise.then(function (success) {
-    titleCountDownPromise.then(function (success) {
-      titleCountDown.innerHTML = titleCountDownString;
-      let sDay = Date.parse(setting["selectStartDate"]);
-      if (sDay > Date.now()) {
-        if (typeof countDownTimer != undefined) {
-          clearInterval(countDownTimer);
-        }
-        if (typeof titleCountDownTimer != undefined) {
-          clearInterval(titleCountDownTimer);
-        }
+    titleCountDown.innerHTML = `<li>
+    <div class="titleCountDownIcon">
+      <img class="icon" src="./icon/hourglass-regular.svg" />
+    </div>
+  </li>
+  <li><a id="leftDay">-</a></li>
+  <li><a>日</a></li>
+  <li><a id="leftHour">-</a></li>
+  <li><a>時</a></li>
+  <li><a id="leftMinute">-</a></li>
+  <li><a>分</a></li>
+  <li><a id="leftSecond">-</a></li>
+  <li><a>秒</a></li>
+  `;
+    let sDay = Date.parse(setting["selectStartDate"]);
+    if (sDay > Date.now()) {
+      if (typeof countDownTimer != undefined) {
+        clearInterval(countDownTimer);
+      }
+      if (typeof titleCountDownTimer != undefined) {
+        clearInterval(titleCountDownTimer);
+      }
 
-        function titleCountDownF() {
-          console.log("titleCountDownF");
-          let start = Date.now();
-          let leftTime = sDay - Date.now();
-          if (leftTime > 0) {
-            let days = Math.floor(leftTime / _day);
-            leftTime -= days * _day;
-            let hours = Math.floor(leftTime / _hour);
-            leftTime -= hours * _hour;
-            let minutes = Math.floor(leftTime / _minute);
-            leftTime -= minutes * _minute;
-            let seconds = Math.floor(leftTime / _second);
-            document.getElementById("leftDay").innerHTML = days;
-            document.getElementById("leftHour").innerHTML = hours;
-            document.getElementById("leftMinute").innerHTML = minutes;
-            document.getElementById("leftSecond").innerHTML = seconds;
-            console.log(
-              days + "d" + hours + "h" + minutes + "m" + seconds + "s"
-            );
-          } else {
-            document.getElementById("leftDay").innerHTML = "-";
-            document.getElementById("leftHour").innerHTML = "-";
-            document.getElementById("leftMinute").innerHTML = "-";
-            document.getElementById("leftSecond").innerHTML = "-";
-            clearInterval(countDownTimer);
-            countDownTimer = undefined;
-          }
-          console.log(Date.now() - start);
-        }
-        titleCountDownF();
-        titleCountDownTimer = setInterval(function () {
-          titleCountDownF();
-        }, 1000);
-      } else {
-        if (typeof countDownTimer != undefined) {
+      function titleCountDownF() {
+        console.log("titleCountDownF");
+        let start = Date.now();
+        let leftTime = sDay - Date.now();
+        if (leftTime > 0) {
+          let days = Math.floor(leftTime / _day);
+          leftTime -= days * _day;
+          let hours = Math.floor(leftTime / _hour);
+          leftTime -= hours * _hour;
+          let minutes = Math.floor(leftTime / _minute);
+          leftTime -= minutes * _minute;
+          let seconds = Math.floor(leftTime / _second);
+          document.getElementById("leftDay").innerHTML = days;
+          document.getElementById("leftHour").innerHTML = hours;
+          document.getElementById("leftMinute").innerHTML = minutes;
+          document.getElementById("leftSecond").innerHTML = seconds;
+          console.log(days + "d" + hours + "h" + minutes + "m" + seconds + "s");
+        } else {
+          document.getElementById("leftDay").innerHTML = "-";
+          document.getElementById("leftHour").innerHTML = "-";
+          document.getElementById("leftMinute").innerHTML = "-";
+          document.getElementById("leftSecond").innerHTML = "-";
           clearInterval(countDownTimer);
           countDownTimer = undefined;
         }
+        console.log(Date.now() - start);
       }
-    });
+      titleCountDownF();
+      titleCountDownTimer = setInterval(function () {
+        titleCountDownF();
+      }, 1000);
+    } else {
+      if (typeof countDownTimer != undefined) {
+        clearInterval(countDownTimer);
+        countDownTimer = undefined;
+      }
+    }
   });
 }
 
@@ -2864,6 +2858,10 @@ ipc.on("appLocat", function (evt, appLocat) {
   console.log(appLocat);
 });
 ipc.on("updateState", function () {
+  updateControlCenterState();
+  console.log("updateControlCenterState");
+});
+ipc.on("preSelectPagePlay", function () {
   updateControlCenterState();
   console.log("updateControlCenterState");
 });
