@@ -1,1 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#FF4500"><g><rect fill="none" height="24" width="24"/></g><g><path d="M14,10H3v2h11V10z M14,6H3v2h11V6z M3,16h7v-2H3V16z M14.41,22L17,19.41L19.59,22L21,20.59L18.41,18L21,15.41L19.59,14 L17,16.59L14.41,14L13,15.41L15.59,18L13,20.59L14.41,22z"/></g></svg>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 26.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="圖層_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 24 24" style="enable-background:new 0 0 24 24;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;}
+	.st1{fill:#ED143D;}
+</style>
+<g>
+	<rect class="st0" width="24" height="24"/>
+</g>
+<g>
+	<path class="st1" d="M13.7,8.7H4.5v1.7h9.2V8.7z M13.7,5.3H4.5V7h9.2V5.3z M4.5,13.7h5.8V12H4.5V13.7z M14,18.7l2.2-2.2l2.2,2.2
+		l1.2-1.2l-2.2-2.2l2.2-2.2L18.3,12l-2.2,2.2L14,12l-1.2,1.2l2.2,2.2l-2.2,2.2L14,18.7z"/>
+</g>
+</svg>

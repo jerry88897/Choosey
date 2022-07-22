@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const { electron } = require("process");
 
+const { dialog } = require("electron");
 const ipc = require("electron").ipcMain;
 const getWeb = require("./getWeb");
 const parser = require("./parser");
@@ -44,6 +45,7 @@ let NTPTimeDiff = 0;
 // Make a request for a user with a given ID
 let preSelectPageTimer;
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
+
 if (require("electron-squirrel-startup")) {
   // eslint-disable-line global-require
   app.quit();
@@ -72,6 +74,7 @@ const createWindow = () => {
     mainWindow.show();
   });
   win = mainWindow;
+  timer.setWindow(win);
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, "./index.html"));
 
@@ -83,25 +86,26 @@ const createWindow = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
+  timer.loadState();
   let date = timer.getNTPTime();
-  date.then(function (timeDiff) {
-    NTPTimeDiff = timeDiff;
-    createWindow();
-    setInterval(function () {
-      let date = timer.getNTPTime();
-      date.then(function (timeDiff) {
-        NTPTimeDiff = timeDiff;
-        win.webContents.send("updateNTP", NTPTimeDiff);
-      });
-    }, 25 * 60 * 1000);
-  });
-  // Register a shortcut listener for Ctrl + Shift + I
-  //globalShortcut.register('Control+Shift+I', () => {
-  // When the user presses Ctrl + Shift + I, this function will get called
-  // You can modify this function to do other things, but if you just want
-  // to disable the shortcut, you can just return false
-  //return false;
-  //});
+  date
+    .then(function (timeDiff) {
+      NTPTimeDiff = timeDiff;
+      createWindow();
+      setInterval(function () {
+        let date = timer.getNTPTime();
+        date.then(function (timeDiff) {
+          NTPTimeDiff = timeDiff;
+          win.webContents.send("updateNTP", NTPTimeDiff);
+        });
+      }, 25 * 60 * 1000);
+      timer.checkToRestartTimer();
+    })
+    .catch(function (err) {
+      dialog.showErrorBox("連線失敗", "無法連線至外部終端機，請檢查網路連線");
+      createWindow();
+      //app.quit();
+    });
 });
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -454,6 +458,7 @@ ipc.on("login", async function (e, data) {
   user.id = data.id;
   user.ps = data.ps;
   let resoult = await getWeb.login(data);
+  timer.setGetWeb(getWeb);
   console.log("!!" + resoult);
   win.webContents.send("loginRe", resoult);
   let userGradeResoult = getWeb.getUserGrade();
@@ -474,6 +479,13 @@ ipc.on("login", async function (e, data) {
 });
 ipc.on("loadPage2", async function (e) {
   win.loadFile(path.join(__dirname, "./index2.html"));
+});
+
+ipc.on("startSequence", async function () {
+  timer.checkToRestartTimer();
+});
+ipc.on("stopSequence", async function () {
+  timer.stopAllTimer();
 });
 
 //npm start

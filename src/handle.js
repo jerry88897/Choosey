@@ -26,7 +26,7 @@ let _day = _hour * 24;
 
 let myClassTableType = false;
 
-let tickTimer;
+let titleCountDownTimer;
 let countDownTimer;
 let tableHead = [
   "動作",
@@ -75,6 +75,7 @@ async function cleanRightFrame() {
 }
 
 let newNTPTimeDiff;
+let activate = false;
 async function showControlCenter(evt, ntpTimeDiff) {
   await cleanFrame();
   await cleanRightFrame();
@@ -82,6 +83,7 @@ async function showControlCenter(evt, ntpTimeDiff) {
   newNTPTimeDiff = ntpTimeDiff;
   let setting = {
     selectStartDate: "2022-01-27T10:30",
+    activate: false,
   };
   let timeHead = [
     "localTime",
@@ -123,132 +125,582 @@ async function showControlCenter(evt, ntpTimeDiff) {
     });
   });
   settingPromise.then(function (success) {
-    let timeCenterHTML = new Promise(function (resolve, reject) {
-      fs.readFile("./src/timeCenter.html", function (err, timeCenterHTMLData) {
-        if (err) {
-          reject("no file");
+    activate = settingSaved["activate"];
+    timeCenterHTMLData = `<div class="timeDivBox">
+  <div class="timeBoxLeft">
+    <div class="timeBox">
+      <div class="timeName">本機時間 :</div>
+      <div class="timeNum localTime">-</div>
+      <div class="timeSeg">年</div>
+      <div class="timeNum localTime">-</div>
+      <div class="timeSeg">月</div>
+      <div class="timeNum localTime">-</div>
+      <div class="timeSeg">日</div>
+      <div class="timeNum localTime">-</div>
+      <div class="timeSeg">時</div>
+      <div class="timeNum localTime">-</div>
+      <div class="timeSeg">分</div>
+      <div class="timeNum localTime">-</div>
+      <div class="timeSeg">秒</div>
+    </div>
+    <div class="timeBox">
+      <div class="timeName">NTP時間 :</div>
+      <div class="timeNum NTPTime">-</div>
+      <div class="timeSeg">年</div>
+      <div class="timeNum NTPTime">-</div>
+      <div class="timeSeg">月</div>
+      <div class="timeNum NTPTime">-</div>
+      <div class="timeSeg">日</div>
+      <div class="timeNum NTPTime">-</div>
+      <div class="timeSeg">時</div>
+      <div class="timeNum NTPTime">-</div>
+      <div class="timeSeg">分</div>
+      <div class="timeNum NTPTime">-</div>
+      <div class="timeSeg">秒</div>
+    </div>
+    <div class="timeBox">
+      <div class="timeName">時間誤差 :</div>
+      <div class="timeNum timeDiff timeNumLong">-</div>
+      <div class="timeSeg">毫秒</div>
+    </div>
+    <div class="timeBox">
+      <div class="timeName">選課時間 :</div>
+      <div class="timeNum selTime">-</div>
+      <div class="timeSeg">年</div>
+      <div class="timeNum selTime">-</div>
+      <div class="timeSeg">月</div>
+      <div class="timeNum selTime">-</div>
+      <div class="timeSeg">日</div>
+      <div class="timeNum selTime">-</div>
+      <div class="timeSeg">時</div>
+      <div class="timeNum selTime">-</div>
+      <div class="timeSeg">分</div>
+      <div class="timeNum selTime">-</div>
+      <div class="timeSeg">秒</div>
+    </div>
+    <div class="timeBox">
+      <div class="timeName">執行倒數 :</div>
+      <div class="timeNum countDownTime">-</div>
+      <div class="timeSeg">日</div>
+      <div class="timeNum countDownTime">-</div>
+      <div class="timeSeg">小時</div>
+      <div class="timeNum countDownTime">-</div>
+      <div class="timeSeg">分鐘</div>
+      <div class="timeNum countDownTime">-</div>
+      <div class="timeSeg">秒</div>
+    </div>
+    <div class="timeBox">
+      <div class="timeName">運算延遲 :</div>
+      <div class="timeNum systemDelay">-</div>
+      <div class="timeSeg">毫秒</div>
+    </div>
+  </div>
+</div>`;
+    let controlPanel = document.createElement("div");
+    controlPanel.setAttribute("class", "controlPanel");
+    let controlPanelRight = document.createElement("div");
+    controlPanelRight.setAttribute("class", "controlPanel");
+    let timeDivBox = document.createElement("div");
+    timeDivBox.setAttribute("class", "timeDivBox");
+
+    timeDivBox.innerHTML = timeCenterHTMLData;
+
+    //let lowerPanelBox = document.createElement("div");
+    //lowerPanelBox.setAttribute("class", "lowerPanelBox");
+
+    let flowChartBox = document.createElement("div");
+    flowChartBox.setAttribute("class", "flowChartBox");
+    let launchBox = document.createElement("div");
+    launchBox.setAttribute("class", "launchBox");
+
+    let startBtm = document.createElement("div");
+    startBtm.setAttribute("class", "button");
+    startBtm.setAttribute("id", "startBtm");
+    let startBtmText = document.createElement("a");
+    startBtmText.innerText = "運行";
+    startBtm.appendChild(startBtmText);
+
+    let stopBtm = document.createElement("div");
+    stopBtm.setAttribute("class", "button");
+    stopBtm.setAttribute("id", "stopBtm");
+    let stopBtmText = document.createElement("a");
+    stopBtmText.innerText = "中止";
+    stopBtm.appendChild(stopBtmText);
+
+    if (settingSaved["activate"] == true) {
+      startBtmText.setAttribute("class", "startDown");
+      stopBtmText.setAttribute("class", "stopUp");
+    } else {
+      startBtmText.setAttribute("class", "startUp");
+      stopBtmText.setAttribute("class", "stopDown");
+    }
+    launchBox.appendChild(startBtm);
+    launchBox.appendChild(stopBtm);
+    controlPanelRight.appendChild(launchBox);
+    flowChartBox.innerHTML = `<div class="flowStepBox preLoadBox">
+              <div class="flowIconBox" id="preLoadIconBox">
+                <div class="iconBox">
+                  <img src="./icon/archive.svg" class="icon" />
+                </div>
+                <div class="stepLinkBox">
+                  <div class="stepLinkLineBox">
+                    <div class="stepLinkLine" id="progLine"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="flowStepInfoBox">
+                <div class="stepName">預載模組</div>
+                <div class="stepInfo">
+                  <div class="infoIconBox">
+                    <img src="./icon/bx-x.svg" id="preLoadIcon" />
+                  </div>
+                  <div class="info" id="preLoadText">未預載</div>
+                </div>
+              </div>
+            </div>
+            <div class="flowStepBox fastSelectBox">
+              <div class="flowIconBox" id="fastSelectIconBox">
+                <div class="iconBox">
+                  <img src="./icon/flash_on.svg" class="icon" />
+                </div>
+              </div>
+              <div class="flowStepInfoBox">
+                <div class="stepName">快速選課模組</div>
+                <div class="stepInfo">
+                  <div class="infoIconBox">
+                    <img src="./icon/bx-x.svg" class="icon fastSelectIcon" />
+                  </div>
+                  <div class="info">1區</div>
+                  <div class="info classCount0">未啟用</div>
+                  <div class="info infoSmall classUnit0"></div>
+                  <div class="info infoSmall classCount1"></div>
+                  <div class="info infoSmall classUnit1"></div>
+                  <div class="info infoSmall classCount2"></div>
+                  <div class="info infoSmall classUnit2"></div>
+                  <div class="info infoSmall classCount3"></div>
+                </div>
+                <div class="stepInfo">
+                  <div class="infoIconBox">
+                    <img src="./icon/bx-x.svg" class="icon fastSelectIcon" />
+                  </div>
+                  <div class="info">2區</div>
+                  <div class="info classCount0">未啟用</div>
+                  <div class="info infoSmall classUnit0"></div>
+                  <div class="info infoSmall classCount1"></div>
+                  <div class="info infoSmall classUnit1"></div>
+                  <div class="info infoSmall classCount2"></div>
+                  <div class="info infoSmall classUnit2"></div>
+                  <div class="info infoSmall classCount3"></div>
+                </div>
+                <div class="stepInfo">
+                  <div class="infoIconBox">
+                    <img src="./icon/bx-x.svg" class="icon fastSelectIcon" />
+                  </div>
+                  <div class="info">3區</div>
+                  <div class="info classCount0">未啟用</div>
+                  <div class="info infoSmall classUnit0"></div>
+                  <div class="info infoSmall classCount1"></div>
+                  <div class="info infoSmall classUnit1"></div>
+                  <div class="info infoSmall classCount2"></div>
+                  <div class="info infoSmall classUnit2"></div>
+                  <div class="info infoSmall classCount3"></div>
+                </div>
+                <div class="stepInfo">
+                  <div class="infoIconBox">
+                    <img src="./icon/bx-x.svg" class="icon fastSelectIcon" />
+                  </div>
+                  <div class="info">4區</div>
+                  <div class="info classCount0">未啟用</div>
+                  <div class="info infoSmall classUnit0"></div>
+                  <div class="info infoSmall classCount1"></div>
+                  <div class="info infoSmall classUnit1"></div>
+                  <div class="info infoSmall classCount2"></div>
+                  <div class="info infoSmall classUnit2"></div>
+                  <div class="info infoSmall classCount3"></div>
+                </div>
+                <div class="stepInfo">
+                  <div class="infoIconBox">
+                    <img src="./icon/bx-x.svg" class="icon fastSelectIcon" />
+                  </div>
+                  <div class="info">5區</div>
+                  <div class="info classCount0">未啟用</div>
+                  <div class="info infoSmall classUnit0"></div>
+                  <div class="info infoSmall classCount1"></div>
+                  <div class="info infoSmall classUnit1"></div>
+                  <div class="info infoSmall classCount2"></div>
+                  <div class="info infoSmall classUnit2"></div>
+                  <div class="info infoSmall classCount3"></div>
+                </div>
+              </div>
+            </div>
+            <div class="flowStepBox preSelectBox">
+              <div class="flowIconBox">
+                <div class="iconBox">
+                  <img src="./icon/manage_search.svg" class="icon" />
+                </div>
+              </div>
+              <div class="flowStepInfoBox">
+                <div class="stepName">觀測選課模組</div>
+                <div class="stepInfo">
+                  <div class="infoIconBox">
+                    <img src="./icon/power_settings.svg" class="icon" />
+                  </div>
+                  <div class="info">已啟用</div>
+                </div>
+                <div class="stepInfo">
+                  <div class="infoIconBox">
+                    <img src="./icon/playlist_add.svg" class="icon" />
+                  </div>
+                  <div class="info">已加選</div>
+                  <div class="info">0</div>
+                  <div class="info">堂</div>
+                </div>
+                <div class="stepInfo">
+                  <div class="infoIconBox">
+                    <img src="./icon/playlist_remove_24dp.svg" class="icon" />
+                  </div>
+                  <div class="info">已退選</div>
+                  <div class="info">0</div>
+                  <div class="info">堂</div>
+                </div>
+              </div>
+            </div>`;
+    controlPanel.appendChild(timeDivBox);
+    controlPanel.appendChild(flowChartBox);
+    //lowerPanelBox.appendChild(flowChartBox);
+    //lowerPanelBox.appendChild(launchBox);
+    //controlPanel.appendChild(lowerPanelBox);
+
+    main_frame.appendChild(controlPanel);
+    right_frame.appendChild(controlPanelRight);
+    ipc.send("getNowState");
+    document
+      .getElementById("startBtm")
+      .addEventListener("click", async function () {
+        if (activate == false) {
+          settingSaved["activate"] = true;
+          activate = true;
+          let savePromise = new Promise(function (resolve, reject) {
+            fs.writeFile(
+              "./src/data/setting.json",
+              JSON.stringify(settingSaved),
+              function (err) {
+                if (err) {
+                  console.log(err);
+                  reject();
+                } else {
+                  resolve();
+                  console.log("save file complete.");
+                }
+              }
+            );
+          });
+          savePromise.then(function (success) {
+            startBtmText.setAttribute("class", "startDown");
+            stopBtmText.setAttribute("class", "stopUp");
+          });
+          ipc.send("startSequence");
+        }
+      });
+
+    document
+      .getElementById("stopBtm")
+      .addEventListener("click", async function () {
+        if (activate == true) {
+          settingSaved["activate"] = false;
+          activate = false;
+          let savePromise = new Promise(function (resolve, reject) {
+            fs.writeFile(
+              "./src/data/setting.json",
+              JSON.stringify(settingSaved),
+              function (err) {
+                if (err) {
+                  console.log(err);
+                  reject();
+                } else {
+                  resolve();
+                  console.log("save file complete.");
+                }
+              }
+            );
+          });
+          savePromise.then(function (success) {
+            startBtmText.setAttribute("class", "startUp");
+            stopBtmText.setAttribute("class", "stopDown");
+          });
+          ipc.send("stopSequence");
+        }
+      });
+
+    for (let i = 0; i < 6; i++) {
+      let timeOutput = document.getElementsByClassName(timeHead[i]);
+      timeNumList.push(timeOutput);
+    }
+
+    let sDay = new Date(settingSaved["selectStartDate"]);
+    console.log(settingSaved["selectStartDate"]);
+    timeNumList[3][0].innerText = sDay.getFullYear();
+    timeNumList[3][1].innerText = sDay.getMonth() + 1;
+    timeNumList[3][2].innerText = sDay.getDate();
+    timeNumList[3][3].innerText = sDay.getHours();
+    timeNumList[3][4].innerText = sDay.getMinutes();
+    timeNumList[3][5].innerText = sDay.getSeconds();
+    if (typeof countDownTimer != undefined) {
+      clearInterval(countDownTimer);
+    }
+    if (typeof titleCountDownTimer != undefined) {
+      clearInterval(titleCountDownTimer);
+    }
+    let flash = 0;
+
+    function countDownF() {
+      let calculateStart = Date.now();
+      ntpTimeDiff = newNTPTimeDiff;
+      let nowtime = new Date(Date.now());
+      timeNumList[0][0].innerText = nowtime.getFullYear();
+      timeNumList[0][1].innerText = nowtime.getMonth() + 1;
+      timeNumList[0][2].innerText = nowtime.getDate();
+      timeNumList[0][3].innerText = nowtime.getHours();
+      timeNumList[0][4].innerText = nowtime.getMinutes();
+      timeNumList[0][5].innerText = nowtime.getSeconds();
+
+      nowtime.setMilliseconds(nowtime.getMilliseconds() + ntpTimeDiff);
+      timeNumList[1][0].innerText = nowtime.getFullYear();
+      timeNumList[1][1].innerText = nowtime.getMonth() + 1;
+      timeNumList[1][2].innerText = nowtime.getDate();
+      timeNumList[1][3].innerText = nowtime.getHours();
+      timeNumList[1][4].innerText = nowtime.getMinutes();
+      timeNumList[1][5].innerText = nowtime.getSeconds();
+
+      let leftTime = sDay - Date.now();
+      if (leftTime > 0) {
+        let days = Math.floor(leftTime / _day);
+        leftTime -= days * _day;
+        let hours = Math.floor(leftTime / _hour);
+        leftTime -= hours * _hour;
+        let minutes = Math.floor(leftTime / _minute);
+        leftTime -= minutes * _minute;
+        let seconds = Math.floor(leftTime / _second);
+        timeNumList[4][0].innerText = days;
+        timeNumList[4][1].innerText = hours;
+        timeNumList[4][2].innerText = minutes;
+        timeNumList[4][3].innerText = seconds;
+        console.log(days + "d" + hours + "h" + minutes + "m" + seconds + "s");
+      } else {
+        if (flash == 0) {
+          flash = 1;
+          timeNumList[4][0].innerText = "-";
+          timeNumList[4][1].innerText = "-";
+          timeNumList[4][2].innerText = "-";
+          timeNumList[4][3].innerText = "-";
         } else {
-          console.log("load HTML");
+          flash = 0;
+          timeNumList[4][0].innerText = " ";
+          timeNumList[4][1].innerText = " ";
+          timeNumList[4][2].innerText = " ";
+          timeNumList[4][3].innerText = " ";
+        }
+      }
+      timeNumList[2][0].innerText = ntpTimeDiff * -1;
+      timeNumList[5][0].innerText = Date.now() - calculateStart;
+    }
+    countDownF();
+    countDownTimer = setInterval(function () {
+      countDownF();
+    }, 1000);
+  });
+}
+async function updateControlCenterState() {
+  const fastSelectStateIcon = [
+    "./icon/power_settings.svg",
+    "./icon/work_history.svg",
+    "./icon/bx-loader-circle.svg",
+    "./icon/mark_email_read.svg",
+    "./icon/cancel_schedule_send.svg",
+  ];
+  const fastSelectStateText = [
+    "已啟用",
+    "已排程",
+    "已送出",
+    "已回應",
+    "無回應",
+  ];
+  if (typeof document.getElementsByClassName("flowChartBox") != undefined) {
+    let statePromise = new Promise(function (resolve, reject) {
+      console.log(1);
+      fs.readFile("./src/data/state.json", function (err, stateData) {
+        if (err) {
+          console.log("no state make new file");
+          reject(err);
+        } else {
+          console.log("load state");
           //將二進制數據轉換為字串符
-          resolve(timeCenterHTMLData);
+          stateData = stateData.toString();
+          //將字符串轉換為 JSON 對象
+          resolve(stateData);
         }
       });
     });
-    timeCenterHTML.then(function (timeCenterHTMLData) {
-      timeCenterHTMLData = timeCenterHTMLData.toString();
-      let controlPanel = document.createElement("div");
-      controlPanel.setAttribute("class", "controlPanel");
-      let timeDivBox = document.createElement("div");
-      timeDivBox.setAttribute("class", "timeDivBox");
-
-      timeDivBox.innerHTML = timeCenterHTMLData;
-
-      //let lowerPanelBox = document.createElement("div");
-      //lowerPanelBox.setAttribute("class", "lowerPanelBox");
-
-      let flowChartBox = document.createElement("div");
-      flowChartBox.setAttribute("class", "flowChartBox");
-      let launchBox = document.createElement("div");
-      launchBox.setAttribute("class", "launchBox");
-
-      let startBtm = document.createElement("div");
-      startBtm.setAttribute("class", "button");
-      let startBtmText = document.createElement("a");
-      startBtmText.innerText = "運行";
-      startBtm.appendChild(startBtmText);
-
-      let stopBtm = document.createElement("div");
-      stopBtm.setAttribute("class", "button");
-      let stopBtmText = document.createElement("a");
-      stopBtmText.innerText = "中止";
-      stopBtm.appendChild(stopBtmText);
-
-      launchBox.appendChild(startBtm);
-      launchBox.appendChild(stopBtm);
-      flowChartBox.innerHTML = "222";
-      controlPanel.appendChild(timeDivBox);
-      controlPanel.appendChild(flowChartBox);
-      controlPanel.appendChild(launchBox);
-      //lowerPanelBox.appendChild(flowChartBox);
-      //lowerPanelBox.appendChild(launchBox);
-      //controlPanel.appendChild(lowerPanelBox);
-
-      main_frame.appendChild(controlPanel);
-
-      for (let i = 0; i < 6; i++) {
-        let timeOutput = document.getElementsByClassName(timeHead[i]);
-        timeNumList.push(timeOutput);
-      }
-
-      let sDay = new Date(settingSaved["selectStartDate"]);
-      console.log(settingSaved["selectStartDate"]);
-      timeNumList[3][0].innerText = sDay.getFullYear();
-      timeNumList[3][1].innerText = sDay.getMonth() + 1;
-      timeNumList[3][2].innerText = sDay.getDate();
-      timeNumList[3][3].innerText = sDay.getHours();
-      timeNumList[3][4].innerText = sDay.getMinutes();
-      timeNumList[3][5].innerText = sDay.getSeconds();
-      console.log(sDay.getMonth());
-      if (typeof countDownTimer != undefined) {
-        clearInterval(countDownTimer);
-      }
-      if (typeof tickTimer != undefined) {
-        clearInterval(tickTimer);
-      }
-      let flash = 0;
-      countDownTimer = setInterval(function () {
-        let calculateStart = Date.now();
-        ntpTimeDiff = newNTPTimeDiff;
-        let nowtime = new Date(Date.now());
-        timeNumList[0][0].innerText = nowtime.getFullYear();
-        timeNumList[0][1].innerText = nowtime.getMonth() + 1;
-        timeNumList[0][2].innerText = nowtime.getDate();
-        timeNumList[0][3].innerText = nowtime.getHours();
-        timeNumList[0][4].innerText = nowtime.getMinutes();
-        timeNumList[0][5].innerText = nowtime.getSeconds();
-
-        nowtime.setMilliseconds(nowtime.getMilliseconds() + ntpTimeDiff);
-        timeNumList[1][0].innerText = nowtime.getFullYear();
-        timeNumList[1][1].innerText = nowtime.getMonth() + 1;
-        timeNumList[1][2].innerText = nowtime.getDate();
-        timeNumList[1][3].innerText = nowtime.getHours();
-        timeNumList[1][4].innerText = nowtime.getMinutes();
-        timeNumList[1][5].innerText = nowtime.getSeconds();
-
-        let leftTime = sDay - Date.now();
-        if (leftTime > 0) {
-          let days = Math.floor(leftTime / _day);
-          leftTime -= days * _day;
-          let hours = Math.floor(leftTime / _hour);
-          leftTime -= hours * _hour;
-          let minutes = Math.floor(leftTime / _minute);
-          leftTime -= minutes * _minute;
-          let seconds = Math.floor(leftTime / _second);
-          timeNumList[4][0].innerText = days;
-          timeNumList[4][1].innerText = hours;
-          timeNumList[4][2].innerText = minutes;
-          timeNumList[4][3].innerText = seconds;
-          console.log(days + "d" + hours + "h" + minutes + "m" + seconds + "s");
+    statePromise
+      .then(function (stateData) {
+        stateData = JSON.parse(stateData);
+        let preLoadIcon = document.getElementById("preLoadIcon");
+        let preLoadText = document.getElementById("preLoadText");
+        let preLoadIconBox = document.getElementById("preLoadIconBox");
+        let progLine = document.getElementById("progLine");
+        progLine.style.width = stateData.barPo + "%";
+        if (stateData.preload == 0) {
+          preLoadIconBox.classList.remove("iconActiveBox");
+          preLoadIcon.setAttribute("src", "./icon/bx-x.svg");
+          preLoadText.innerText = "未預載";
+        } else if (stateData.preload == 1) {
+          preLoadIcon.setAttribute("src", "./icon/work_history.svg");
+          preLoadText.innerText = "已排程";
+          preLoadIconBox.classList.remove("iconActiveBox");
         } else {
-          if (flash == 0) {
-            flash = 1;
-            timeNumList[4][0].innerText = "-";
-            timeNumList[4][1].innerText = "-";
-            timeNumList[4][2].innerText = "-";
-            timeNumList[4][3].innerText = "-";
-          } else {
-            flash = 0;
-            timeNumList[4][0].innerText = " ";
-            timeNumList[4][1].innerText = " ";
-            timeNumList[4][2].innerText = " ";
-            timeNumList[4][3].innerText = " ";
-          }
+          preLoadIcon.setAttribute("src", "./icon/bx-check.svg");
+          preLoadText.innerText = "已預載";
+          preLoadIconBox.classList.add("iconActiveBox");
         }
-        timeNumList[2][0].innerText = ntpTimeDiff * -1;
-        timeNumList[5][0].innerText = Date.now() - calculateStart;
-      }, 1000);
-    });
-  });
+
+        let fastSelectList;
+        let fastSelectPromise = new Promise(function (resolve, reject) {
+          fs.readFile(
+            "./src/data/fastSelect.json",
+            function (err, fastSelectListSaved) {
+              if (err) {
+                reject(err);
+              } else {
+                console.log("load FSS");
+                //將二進制數據轉換為字串符
+                fastSelectListSaved = fastSelectListSaved.toString();
+                //將字符串轉換為 JSON 對象
+                fastSelectList = JSON.parse(fastSelectListSaved);
+                resolve(true);
+              }
+            }
+          );
+        });
+
+        fastSelectPromise
+          .then(function (haveFile) {
+            let fastSelectIconBox =
+              document.getElementById("fastSelectIconBox");
+            let fastSelectIcons =
+              document.getElementsByClassName("fastSelectIcon");
+            let fastSelectCount0 =
+              document.getElementsByClassName("classCount0");
+            let fastSelectCount1 =
+              document.getElementsByClassName("classCount1");
+            let fastSelectCount2 =
+              document.getElementsByClassName("classCount2");
+            let fastSelectCount3 =
+              document.getElementsByClassName("classCount3");
+            let classUnit0 = document.getElementsByClassName("classUnit0");
+            let classUnit1 = document.getElementsByClassName("classUnit1");
+            let classUnit2 = document.getElementsByClassName("classUnit2");
+            if (stateData.isFastSelectFinish) {
+              fastSelectIconBox.classList.add("iconActiveBox");
+            } else {
+              fastSelectIconBox.classList.remove("iconActiveBox");
+            }
+            for (let i = 0; i < 5; i++) {
+              fastSelectCount0[i].innerText = "";
+              fastSelectCount1[i].innerText = "";
+              fastSelectCount2[i].innerText = "";
+              fastSelectCount3[i].innerText = "";
+              classUnit0[i].innerText = "";
+              classUnit1[i].innerText = "";
+              classUnit2[i].innerText = "";
+              let allPKG = Math.ceil(
+                fastSelectList["fastSelectBlock"][i]["list"].length / 5
+              );
+              if (fastSelectList["fastSelectBlock"][i]["enable"] == true) {
+                fastSelectIcons[i].setAttribute(
+                  "src",
+                  fastSelectStateIcon[stateData.fastSelect[i][0]]
+                );
+                fastSelectCount0[i].innerText =
+                  fastSelectStateText[stateData.fastSelect[i][0]];
+                fastSelectIcons[i].classList.remove("loadingIcon");
+                if (stateData.fastSelect[i][0] < 2) {
+                  classUnit0[i].innerText = "共";
+                  fastSelectCount1[i].innerText = allPKG;
+                  classUnit1[i].innerText = "組";
+                } else if (stateData.fastSelect[i][0] == 2) {
+                  if (i == 4) {
+                    fastSelectIcons[i].classList.add("loadingIcon");
+                    fastSelectCount0[i].innerText = "執行中";
+                    classUnit0[i].innerText = "送出";
+                    fastSelectCount1[i].innerText = stateData.fastSelect[i][2];
+                    classUnit1[i].innerText = "次";
+                  } else {
+                    if (
+                      allPKG ==
+                      stateData.fastSelect[i][1] + stateData.fastSelect[i][2]
+                    ) {
+                      if (stateData.fastSelect[i][2] == 0) {
+                        fastSelectIcons[i].setAttribute(
+                          "src",
+                          "./icon/mark_email_read.svg"
+                        );
+                      } else {
+                        fastSelectIcons[i].setAttribute(
+                          "src",
+                          "./icon/cancel_schedule_send.svg"
+                        );
+                      }
+                      fastSelectCount0[i].innerText = "完成";
+                      classUnit0[i].innerText = stateData.fastSelect[i][1];
+                      fastSelectCount1[i].innerText = "成功";
+                      classUnit1[i].innerText = stateData.fastSelect[i][2];
+                      fastSelectCount2[i].innerText = "逾時";
+                    } else {
+                      fastSelectIcons[i].classList.add("loadingIcon");
+                      classUnit0[i].innerText = stateData.fastSelect[i][1];
+                      fastSelectCount1[i].innerText = "成功";
+                      classUnit1[i].innerText =
+                        allPKG -
+                        stateData.fastSelect[i][1] -
+                        stateData.fastSelect[i][2];
+                      fastSelectCount2[i].innerText = "等待";
+                      classUnit2[i].innerText = stateData.fastSelect[i][2];
+                      fastSelectCount3[i].innerText = "逾時";
+                    }
+                  }
+                } else if (stateData.fastSelect[i][0] == 3) {
+                  classUnit0[i].innerText = "在第";
+                  fastSelectCount1[i].innerText = stateData.fastSelect[i][1];
+                  classUnit1[i].innerText = "次";
+                  fastSelectCount2[i].innerText = "共";
+                  classUnit2[i].innerText = stateData.fastSelect[i][2];
+                  fastSelectCount3[i].innerText = "次";
+                } else {
+                  classUnit0[i].innerText = "超過50次上限";
+                }
+              } else {
+                fastSelectIcons[i].setAttribute("src", "./icon/bx-x.svg");
+                fastSelectCount0[i].innerText = "未啟用";
+                fastSelectCount1[i].innerText = "";
+                fastSelectCount2[i].innerText = "";
+                fastSelectCount3[i].innerText = "";
+                classUnit0[i].innerText = "";
+                classUnit1[i].innerText = "";
+                classUnit2[i].innerText = "";
+              }
+            }
+          })
+          .catch(function (err) {
+            console.log(err);
+          });
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  }
+}
+async function showTitleCountDown() {
+  titleCountDown.innerHTML = "";
 }
 async function fastSelect() {
   await cleanFrame();
@@ -2090,6 +2542,7 @@ async function showMyClass() {
 
 async function updateTime() {
   let setting;
+  let titleCountDownString;
   let settingPromise = new Promise(function (resolve, reject) {
     console.log(1);
     fs.readFile("./src/data/setting.json", function (err, settingSaved) {
@@ -2105,47 +2558,74 @@ async function updateTime() {
       }
     });
   });
-  settingPromise.then(function (success) {
-    let sDay = Date.parse(setting["selectStartDate"]);
-    if (sDay > Date.now()) {
-      if (typeof countDownTimer != undefined) {
-        clearInterval(countDownTimer);
-      }
-      if (typeof tickTimer != undefined) {
-        clearInterval(tickTimer);
-      }
-      countDownTimer = setInterval(function () {
-        let start = Date.now();
-        let leftTime = sDay - Date.now();
-        if (leftTime > 0) {
-          let days = Math.floor(leftTime / _day);
-          leftTime -= days * _day;
-          let hours = Math.floor(leftTime / _hour);
-          leftTime -= hours * _hour;
-          let minutes = Math.floor(leftTime / _minute);
-          leftTime -= minutes * _minute;
-          let seconds = Math.floor(leftTime / _second);
-          document.getElementById("leftDay").innerHTML = days;
-          document.getElementById("leftHour").innerHTML = hours;
-          document.getElementById("leftMinute").innerHTML = minutes;
-          document.getElementById("leftSecond").innerHTML = seconds;
-          console.log(days + "d" + hours + "h" + minutes + "m" + seconds + "s");
+  let titleCountDownPromise = new Promise(function (resolve, reject) {
+    console.log(1);
+    fs.readFile(
+      "./src/titleCountDown.html",
+      function (err, titleCountDownSave) {
+        if (err) {
+          reject("no file");
         } else {
-          document.getElementById("leftDay").innerHTML = "-";
-          document.getElementById("leftHour").innerHTML = "-";
-          document.getElementById("leftMinute").innerHTML = "-";
-          document.getElementById("leftSecond").innerHTML = "-";
+          console.log("load setting");
+          //將二進制數據轉換為字串符
+          titleCountDownString = titleCountDownSave.toString();
+          resolve("success");
+        }
+      }
+    );
+  });
+  settingPromise.then(function (success) {
+    titleCountDownPromise.then(function (success) {
+      titleCountDown.innerHTML = titleCountDownString;
+      let sDay = Date.parse(setting["selectStartDate"]);
+      if (sDay > Date.now()) {
+        if (typeof countDownTimer != undefined) {
+          clearInterval(countDownTimer);
+        }
+        if (typeof titleCountDownTimer != undefined) {
+          clearInterval(titleCountDownTimer);
+        }
+
+        function titleCountDownF() {
+          console.log("titleCountDownF");
+          let start = Date.now();
+          let leftTime = sDay - Date.now();
+          if (leftTime > 0) {
+            let days = Math.floor(leftTime / _day);
+            leftTime -= days * _day;
+            let hours = Math.floor(leftTime / _hour);
+            leftTime -= hours * _hour;
+            let minutes = Math.floor(leftTime / _minute);
+            leftTime -= minutes * _minute;
+            let seconds = Math.floor(leftTime / _second);
+            document.getElementById("leftDay").innerHTML = days;
+            document.getElementById("leftHour").innerHTML = hours;
+            document.getElementById("leftMinute").innerHTML = minutes;
+            document.getElementById("leftSecond").innerHTML = seconds;
+            console.log(
+              days + "d" + hours + "h" + minutes + "m" + seconds + "s"
+            );
+          } else {
+            document.getElementById("leftDay").innerHTML = "-";
+            document.getElementById("leftHour").innerHTML = "-";
+            document.getElementById("leftMinute").innerHTML = "-";
+            document.getElementById("leftSecond").innerHTML = "-";
+            clearInterval(countDownTimer);
+            countDownTimer = undefined;
+          }
+          console.log(Date.now() - start);
+        }
+        titleCountDownF();
+        titleCountDownTimer = setInterval(function () {
+          titleCountDownF();
+        }, 1000);
+      } else {
+        if (typeof countDownTimer != undefined) {
           clearInterval(countDownTimer);
           countDownTimer = undefined;
         }
-        console.log(Date.now() - start);
-      }, 1000);
-    } else {
-      if (typeof countDownTimer != undefined) {
-        clearInterval(countDownTimer);
-        countDownTimer = undefined;
       }
-    }
+    });
   });
 }
 
@@ -2241,6 +2721,7 @@ async function showSetting() {
           settingType[i] + i
         ).value;
       }
+      setting["activate"] = false;
       let savePromise = new Promise(function (resolve, reject) {
         fs.writeFile(
           "./src/data/setting.json",
@@ -2257,6 +2738,8 @@ async function showSetting() {
         );
       });
       savePromise.then(function (success) {
+        saveImg.setAttribute("src", "./icon/bx-save-check.svg");
+        ipc.send("stopSequence");
         updateTime();
       });
     });
@@ -2270,33 +2753,35 @@ async function showSetting() {
 }
 
 preSelectClass.addEventListener("click", async function () {
+  updateTime();
   preSelectClassPage();
   showPreSelectClassAtPreSelectPage();
 });
 fastSelectClass.addEventListener("click", async function () {
+  updateTime();
   fastSelect();
   showPreSelectClassAtFastSelectPage();
 });
 
-window.onload = function () {
-  updateTime();
-};
 controlCenter.addEventListener("click", async function () {
   ipc.send("getControlCenter");
 });
 classClass.addEventListener("click", async function () {
   ipc.send("getClassClass", SelDepNo, SelClassNo);
+  updateTime();
   showPreSelectClass();
   console.log("getClassClass");
 });
 generalClass.addEventListener("click", async function () {
   ipc.send("getGeneralClass");
+  updateTime();
   showPreSelectClass();
   console.log("getGeneralClass");
 });
 
 getMyClass.addEventListener("click", async function () {
   ipc.send("getMyClass");
+  updateTime();
   console.log("getMyClass");
   //showMyClass();
   /*tableSwitch.addEventListener('click', async function () {
@@ -2312,6 +2797,7 @@ getMyClass.addEventListener("click", async function () {
 
 setting.addEventListener("click", async function () {
   showSetting();
+  updateTime();
 });
 ipc.on("readyToShowControlCenter", function (evt, ntpTimeDiff) {
   console.log("showControlCenter");
@@ -2376,4 +2862,8 @@ ipc.on("myClass", function (evt, myClass) {
 
 ipc.on("appLocat", function (evt, appLocat) {
   console.log(appLocat);
+});
+ipc.on("updateState", function () {
+  updateControlCenterState();
+  console.log("updateControlCenterState");
 });
