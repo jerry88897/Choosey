@@ -34,6 +34,8 @@ let repeatSelectInterval;
 let intervalCount = 0;
 let setting;
 let win;
+let preSelectPageAction;
+let preSelectPageTimer;
 let nowState = {
   preload: 0,
   fastSelect: [
@@ -44,7 +46,7 @@ let nowState = {
     [0, 0, 0],
   ],
   isFastSelectFinish: false,
-  preSelect: [0, 0, 0],
+  preSelect: [0, 0, 0, 0, 0],
   barPo: 0,
 };
 
@@ -73,6 +75,25 @@ module.exports = {
   },
   setGetWeb: function (getWebS) {
     getWeb = getWebS;
+    return 0;
+  },
+  setPreSelectPageAction: function (preSelectPage) {
+    preSelectPageAction = preSelectPage;
+    return 0;
+  },
+  checkToStartPreSelectPageAction: function () {
+    checkToStartPreSelectPageAction();
+    return 0;
+  },
+  stopPreSelectPageAction: function () {
+    stopPreSelectPageAction();
+    return 0;
+  },
+  upDatePreSelectPageReport: function (add, remove, miss) {
+    nowState.preSelect[1] = add;
+    nowState.preSelect[2] = remove;
+    nowState.preSelect[3] = miss;
+    upDateState();
     return 0;
   },
 };
@@ -120,14 +141,15 @@ function checkToRestartTimer() {
         console.log("load setting");
         //將二進制數據轉換為字串符
         settingData = settingData.toString();
-        //將字符串轉換為 JSON 對象
-        settingSaved = JSON.parse(settingData);
-        resolve("success");
+
+        resolve(settingData);
       }
     });
   });
   settingPromise
-    .then(function (success) {
+    .then(function (settingData) {
+      //將字符串轉換為 JSON 對象
+      settingSaved = JSON.parse(settingData);
       let sDay = Date.parse(settingSaved["selectStartDate"]);
       if (settingSaved["activate"] == true) {
         if (sDay - Date.now() <= 0) {
@@ -135,9 +157,10 @@ function checkToRestartTimer() {
             clearTimeout(preLoadTimer);
           }
           nowState.barPo = 100;
+          nowState.preload = 3;
           nowState.isFastSelectFinish = true;
           upDateState();
-          win.webContents.send("preSelectPagePlay");
+          checkToStartPreSelectPageAction();
         } else if (sDay - Date.now() <= 70 * 1000) {
           if (typeof preLoadTimer != undefined) {
             clearTimeout(preLoadTimer);
@@ -175,8 +198,10 @@ function checkToRestartTimer() {
 async function preLoadFastSelectTimer(settingSaved) {
   return new Promise(function (resolve, reject) {
     nowState.preload = 2;
+    nowState.preSelect[0] = 2;
     upDateState();
     preLoadClass = [];
+    fastSelectReportCount = 0;
     let fastSelectList;
     let fastSelectPromise = new Promise(function (resolve, reject) {
       console.log(1);
@@ -473,6 +498,7 @@ async function checkIfFastSelectFinish() {
     nowState.barPo = 100;
     nowState.isFastSelectFinish = true;
     upDateState();
+    checkToStartPreSelectPageAction();
   }
 }
 async function stopAllTimer() {
@@ -493,6 +519,7 @@ async function stopAllTimer() {
   if (typeof repeatSelectInterval != undefined) {
     clearInterval(repeatSelectInterval);
   }
+  stopPreSelectPageAction();
   nowState = {
     preload: 0,
     fastSelect: [
@@ -503,7 +530,7 @@ async function stopAllTimer() {
       [0, 0, 0],
     ],
     isFastSelectFinish: false,
-    preSelect: [0, 0, 0],
+    preSelect: [0, 0, 0, 0, 0],
     barPo: 0,
   };
   upDateState();
@@ -533,13 +560,14 @@ async function loadState() {
         console.log("load state");
         //將二進制數據轉換為字串符
         let stateString = stateData.toString();
-        //將字符串轉換為 JSON 對象
-        stateData = JSON.parse(stateString);
-        resolve(stateData);
+
+        resolve(stateString);
       }
     });
   });
-  statePromise.then(function (stateData) {
+  statePromise.then(function (stateString) {
+    //將字符串轉換為 JSON 對象
+    stateData = JSON.parse(stateString);
     nowState = stateData;
   });
 }
@@ -564,6 +592,57 @@ async function upDateState() {
     win.webContents.send("updateState");
   });
 }
+async function checkToStartPreSelectPageAction() {
+  let areaSettingJson;
+  let areaSetting = new Promise(function (resolve, reject) {
+    fs.readFile(
+      "./src/data/PreSelectPageSetting.json",
+      function (err, setting) {
+        if (err) {
+          console.log(err);
+          reject();
+        } else {
+          setting = setting.toString();
+          //將字符串轉換為 JSON 對象
+          try {
+            areaSettingJson = JSON.parse(setting);
+            resolve();
+          } catch (error) {}
+        }
+      }
+    );
+  });
+  areaSetting.then(function () {
+    if (areaSettingJson["isSet"]) {
+      preSelectPageTimer = setInterval(function () {
+        let patrolAction = preSelectPageAction.patrolActionPerformed();
+        patrolAction.then(function () {
+          let update = preSelectPageAction.updatedClassState();
+          update.then(function () {
+            win.webContents.send("updatePreSelectPage");
+          });
+        });
+        if (nowState.preSelect[1] < Number.MAX_VALUE) {
+          nowState.preSelect[1]++;
+        }
+        upDateState();
+      }, 1000);
+      nowState.preSelect[0] = 3;
+      upDateState();
+    } else {
+      nowState.preSelect[0] = 0;
+      upDateState();
+    }
+  });
+}
+async function stopPreSelectPageAction() {
+  console.log("stop preSelectPageTimer");
+  if (preSelectPageTimer != undefined) clearInterval(preSelectPageTimer);
+  nowState.preSelect = [0, 0, 0, 0, 0];
+}
 ipc.on("getNowState", async function (e) {
   upDateState();
+});
+ipc.on("stopPreSelectPageTimer", async function (e) {
+  stopPreSelectPageAction();
 });

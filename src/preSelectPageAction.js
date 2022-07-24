@@ -2,13 +2,16 @@ const fs = require("fs");
 let getWeb;
 let parser;
 let maxPoint;
-let preSelectPageTimer;
+let timer;
 module.exports = {
   setGetWeb: function (GetWeb) {
     getWeb = GetWeb;
   },
   setParser: function (Parser) {
     parser = Parser;
+  },
+  setTimer: function (Timer) {
+    timer = Timer;
   },
   setMaxPoint: function (point) {
     maxPoint = point;
@@ -40,6 +43,7 @@ let depNo = new Map([
 let tryAddHistory = new Map();
 let selectActionCount = 0;
 let deSelectActionCount = 0;
+let addMiss = 0;
 async function updatedClassState() {
   return new Promise((resolve, reject) => {
     let allPromise = [];
@@ -202,6 +206,12 @@ async function patrolActionPerformed() {
                 waitToAddClass.id = updatedClass[item]["id"];
                 waitToAddClass.point = updatedClass[item]["point"];
                 waitToAdd.push(waitToAddClass);
+                if (tryCount > 1) {
+                  addMiss++;
+                }
+              } else if (tryCount == 3) {
+                addMiss++;
+                tryAddHistory.set(waitToAdd[i]["id"], tryCount + 1);
               }
             } else if (
               updatedClass[item]["action"] === 2 &&
@@ -318,12 +328,14 @@ async function patrolActionPerformed() {
             }
           }
           console.log("countFin");
+          timer.upDatePreSelectPageReport(
+            selectActionCount,
+            deSelectActionCount,
+            addMiss
+          );
           resolve();
         });
       });
     });
-
-    //}, 2 * 60 * 1000);
-    //}, 1000);
   });
 }

@@ -42,8 +42,11 @@ let depNo = new Map([
   ["H", "19"],
 ]);
 let NTPTimeDiff = 0;
+preSelectPageAction.setGetWeb(getWeb);
+preSelectPageAction.setParser(parser);
+preSelectPageAction.setTimer(timer);
 // Make a request for a user with a given ID
-let preSelectPageTimer;
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 
 if (require("electron-squirrel-startup")) {
@@ -75,6 +78,7 @@ const createWindow = () => {
   });
   win = mainWindow;
   timer.setWindow(win);
+  timer.setPreSelectPageAction(preSelectPageAction);
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, "./index.html"));
 
@@ -428,35 +432,6 @@ ipc.on("updatePreSelect", async function (e, data) {
   }
 });
 
-ipc.on("preSelectPagePlay", async function (e, state) {
-  if (state == 1) {
-    console.log("start preSelectPageTimer");
-    preSelectPageAction.setGetWeb(getWeb);
-    preSelectPageAction.setParser(parser);
-    if (
-      user.grade[2] === "1" ||
-      user.grade[2] === "2" ||
-      user.grade[2] === "3"
-    ) {
-      preSelectPageAction.setMaxPoint(220);
-    } else {
-      preSelectPageAction.setMaxPoint(250);
-    }
-    preSelectPageTimer = setInterval(function () {
-      let patrolAction = preSelectPageAction.patrolActionPerformed();
-      patrolAction.then(function () {
-        let update = preSelectPageAction.updatedClassState();
-        update.then(function () {
-          win.webContents.send("updatePreSelectPage");
-        });
-      });
-    }, 1000);
-  } else {
-    console.log("stop preSelectPageTimer");
-    if (preSelectPageTimer != undefined) clearInterval(preSelectPageTimer);
-  }
-});
-
 ipc.on("login", async function (e, data) {
   console.log(data);
   user.id = data.id;
@@ -472,6 +447,15 @@ ipc.on("login", async function (e, data) {
       user.grade = userData.grade;
       user.number = userData.number;
       user.name = userData.name;
+      if (
+        user.grade[2] === "1" ||
+        user.grade[2] === "2" ||
+        user.grade[2] === "3"
+      ) {
+        preSelectPageAction.setMaxPoint(220);
+      } else {
+        preSelectPageAction.setMaxPoint(250);
+      }
     })
     .catch((fail) => {
       console.log(fail);

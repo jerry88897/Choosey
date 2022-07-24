@@ -26,6 +26,8 @@ let _day = _hour * 24;
 
 let myClassTableType = false;
 
+let isInPreSelectPage = false;
+
 let titleCountDownTimer;
 let countDownTimer;
 let tableHead = [
@@ -334,7 +336,7 @@ async function showControlCenter(evt, ntpTimeDiff) {
               </div>
             </div>
             <div class="flowStepBox preSelectBox">
-              <div class="flowIconBox">
+              <div class="flowIconBox" id="preSelectIconBox">
                 <div class="iconBox">
                   <img src="./icon/manage_search.svg" class="icon" />
                 </div>
@@ -343,25 +345,35 @@ async function showControlCenter(evt, ntpTimeDiff) {
                 <div class="stepName">觀測選課模組</div>
                 <div class="stepInfo">
                   <div class="infoIconBox">
-                    <img src="./icon/power_settings.svg" class="icon" />
+                    <img src="./icon/power_settings.svg" class="icon preSelectIcon" />
                   </div>
-                  <div class="info">已啟用</div>
+                  <div class="info preSelectText">已啟用</div>
+                  <div class="info preSelectText1"></div>
+                  <div class="info preSelectText2"></div>
                 </div>
                 <div class="stepInfo">
                   <div class="infoIconBox">
-                    <img src="./icon/playlist_add.svg" class="icon" />
+                    <img src="./icon/playlist_add.svg" class="icon preSelectIcon" />
                   </div>
-                  <div class="info">已加選</div>
-                  <div class="info">0</div>
-                  <div class="info">堂</div>
+                  <div class="info preSelectText"></div>
+                  <div class="info preSelectText1"></div>
+                  <div class="info preSelectText2"></div>
                 </div>
                 <div class="stepInfo">
                   <div class="infoIconBox">
-                    <img src="./icon/playlist_remove_24dp.svg" class="icon" />
+                    <img src="./icon/playlist_remove_24dp.svg" class="icon preSelectIcon" />
                   </div>
-                  <div class="info">已退選</div>
-                  <div class="info">0</div>
-                  <div class="info">堂</div>
+                  <div class="info preSelectText"></div>
+                  <div class="info preSelectText1"></div>
+                  <div class="info preSelectText2"></div>
+                </div>
+                <div class="stepInfo">
+                  <div class="infoIconBox">
+                    <img src="./icon/playlist_remove_24dp.svg" class="icon preSelectIcon" />
+                  </div>
+                  <div class="info preSelectText"></div>
+                  <div class="info preSelectText1"></div>
+                  <div class="info preSelectText2"></div>
                 </div>
               </div>
             </div>`;
@@ -558,9 +570,11 @@ async function updateControlCenterState() {
           preLoadIcon.setAttribute("src", "./icon/work_history.svg");
           preLoadText.innerText = "已排程";
           preLoadIconBox.classList.remove("iconActiveBox");
-        } else {
+        } else if (stateData.preload == 2) {
           preLoadIcon.setAttribute("src", "./icon/bx-check.svg");
           preLoadText.innerText = "已預載";
+          preLoadIconBox.classList.add("iconActiveBox");
+        } else {
           preLoadIconBox.classList.add("iconActiveBox");
         }
 
@@ -694,6 +708,86 @@ async function updateControlCenterState() {
           .catch(function (err) {
             console.log(err);
           });
+        let preSelectIcon = document.getElementsByClassName("preSelectIcon");
+        let preSelectIconBox = document.getElementById("preSelectIconBox");
+        let preSelectText = document.getElementsByClassName("preSelectText");
+        let preSelectText1 = document.getElementsByClassName("preSelectText1");
+        let preSelectText2 = document.getElementsByClassName("preSelectText2");
+        let preSelectPromise = new Promise(function (resolve, reject) {
+          fs.readFile(
+            "./src/data/PreSelectPageSetting.json",
+            function (err, preSelectPageSettingSaved) {
+              if (err) {
+                reject(err);
+              } else {
+                console.log("load FSS");
+                //將二進制數據轉換為字串符
+                preSelectPageSettingSaved =
+                  preSelectPageSettingSaved.toString();
+
+                resolve(preSelectPageSettingSaved);
+              }
+            }
+          );
+        });
+        preSelectPromise.then(function (preSelectPageSettingSaved) {
+          //將字符串轉換為 JSON 對象
+          preSelectPageSettingSaved = JSON.parse(preSelectPageSettingSaved);
+          for (let i = 0; i < preSelectIcon.length; i++) {
+            preSelectIcon[i].setAttribute("src", "");
+            preSelectIcon[i].classList.remove("loadingIcon");
+            preSelectText[i].innerText = "";
+            preSelectText1[i].innerText = "";
+            preSelectText2[i].innerText = "";
+          }
+          console.log(preSelectPageSettingSaved);
+          if (preSelectPageSettingSaved["isSet"]) {
+            preSelectIconBox.classList.remove("iconActiveBox");
+            if (stateData.preSelect[0] == 2) {
+              preSelectIcon[0].setAttribute(
+                "src",
+                "./icon/bx-loader-circle.svg"
+              );
+              preSelectText[0].innerText = "等待執行";
+              preSelectIcon[0].classList.add("loadingIcon");
+            } else if (stateData.preSelect[0] == 3) {
+              preSelectIcon[0].setAttribute("src", "./icon/autorenew.svg");
+              preSelectText[0].innerText = "執行中";
+              preSelectText1[0].innerText = stateData.preSelect[1];
+              preSelectText2[0].innerText = "次";
+              preSelectIcon[0].classList.add("loadingIcon");
+
+              preSelectIcon[1].setAttribute("src", "./icon/playlist_add.svg");
+              preSelectText[1].innerText = "已加選";
+              preSelectText1[1].innerText = stateData.preSelect[2];
+              preSelectText2[1].innerText = "堂";
+
+              preSelectIcon[2].setAttribute(
+                "src",
+                "./icon/playlist_remove_24dp.svg"
+              );
+              preSelectText[2].innerText = "已退選";
+              preSelectText1[2].innerText = stateData.preSelect[3];
+              preSelectText2[2].innerText = "堂";
+
+              preSelectIcon[3].setAttribute("src", "./icon/report.svg");
+              preSelectText[3].innerText = "錯失/誤判";
+              preSelectText1[3].innerText = stateData.preSelect[4];
+              preSelectText2[3].innerText = "次";
+            } else {
+              preSelectIcon[0].setAttribute("src", "./icon/bx-check.svg");
+              preSelectText[0].innerText = "已啟用";
+            }
+          } else {
+            if (stateData.barPo == 100) {
+              preSelectIconBox.classList.add("iconActiveBox");
+            } else {
+              preSelectIconBox.classList.remove("iconActiveBox");
+            }
+            preSelectIcon[0].setAttribute("src", "./icon/bx-x.svg");
+            preSelectText[0].innerText = "未啟用";
+          }
+        });
       })
       .catch(function (err) {
         console.log(err);
@@ -1996,8 +2090,6 @@ async function preSelectClassPage() {
   let saveImg = document.createElement("img");
   let readyDiv = document.createElement("div");
   let readyImg = document.createElement("img");
-  let playDiv = document.createElement("div");
-  let playImg = document.createElement("img");
   actionDiv.setAttribute("class", "actionDiv");
   fs.readFile("./src/data/PreSelectPage.json", function (err, myClass) {
     let preSelectThisClassDivArray = [];
@@ -2033,8 +2125,8 @@ async function preSelectClassPage() {
             //將字符串轉換為 JSON 對象
             try {
               areaSettingJson = JSON.parse(setting);
-              if (areaSetting["isSet"]) preSelectClassPageReady = true;
-              if (areaSetting["isPlay"]) preSelectClassPagePlay = true;
+              if (areaSettingJson["isSet"]) preSelectClassPageReady = true;
+              else preSelectClassPageReady = false;
               resolve();
             } catch (error) {}
           }
@@ -2204,20 +2296,11 @@ async function preSelectClassPage() {
         readyImg.setAttribute("src", "./icon/playlist_remove_24dp.svg");
       }
       viewTypeDiv.appendChild(viewTypeImg);
-      if (preSelectClassPagePlay) {
-        playImg.setAttribute("src", "./icon/stop_24dp.svg");
-      } else {
-        playImg.setAttribute("src", "./icon/play_arrow_24dp.svg");
-      }
-      playDiv.setAttribute("class", "save");
-      playImg.setAttribute("class", "icon");
-      playDiv.appendChild(playImg);
       actionDiv.appendChild(viewTypeDiv);
       saveDiv.appendChild(saveImg);
       actionDiv.appendChild(saveDiv);
       readyDiv.appendChild(readyImg);
       actionDiv.appendChild(readyDiv);
-      actionDiv.appendChild(playDiv);
       main_frame.appendChild(table);
       main_frame.appendChild(actionDiv);
       let placeHolder = document.createElement("div");
@@ -2272,13 +2355,12 @@ async function preSelectClassPage() {
           preSelectClassPageReady = false;
           areaSettingJson["isSet"] = false;
           readyImg.setAttribute("src", "./icon/playlist_remove_24dp.svg");
-          ipc.send("preSelectPageState", 0);
+          ipc.send("stopPreSelectPageTimer");
         } else {
           console.log("ready");
           preSelectClassPageReady = true;
           areaSettingJson["isSet"] = true;
           readyImg.setAttribute("src", "./icon/playlist_add_check_24dp.svg");
-          ipc.send("preSelectPageState", 1);
         }
         let saved = new Promise((resolve, reject) => {
           fs.writeFile(
@@ -2314,38 +2396,6 @@ async function preSelectClassPage() {
           saveImg.setAttribute("src", "./icon/bx-save.svg");
         });
       }
-      playDiv.addEventListener("click", async function () {
-        if (preSelectClassPagePlay) {
-          console.log("stop");
-          preSelectClassPagePlay = false;
-          areaSettingJson["isPlay"] = false;
-          playImg.setAttribute("src", "./icon/play_arrow_24dp.svg");
-          ipc.send("preSelectPagePlay", 0);
-        } else {
-          console.log("play");
-          preSelectClassPagePlay = true;
-          areaSettingJson["isPlay"] = true;
-          playImg.setAttribute("src", "./icon/stop_24dp.svg");
-          ipc.send("preSelectPagePlay", 1);
-        }
-        let saved = new Promise((resolve, reject) => {
-          fs.writeFile(
-            "./src/data/PreSelectPageSetting.json",
-            JSON.stringify(areaSettingJson),
-            function (err) {
-              if (err) {
-                console.error(err);
-              } else {
-                resolve();
-                console.log("write saveFile...");
-              }
-            }
-          );
-        });
-        saved.then(function (result) {
-          saveImg.setAttribute("src", "./icon/bx-save-check.svg");
-        });
-      });
       saveDiv.addEventListener("click", async function () {
         console.log("save");
         let classList = document.getElementsByClassName("candidate");
@@ -2747,26 +2797,31 @@ async function showSetting() {
 }
 
 preSelectClass.addEventListener("click", async function () {
+  isInPreSelectPage = true;
   updateTime();
   preSelectClassPage();
   showPreSelectClassAtPreSelectPage();
 });
 fastSelectClass.addEventListener("click", async function () {
+  isInPreSelectPage = false;
   updateTime();
   fastSelect();
   showPreSelectClassAtFastSelectPage();
 });
 
 controlCenter.addEventListener("click", async function () {
+  isInPreSelectPage = false;
   ipc.send("getControlCenter");
 });
 classClass.addEventListener("click", async function () {
+  isInPreSelectPage = false;
   ipc.send("getClassClass", SelDepNo, SelClassNo);
   updateTime();
   showPreSelectClass();
   console.log("getClassClass");
 });
 generalClass.addEventListener("click", async function () {
+  isInPreSelectPage = false;
   ipc.send("getGeneralClass");
   updateTime();
   showPreSelectClass();
@@ -2774,6 +2829,7 @@ generalClass.addEventListener("click", async function () {
 });
 
 getMyClass.addEventListener("click", async function () {
+  isInPreSelectPage = false;
   ipc.send("getMyClass");
   updateTime();
   console.log("getMyClass");
@@ -2790,6 +2846,7 @@ getMyClass.addEventListener("click", async function () {
 });
 
 setting.addEventListener("click", async function () {
+  isInPreSelectPage = false;
   showSetting();
   updateTime();
 });
@@ -2828,9 +2885,11 @@ ipc.on("updatePreSelectClassInPreSelectPage", function (evt) {
   showPreSelectClassAtPreSelectPage();
 });
 ipc.on("updatePreSelectPage", function (evt) {
-  console.log("showPreSelectClass");
-  preSelectClassPage();
-  showPreSelectClassAtPreSelectPage();
+  if (isInPreSelectPage) {
+    console.log("showPreSelectClass");
+    preSelectClassPage();
+    showPreSelectClassAtPreSelectPage();
+  }
 });
 
 ipc.on("updateFastSelectPage", function (evt) {
