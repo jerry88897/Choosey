@@ -103,7 +103,6 @@ app.on("ready", () => {
           win.webContents.send("updateNTP", NTPTimeDiff);
         });
       }, 25 * 60 * 1000);
-      timer.checkToRestartTimer();
     })
     .catch(function (err) {
       dialog.showErrorBox("連線失敗", "無法連線至外部終端機，請檢查網路連線");
@@ -456,6 +455,7 @@ ipc.on("login", async function (e, data) {
       } else {
         preSelectPageAction.setMaxPoint(250);
       }
+      timer.checkToRestartTimer();
     })
     .catch((fail) => {
       console.log(fail);
@@ -475,5 +475,26 @@ ipc.on("startSequence", async function () {
 ipc.on("stopSequence", async function () {
   timer.stopAllTimer();
 });
-
+ipc.on("getGoogleInternetStatus", async function () {
+  let status = getWeb.getGoogleInternetStatus();
+  status
+    .then(function (data) {
+      console.log(data.timing);
+      win.webContents.send("updateGoogleInternetStatus", data.timing);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+ipc.on("getTTUInternetStatus", async function () {
+  let status = getWeb.getTTUInternetStatus();
+  status
+    .then(function (data) {
+      console.log(data.timing);
+      win.webContents.send("updateTTUInternetStatus", data.timing);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
 //npm start

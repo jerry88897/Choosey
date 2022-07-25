@@ -212,8 +212,165 @@ async function showControlCenter(evt, ntpTimeDiff) {
 
     let flowChartBox = document.createElement("div");
     flowChartBox.setAttribute("class", "flowChartBox");
+
+    let InternetBox = document.createElement("div");
+    InternetBox.setAttribute("class", "InternetBox");
+    InternetBox.setAttribute("id", "InternetBox");
+    InternetBox.innerHTML = `<div class="InternetStatusDivBox">
+    <div class="InternetStatusTitleText">網路狀態:</div>
+    <div class="InternetStatusBox">
+      <div class="InternetStatusFromNameValue">
+        <div class="InternetStatusFromName">Google</div>
+        <div class="InternetStatusFromValue">0ms</div>
+      </div>
+      <div class="InternetStatusDiv">
+        <div class="InternetStatus">
+          <div class="statusName">開啟端口:</div>
+          <div class="statusBarBox">
+            <div
+              class="statusBar"
+              style="background-color: #f3afcc"
+            ></div>
+            <div class="statusNumber"></div>
+          </div>
+        </div>
+        <div class="InternetStatus">
+          <div class="statusName">DNS解析:</div>
+          <div class="statusBarBox">
+            <div
+              class="statusBar"
+              style="background-color: #9f6baa"
+            ></div>
+            <div class="statusNumber"></div>
+          </div>
+        </div>
+        <div class="InternetStatus">
+          <div class="statusName">TCP連線:</div>
+          <div class="statusBarBox">
+            <div
+              class="statusBar"
+              style="background-color: #ad5526"
+            ></div>
+            <div class="statusNumber"></div>
+          </div>
+        </div>
+        <div class="InternetStatus">
+          <div class="statusName">TLS交握:</div>
+          <div class="statusBarBox">
+            <div
+              class="statusBar"
+              style="background-color: #ad5526"
+            ></div>
+            <div class="statusNumber"></div>
+          </div>
+        </div>
+        <div class="InternetStatus">
+          <div class="statusName">等待:</div>
+          <div class="statusBarBox">
+            <div
+              class="statusBar"
+              style="background-color: #3c8ab2"
+            ></div>
+            <div class="statusNumber"></div>
+          </div>
+        </div>
+        <div class="InternetStatus">
+          <div class="statusName">接收:</div>
+          <div class="statusBarBox">
+            <div
+              class="statusBar"
+              style="background-color: #5d9847"
+            ></div>
+            <div class="statusNumber"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="InternetStatusBox">
+      <div class="InternetStatusFromNameValue">
+        <div class="InternetStatusFromName">TTU</div>
+        <div class="InternetStatusFromValue">0ms</div>
+      </div>
+      <div class="InternetStatusDiv">
+        <div class="InternetStatus">
+          <div class="statusName">開啟端口:</div>
+          <div class="statusBarBox">
+            <div
+              class="statusBar"
+              style="background-color: #f3afcc"
+            ></div>
+            <div class="statusNumber"></div>
+          </div>
+        </div>
+        <div class="InternetStatus">
+          <div class="statusName">DNS解析:</div>
+          <div class="statusBarBox">
+            <div
+              class="statusBar"
+              style="background-color: #9f6baa"
+            ></div>
+            <div class="statusNumber"></div>
+          </div>
+        </div>
+        <div class="InternetStatus">
+          <div class="statusName">TCP連線:</div>
+          <div class="statusBarBox">
+            <div
+              class="statusBar"
+              style="background-color: #ad5526"
+            ></div>
+            <div class="statusNumber"></div>
+          </div>
+        </div>
+        <div class="InternetStatus">
+          <div class="statusName">TLS交握:</div>
+          <div class="statusBarBox">
+            <div
+              class="statusBar"
+              style="background-color: #ad5526"
+            ></div>
+            <div class="statusNumber"></div>
+          </div>
+        </div>
+        <div class="InternetStatus">
+          <div class="statusName">等待:</div>
+          <div class="statusBarBox">
+            <div
+              class="statusBar"
+              style="background-color: #3c8ab2"
+            ></div>
+            <div class="statusNumber"></div>
+          </div>
+        </div>
+        <div class="InternetStatus">
+          <div class="statusName">接收:</div>
+          <div class="statusBarBox">
+            <div
+              class="statusBar"
+              style="background-color: #5d9847"
+            ></div>
+            <div class="statusNumber"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
     let launchBox = document.createElement("div");
     launchBox.setAttribute("class", "launchBox");
+    let launchActionTextBox = document.createElement("div");
+    launchActionTextBox.setAttribute("class", "launchActionTextBox");
+    let launchActionBox = document.createElement("div");
+    launchActionBox.setAttribute("class", "launchActionBox");
+
+    let systemStatusText0 = document.createElement("div");
+    systemStatusText0.setAttribute("class", "systemStatusText");
+    systemStatusText0.innerText = "系統狀態:";
+    systemStatusText0.style.paddingRight = "10px";
+    let systemStatusText1 = document.createElement("div");
+    systemStatusText1.setAttribute("class", "systemStatusText");
+    launchActionTextBox.appendChild(systemStatusText0);
+    launchActionTextBox.appendChild(systemStatusText1);
 
     let startBtm = document.createElement("div");
     startBtm.setAttribute("class", "button");
@@ -232,12 +389,19 @@ async function showControlCenter(evt, ntpTimeDiff) {
     if (settingSaved["activate"] == true) {
       startBtmText.setAttribute("class", "startDown");
       stopBtmText.setAttribute("class", "stopUp");
+      systemStatusText1.innerText = "運行中";
+      systemStatusText1.style.color = "#62ff00";
     } else {
       startBtmText.setAttribute("class", "startUp");
       stopBtmText.setAttribute("class", "stopDown");
+      systemStatusText1.innerText = "待命中";
+      systemStatusText1.style.color = "#ed143d";
     }
-    launchBox.appendChild(startBtm);
-    launchBox.appendChild(stopBtm);
+    launchActionBox.appendChild(startBtm);
+    launchActionBox.appendChild(stopBtm);
+    launchBox.appendChild(launchActionTextBox);
+    launchBox.appendChild(launchActionBox);
+    controlPanelRight.appendChild(InternetBox);
     controlPanelRight.appendChild(launchBox);
     flowChartBox.innerHTML = `<div class="flowStepBox preLoadBox">
               <div class="flowIconBox" id="preLoadIconBox">
@@ -386,6 +550,8 @@ async function showControlCenter(evt, ntpTimeDiff) {
     main_frame.appendChild(controlPanel);
     right_frame.appendChild(controlPanelRight);
     ipc.send("getNowState");
+    ipc.send("getGoogleInternetStatus");
+    ipc.send("getTTUInternetStatus");
     document
       .getElementById("startBtm")
       .addEventListener("click", async function () {
@@ -410,6 +576,8 @@ async function showControlCenter(evt, ntpTimeDiff) {
           savePromise.then(function (success) {
             startBtmText.setAttribute("class", "startDown");
             stopBtmText.setAttribute("class", "stopUp");
+            systemStatusText1.innerText = "運行中";
+            systemStatusText1.style.color = "#62ff00";
           });
           ipc.send("startSequence");
         }
@@ -439,6 +607,8 @@ async function showControlCenter(evt, ntpTimeDiff) {
           savePromise.then(function (success) {
             startBtmText.setAttribute("class", "startUp");
             stopBtmText.setAttribute("class", "stopDown");
+            systemStatusText1.innerText = "待命中";
+            systemStatusText1.style.color = "#ed143d";
           });
           ipc.send("stopSequence");
           ipc.send("preSelectPagePlay", 0);
@@ -740,7 +910,6 @@ async function updateControlCenterState() {
             preSelectText1[i].innerText = "";
             preSelectText2[i].innerText = "";
           }
-          console.log(preSelectPageSettingSaved);
           if (preSelectPageSettingSaved["isSet"]) {
             preSelectIconBox.classList.remove("iconActiveBox");
             if (stateData.preSelect[0] == 2) {
@@ -794,8 +963,36 @@ async function updateControlCenterState() {
       });
   }
 }
-async function showTitleCountDown() {
-  titleCountDown.innerHTML = "";
+async function updateInternetStatus(host, data) {
+  if (typeof document.getElementById("InternetBox") != undefined) {
+    console.log(data);
+    let typeList = [];
+    let hostValue = document.getElementsByClassName("InternetStatusFromValue");
+    let statusNumber = document.getElementsByClassName("statusNumber");
+    let statusBar = document.getElementsByClassName("statusBar");
+    let status = [
+      Math.floor(data.durations.socketOpen),
+      Math.floor(data.durations.dnsLookup),
+      Math.floor(data.durations.tcpConnection),
+      Math.floor(data.durations.tlsHandshake),
+      Math.floor(data.durations.firstByte),
+      Math.floor(data.durations.contentTransfer),
+    ];
+    let total = 0;
+    for (let i = 0; i < status.length; i++) {
+      total += status[i];
+    }
+    hostValue[host].innerText =
+      status[0] + status[1] + status[2] + status[3] + "ms";
+    let i = host * 6;
+    // Addlet space = 0;
+    for (let i = host * 6, j = 0; i < host * 6 + 6; i++, j++) {
+      //statusBar[i].style.marginLeft = space + "%";
+      statusBar[i].style.width = (status[j] / total) * 80 + "%";
+      statusNumber[i].innerText = status[j] + "ms";
+      //space += (status[j] / total) * 80;
+    }
+  }
 }
 async function fastSelect() {
   await cleanFrame();
@@ -1909,7 +2106,7 @@ async function showPreSelectClassAtPreSelectPage() {
       }
       right_frame.appendChild(viewShoppingCartDiv);
       viewShoppingCartDiv.addEventListener("click", async function () {
-        showPreSelectClass();
+        showPreSelectClassAtPreSelectPage();
       });
     });
   });
@@ -2919,6 +3116,12 @@ ipc.on("appLocat", function (evt, appLocat) {
 ipc.on("updateState", function () {
   updateControlCenterState();
   console.log("updateControlCenterState");
+});
+ipc.on("updateGoogleInternetStatus", function (evt, data) {
+  updateInternetStatus(0, data);
+});
+ipc.on("updateTTUInternetStatus", function (evt, data) {
+  updateInternetStatus(1, data);
 });
 ipc.on("preSelectPagePlay", function () {
   updateControlCenterState();

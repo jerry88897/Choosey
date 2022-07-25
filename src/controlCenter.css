@@ -20,7 +20,7 @@
   width: 60vw;
   padding-top: 10px;
   padding-bottom: 10px;
-  background: #201f25;
+  background-color: rgb(22 21 25);
   border-radius: 15px;
 }
 
@@ -247,18 +247,173 @@
   padding-right: 0px;
 }
 
-.launchBox {
+.InternetBox {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  width: calc(25vw - 40px);
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  border-radius: 15px;
+  background-color: rgb(22 21 25);
+}
+
+.InternetStatusTitleText {
+  width: 100%;
+  font-family: NotoSansTC-Regular;
+  color: white;
+  font-size: 30px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.InternetStatusDivBox {
+  width: 95%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.InternetStatusFromNameValue {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   align-content: center;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
-  width: calc(25vw - 78px);
+}
+
+.InternetStatusFromName {
+  font-family: NotoSansTC-Regular;
+  color: white;
+  font-size: 25px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.InternetStatusFromValue {
+  font-family: NotoSansTC-Regular;
+  color: white;
+  font-size: 15px;
+  text-align: left;
+  white-space: nowrap;
+  padding-left: 20px;
+}
+
+.InternetStatusBox {
+  width: calc(100% - 25px);
+  padding-left: 25px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.InternetStatus {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+}
+
+.InternetStatusDiv {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.statusName {
+  width: 140px;
+  font-family: NotoSansTC-Regular;
+  color: white;
+  font-size: 20px;
+  text-align: left;
+  white-space: nowrap;
+  padding-left: 10px;
+  min-width: 100px;
+}
+
+.statusBarBox {
+  display: flex;
+  width: 100%;
+  height: 20px;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.statusBar {
+  height: 100%;
+  width: 0%;
+  min-width: 2px;
+}
+
+.statusNumber {
+  font-family: NotoSansTC-Regular;
+  color: white;
+  font-size: 15px;
+  text-align: left;
+  white-space: nowrap;
+  padding-left: 5px;
+}
+
+.launchBox {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  width: calc(25vw - 40px);
   padding-top: 10px;
   padding-bottom: 10px;
+  margin-top: 5px;
+  margin-bottom: 5px;
   border-radius: 15px;
-  background-color: #201f25;
+  background-color: rgb(22 21 25);
+}
+
+.launchActionBox {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.launchActionTextBox {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  font-family: NotoSansTC-Regular;
+  color: white;
+  font-size: 36px;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .button {

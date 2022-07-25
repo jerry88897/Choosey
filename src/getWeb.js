@@ -1,4 +1,6 @@
 const axios = require("axios");
+const https = require("https");
+const httpsTimer = require("https-timer");
 
 let cookie = "";
 
@@ -29,6 +31,12 @@ module.exports = {
   },
   sendDelClass: function (classId) {
     return sendDelClass(classId);
+  },
+  getGoogleInternetStatus: function () {
+    return getGoogleInternetStatus();
+  },
+  getTTUInternetStatus: function () {
+    return getTTUInternetStatus();
   },
   getCookie: function () {
     return cookie;
@@ -345,4 +353,10 @@ async function passCheck() {
       console.log(error);
       return;
     });
+}
+async function getGoogleInternetStatus() {
+  return httpsTimer.getAsync("https://www.google.com");
+}
+async function getTTUInternetStatus() {
+  return httpsTimer.getAsync("https://stucis.ttu.edu.tw/stucis.htm");
 }
