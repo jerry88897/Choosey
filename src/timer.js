@@ -171,18 +171,14 @@ function checkToRestartTimer() {
           upDateState();
           if (settingSaved["activate"] == true) {
             if (sDay - Date.now() <= 0) {
-              if (typeof preLoadTimer != undefined) {
-                clearTimeout(preLoadTimer);
-              }
+              clearTimeout(preLoadTimer);
               nowState.barPo = 100;
               nowState.preload = 3;
               nowState.isFastSelectFinish = true;
               upDateState();
               checkToStartPreSelectPageAction();
             } else if (sDay - Date.now() <= 70 * 1000) {
-              if (typeof preLoadTimer != undefined) {
-                clearTimeout(preLoadTimer);
-              }
+              clearTimeout(preLoadTimer);
               nowState.barPo = 0;
               nowState.isFastSelectFinish = false;
               upDateState();
@@ -195,9 +191,7 @@ function checkToRestartTimer() {
               nowState.barPo = 0;
               nowState.isFastSelectFinish = false;
               upDateState();
-              if (typeof preLoadTimer != undefined) {
-                clearTimeout(preLoadTimer);
-              }
+              clearTimeout(preLoadTimer);
               preLoadTimer = setTimeout(function () {
                 preLoadFastSelectTimer(settingSaved).then(function () {
                   console.log("preLoadedFastSelectTimer");
@@ -396,9 +390,7 @@ function setFastSelectTimer(settingSaved) {
               intervalCount++;
               Promise.any(repeatSelectPromise)
                 .then(function (number) {
-                  if (typeof repeatSelectInterval != undefined) {
-                    clearInterval(repeatSelectInterval);
-                  }
+                  clearInterval(repeatSelectInterval);
                   nowState.fastSelect[preLoadClass[i].block][0] = 3;
                   nowState.fastSelect[preLoadClass[i].block][1] = number;
                   upDateState();
@@ -414,9 +406,7 @@ function setFastSelectTimer(settingSaved) {
               upDateState();
               fastSelectReportCount++;
               checkIfFastSelectFinish();
-              if (typeof repeatSelectInterval != undefined) {
-                clearInterval(repeatSelectInterval);
-              }
+              clearInterval(repeatSelectInterval);
             }
           }, preLoadClass[i].trigger * 1000);
         }, sDay - Date.now());
@@ -439,23 +429,13 @@ async function checkIfFastSelectFinish() {
   }
 }
 async function stopAllTimer() {
-  if (typeof preLoadTimer != undefined) {
-    clearTimeout(preLoadTimer);
-  }
-  if (typeof preLoadTimer != undefined) {
-    clearTimeout(preLoadTimer);
-  }
+  clearTimeout(preLoadTimer);
+  clearTimeout(preLoadTimer);
   for (let i = 0; i < fastSelectTimer.length; i++) {
-    if (typeof fastSelectTimer[i] != undefined) {
-      clearTimeout(fastSelectTimer[i]);
-    }
+    clearTimeout(fastSelectTimer[i]);
   }
-  if (typeof repeatSelectTimer != undefined) {
-    clearTimeout(repeatSelectTimer);
-  }
-  if (typeof repeatSelectInterval != undefined) {
-    clearInterval(repeatSelectInterval);
-  }
+  clearTimeout(repeatSelectTimer);
+  clearInterval(repeatSelectInterval);
   stopPreSelectPageAction();
   nowState = {
     preload: 0,
@@ -577,7 +557,7 @@ async function checkToStartPreSelectPageAction() {
 }
 async function stopPreSelectPageAction() {
   console.log("stop preSelectPageTimer");
-  if (preSelectPageTimer != undefined) clearInterval(preSelectPageTimer);
+  clearInterval(preSelectPageTimer);
   nowState.preSelect = [0, 0, 0, 0, 0];
 }
 async function check() {

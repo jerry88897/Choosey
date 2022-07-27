@@ -645,12 +645,8 @@ async function showControlCenter(evt, ntpTimeDiff) {
     timeNumList[3][3].innerText = sDay.getHours();
     timeNumList[3][4].innerText = sDay.getMinutes();
     timeNumList[3][5].innerText = sDay.getSeconds();
-    if (typeof countDownTimer != undefined) {
-      clearInterval(countDownTimer);
-    }
-    if (typeof titleCountDownTimer != undefined) {
-      clearInterval(titleCountDownTimer);
-    }
+    clearInterval(countDownTimer);
+    clearInterval(titleCountDownTimer);
     let flash = 0;
 
     function countDownF() {
@@ -2871,49 +2867,37 @@ async function updateTime() {
   <li><a id="leftSecond">-</a></li>
   <li><a>秒</a></li>
   `;
+    clearInterval(countDownTimer);
+    clearInterval(titleCountDownTimer);
     let sDay = Date.parse(setting["selectStartDate"]);
     if (sDay > Date.now()) {
-      if (typeof countDownTimer != undefined) {
-        clearInterval(countDownTimer);
-      }
-      if (typeof titleCountDownTimer != undefined) {
-        clearInterval(titleCountDownTimer);
-      }
-
       function titleCountDownF() {
         let start = Date.now();
         let leftTime = sDay - Date.now();
-        if (leftTime > 0) {
-          let days = Math.floor(leftTime / _day);
-          leftTime -= days * _day;
-          let hours = Math.floor(leftTime / _hour);
-          leftTime -= hours * _hour;
-          let minutes = Math.floor(leftTime / _minute);
-          leftTime -= minutes * _minute;
-          let seconds = Math.floor(leftTime / _second);
-          document.getElementById("leftDay").innerHTML = days;
-          document.getElementById("leftHour").innerHTML = hours;
-          document.getElementById("leftMinute").innerHTML = minutes;
-          document.getElementById("leftSecond").innerHTML = seconds;
-          //console.log(days + "d" + hours + "h" + minutes + "m" + seconds + "s");
-        } else {
-          document.getElementById("leftDay").innerHTML = "-";
-          document.getElementById("leftHour").innerHTML = "-";
-          document.getElementById("leftMinute").innerHTML = "-";
-          document.getElementById("leftSecond").innerHTML = "-";
-          clearInterval(countDownTimer);
-          countDownTimer = undefined;
-        }
+        let days = Math.floor(leftTime / _day);
+        leftTime -= days * _day;
+        let hours = Math.floor(leftTime / _hour);
+        leftTime -= hours * _hour;
+        let minutes = Math.floor(leftTime / _minute);
+        leftTime -= minutes * _minute;
+        let seconds = Math.floor(leftTime / _second);
+        document.getElementById("leftDay").innerHTML = days;
+        document.getElementById("leftHour").innerHTML = hours;
+        document.getElementById("leftMinute").innerHTML = minutes;
+        document.getElementById("leftSecond").innerHTML = seconds;
+        //console.log(days + "d" + hours + "h" + minutes + "m" + seconds + "s");
       }
       titleCountDownF();
       titleCountDownTimer = setInterval(function () {
         titleCountDownF();
       }, 1000);
     } else {
-      if (typeof titleCountDownTimer != undefined) {
-        clearInterval(titleCountDownTimer);
-        titleCountDownTimer = undefined;
-      }
+      clearInterval(titleCountDownTimer);
+      clearInterval(countDownTimer);
+      document.getElementById("leftDay").innerHTML = "-";
+      document.getElementById("leftHour").innerHTML = "-";
+      document.getElementById("leftMinute").innerHTML = "-";
+      document.getElementById("leftSecond").innerHTML = "-";
     }
   });
 }
