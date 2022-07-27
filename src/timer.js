@@ -165,10 +165,10 @@ function checkToRestartTimer() {
   settingPromise
     .then(function (settingData) {
       //將字符串轉換為 JSON 對象
+      settingSaved = JSON.parse(settingData);
+      let sDay = Date.parse(settingSaved["selectStartDate"]);
       check()
         .then(function () {
-          settingSaved = JSON.parse(settingData);
-          let sDay = Date.parse(settingSaved["selectStartDate"]);
           nowState.authKeyState = 4;
           upDateState();
           if (settingSaved["activate"] == true) {
@@ -212,7 +212,6 @@ function checkToRestartTimer() {
           }
         })
         .catch(function (err) {
-          settingSaved = JSON.parse(settingData);
           nowState = {
             preload: 0,
             fastSelect: [
@@ -645,7 +644,7 @@ async function upDateState() {
     );
   });
   saveStatePromise.then(function () {
-    win.webContents.send("updateState");
+    win.webContents.send("updateState", nowState);
   });
 }
 async function checkToStartPreSelectPageAction() {

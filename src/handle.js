@@ -685,7 +685,7 @@ async function showControlCenter(evt, ntpTimeDiff) {
         timeNumList[4][1].innerText = hours;
         timeNumList[4][2].innerText = minutes;
         timeNumList[4][3].innerText = seconds;
-        console.log(days + "d" + hours + "h" + minutes + "m" + seconds + "s");
+        //console.log(days + "d" + hours + "h" + minutes + "m" + seconds + "s");
       } else {
         if (flash == 0) {
           flash = 1;
@@ -710,7 +710,7 @@ async function showControlCenter(evt, ntpTimeDiff) {
     }, 1000);
   });
 }
-async function updateControlCenterState() {
+async function updateControlCenterState(stateData) {
   const fastSelectStateIcon = [
     "./icon/power_settings.svg",
     "./icon/work_history.svg",
@@ -726,323 +726,291 @@ async function updateControlCenterState() {
     "無回應",
   ];
   if (document.getElementsByClassName("flowChartBox").length == 1) {
-    let statePromise = new Promise(function (resolve, reject) {
-      console.log(1);
-      fs.readFile("./src/data/state.json", function (err, stateData) {
-        if (err) {
-          console.log("no state make new file");
-          reject(err);
-        } else {
-          console.log("load state");
-          //將二進制數據轉換為字串符
-          stateData = stateData.toString();
-          //將字符串轉換為 JSON 對象
-          resolve(stateData);
+    let preLoadIcon = document.getElementById("preLoadIcon");
+    let preLoadText = document.getElementById("preLoadText");
+    let preLoadIconBox = document.getElementById("preLoadIconBox");
+    let progLine = document.getElementById("progLine");
+    progLine.style.width = stateData.barPo + "%";
+    if (stateData.preload == 0) {
+      preLoadIconBox.classList.remove("iconActiveBox");
+      preLoadIcon.setAttribute("src", "./icon/bx-x.svg");
+      preLoadText.innerText = "未預載";
+    } else if (stateData.preload == 1) {
+      preLoadIcon.setAttribute("src", "./icon/work_history.svg");
+      preLoadText.innerText = "已排程";
+      preLoadIconBox.classList.remove("iconActiveBox");
+    } else if (stateData.preload == 2) {
+      preLoadIcon.setAttribute("src", "./icon/bx-check.svg");
+      preLoadText.innerText = "已預載";
+      preLoadIconBox.classList.add("iconActiveBox");
+    } else {
+      preLoadIconBox.classList.add("iconActiveBox");
+    }
+
+    let authKeyState = document.getElementById("authKeyState");
+    let authKeyDate = document.getElementById("authKeyDate");
+    if (stateData["authKeyState"] == 4) {
+      authKeyState.innerText = "已授權";
+      authKeyDate.innerText = stateData["authKeyDate"] + "前 有效";
+      authKeyState.style.color = "#62ff00";
+    } else if (stateData["authKeyState"] == 3) {
+      authKeyState.innerText = "驗證失敗";
+      authKeyDate.innerText = "被授權人與目前登入不符";
+      authKeyState.style.color = "#ed143d";
+    } else if (stateData["authKeyState"] == 2) {
+      authKeyState.innerText = "金鑰過期";
+      authKeyDate.innerText = stateData["authKeyDate"] + "前 有效";
+      authKeyState.style.color = "#ed143d";
+    } else if (stateData["authKeyState"] == 1) {
+      authKeyState.innerText = "驗證失敗";
+      authKeyDate.innerText = "本機與網路時間誤差過大";
+      authKeyState.style.color = "#ed143d";
+    } else if (stateData["authKeyState"] == 0) {
+      authKeyState.innerText = "驗證失敗";
+      authKeyDate.innerText = "金鑰錯誤";
+      authKeyState.style.color = "#ed143d";
+    } else if (stateData["authKeyState"] == -1) {
+      authKeyState.innerText = "無法驗證";
+      authKeyDate.innerText = "請檢查網路連線";
+      authKeyState.style.color = "#ed143d";
+    }
+
+    let fastSelectList;
+    let fastSelectPromise = new Promise(function (resolve, reject) {
+      fs.readFile(
+        "./src/data/fastSelect.json",
+        function (err, fastSelectListSaved) {
+          if (err) {
+            reject(err);
+          } else {
+            console.log("load FSS");
+            //將二進制數據轉換為字串符
+            fastSelectListSaved = fastSelectListSaved.toString();
+            //將字符串轉換為 JSON 對象
+            fastSelectList = JSON.parse(fastSelectListSaved);
+            resolve(true);
+          }
         }
-      });
+      );
     });
-    statePromise
-      .then(function (stateData) {
-        stateData = JSON.parse(stateData);
-        let preLoadIcon = document.getElementById("preLoadIcon");
-        let preLoadText = document.getElementById("preLoadText");
-        let preLoadIconBox = document.getElementById("preLoadIconBox");
-        let progLine = document.getElementById("progLine");
-        progLine.style.width = stateData.barPo + "%";
-        if (stateData.preload == 0) {
-          preLoadIconBox.classList.remove("iconActiveBox");
-          preLoadIcon.setAttribute("src", "./icon/bx-x.svg");
-          preLoadText.innerText = "未預載";
-        } else if (stateData.preload == 1) {
-          preLoadIcon.setAttribute("src", "./icon/work_history.svg");
-          preLoadText.innerText = "已排程";
-          preLoadIconBox.classList.remove("iconActiveBox");
-        } else if (stateData.preload == 2) {
-          preLoadIcon.setAttribute("src", "./icon/bx-check.svg");
-          preLoadText.innerText = "已預載";
-          preLoadIconBox.classList.add("iconActiveBox");
+
+    fastSelectPromise
+      .then(function (haveFile) {
+        let fastSelectIconBox = document.getElementById("fastSelectIconBox");
+        let fastSelectIcons = document.getElementsByClassName("fastSelectIcon");
+        let fastSelectCount0 = document.getElementsByClassName("classCount0");
+        let fastSelectCount1 = document.getElementsByClassName("classCount1");
+        let fastSelectCount2 = document.getElementsByClassName("classCount2");
+        let fastSelectCount3 = document.getElementsByClassName("classCount3");
+        let classUnit0 = document.getElementsByClassName("classUnit0");
+        let classUnit1 = document.getElementsByClassName("classUnit1");
+        let classUnit2 = document.getElementsByClassName("classUnit2");
+        if (stateData.isFastSelectFinish) {
+          fastSelectIconBox.classList.add("iconActiveBox");
         } else {
-          preLoadIconBox.classList.add("iconActiveBox");
+          fastSelectIconBox.classList.remove("iconActiveBox");
         }
-
-        let authKeyState = document.getElementById("authKeyState");
-        let authKeyDate = document.getElementById("authKeyDate");
-        if (stateData["authKeyState"] == 4) {
-          authKeyState.innerText = "已授權";
-          authKeyDate.innerText = stateData["authKeyDate"] + "前 有效";
-          authKeyState.style.color = "#62ff00";
-        } else if (stateData["authKeyState"] == 3) {
-          authKeyState.innerText = "驗證失敗";
-          authKeyDate.innerText = "被授權人與目前登入不符";
-          authKeyState.style.color = "#ed143d";
-        } else if (stateData["authKeyState"] == 2) {
-          authKeyState.innerText = "金鑰過期";
-          authKeyDate.innerText = stateData["authKeyDate"] + "前 有效";
-          authKeyState.style.color = "#ed143d";
-        } else if (stateData["authKeyState"] == 1) {
-          authKeyState.innerText = "驗證失敗";
-          authKeyDate.innerText = "本機與網路時間誤差過大";
-          authKeyState.style.color = "#ed143d";
-        } else if (stateData["authKeyState"] == 0) {
-          authKeyState.innerText = "驗證失敗";
-          authKeyDate.innerText = "金鑰錯誤";
-          authKeyState.style.color = "#ed143d";
-        } else if (stateData["authKeyState"] == -1) {
-          authKeyState.innerText = "無法驗證";
-          authKeyDate.innerText = "請檢查網路連線";
-          authKeyState.style.color = "#ed143d";
-        }
-
-        let fastSelectList;
-        let fastSelectPromise = new Promise(function (resolve, reject) {
-          fs.readFile(
-            "./src/data/fastSelect.json",
-            function (err, fastSelectListSaved) {
-              if (err) {
-                reject(err);
-              } else {
-                console.log("load FSS");
-                //將二進制數據轉換為字串符
-                fastSelectListSaved = fastSelectListSaved.toString();
-                //將字符串轉換為 JSON 對象
-                fastSelectList = JSON.parse(fastSelectListSaved);
-                resolve(true);
-              }
-            }
+        for (let i = 0; i < 5; i++) {
+          fastSelectCount0[i].innerText = "";
+          fastSelectCount1[i].innerText = "";
+          fastSelectCount2[i].innerText = "";
+          fastSelectCount3[i].innerText = "";
+          classUnit0[i].innerText = "";
+          classUnit1[i].innerText = "";
+          classUnit2[i].innerText = "";
+          let allPKG = Math.ceil(
+            fastSelectList["fastSelectBlock"][i]["list"].length / 5
           );
-        });
-
-        fastSelectPromise
-          .then(function (haveFile) {
-            let fastSelectIconBox =
-              document.getElementById("fastSelectIconBox");
-            let fastSelectIcons =
-              document.getElementsByClassName("fastSelectIcon");
-            let fastSelectCount0 =
-              document.getElementsByClassName("classCount0");
-            let fastSelectCount1 =
-              document.getElementsByClassName("classCount1");
-            let fastSelectCount2 =
-              document.getElementsByClassName("classCount2");
-            let fastSelectCount3 =
-              document.getElementsByClassName("classCount3");
-            let classUnit0 = document.getElementsByClassName("classUnit0");
-            let classUnit1 = document.getElementsByClassName("classUnit1");
-            let classUnit2 = document.getElementsByClassName("classUnit2");
-            if (stateData.isFastSelectFinish) {
-              fastSelectIconBox.classList.add("iconActiveBox");
-            } else {
-              fastSelectIconBox.classList.remove("iconActiveBox");
-            }
-            for (let i = 0; i < 5; i++) {
-              fastSelectCount0[i].innerText = "";
-              fastSelectCount1[i].innerText = "";
-              fastSelectCount2[i].innerText = "";
-              fastSelectCount3[i].innerText = "";
-              classUnit0[i].innerText = "";
-              classUnit1[i].innerText = "";
-              classUnit2[i].innerText = "";
-              let allPKG = Math.ceil(
-                fastSelectList["fastSelectBlock"][i]["list"].length / 5
-              );
-              if (fastSelectList["fastSelectBlock"][i]["enable"] == true) {
-                fastSelectIcons[i].setAttribute(
-                  "src",
-                  fastSelectStateIcon[stateData.fastSelect[i][0]]
-                );
-                fastSelectCount0[i].innerText =
-                  fastSelectStateText[stateData.fastSelect[i][0]];
-                fastSelectIcons[i].classList.remove("loadingIcon");
-                if (stateData.fastSelect[i][0] < 2) {
-                  classUnit0[i].innerText = "共";
-                  fastSelectCount1[i].innerText = allPKG;
-                  classUnit1[i].innerText = "組";
-                } else if (stateData.fastSelect[i][0] == 2) {
-                  if (i == 4) {
-                    fastSelectIcons[i].classList.add("loadingIcon");
-                    fastSelectCount0[i].innerText = "執行中";
-                    classUnit0[i].innerText = "送出";
-                    fastSelectCount1[i].innerText = stateData.fastSelect[i][2];
-                    classUnit1[i].innerText = "次";
+          if (fastSelectList["fastSelectBlock"][i]["enable"] == true) {
+            fastSelectIcons[i].setAttribute(
+              "src",
+              fastSelectStateIcon[stateData.fastSelect[i][0]]
+            );
+            fastSelectCount0[i].innerText =
+              fastSelectStateText[stateData.fastSelect[i][0]];
+            fastSelectIcons[i].classList.remove("loadingIcon");
+            if (stateData.fastSelect[i][0] < 2) {
+              classUnit0[i].innerText = "共";
+              fastSelectCount1[i].innerText = allPKG;
+              classUnit1[i].innerText = "組";
+            } else if (stateData.fastSelect[i][0] == 2) {
+              if (i == 4) {
+                fastSelectIcons[i].classList.add("loadingIcon");
+                fastSelectCount0[i].innerText = "執行中";
+                classUnit0[i].innerText = "送出";
+                fastSelectCount1[i].innerText = stateData.fastSelect[i][2];
+                classUnit1[i].innerText = "次";
+              } else {
+                if (
+                  allPKG ==
+                  stateData.fastSelect[i][1] + stateData.fastSelect[i][2]
+                ) {
+                  if (stateData.fastSelect[i][2] == 0) {
+                    fastSelectIcons[i].setAttribute(
+                      "src",
+                      "./icon/mark_email_read.svg"
+                    );
                   } else {
-                    if (
-                      allPKG ==
-                      stateData.fastSelect[i][1] + stateData.fastSelect[i][2]
-                    ) {
-                      if (stateData.fastSelect[i][2] == 0) {
-                        fastSelectIcons[i].setAttribute(
-                          "src",
-                          "./icon/mark_email_read.svg"
-                        );
-                      } else {
-                        fastSelectIcons[i].setAttribute(
-                          "src",
-                          "./icon/cancel_schedule_send.svg"
-                        );
-                      }
-                      fastSelectCount0[i].innerText = "完成";
-                      classUnit0[i].innerText = stateData.fastSelect[i][1];
-                      fastSelectCount1[i].innerText = "成功";
-                      classUnit1[i].innerText = stateData.fastSelect[i][2];
-                      fastSelectCount2[i].innerText = "逾時";
-                    } else {
-                      fastSelectIcons[i].classList.add("loadingIcon");
-                      classUnit0[i].innerText = stateData.fastSelect[i][1];
-                      fastSelectCount1[i].innerText = "成功";
-                      classUnit1[i].innerText =
-                        allPKG -
-                        stateData.fastSelect[i][1] -
-                        stateData.fastSelect[i][2];
-                      fastSelectCount2[i].innerText = "等待";
-                      classUnit2[i].innerText = stateData.fastSelect[i][2];
-                      fastSelectCount3[i].innerText = "逾時";
-                    }
+                    fastSelectIcons[i].setAttribute(
+                      "src",
+                      "./icon/cancel_schedule_send.svg"
+                    );
                   }
-                } else if (stateData.fastSelect[i][0] == 3) {
-                  classUnit0[i].innerText = "在第";
-                  fastSelectCount1[i].innerText = stateData.fastSelect[i][1];
-                  classUnit1[i].innerText = "次";
-                  fastSelectCount2[i].innerText = "共";
-                  classUnit2[i].innerText = stateData.fastSelect[i][2];
-                  fastSelectCount3[i].innerText = "次";
+                  fastSelectCount0[i].innerText = "完成";
+                  classUnit0[i].innerText = stateData.fastSelect[i][1];
+                  fastSelectCount1[i].innerText = "成功";
+                  classUnit1[i].innerText = stateData.fastSelect[i][2];
+                  fastSelectCount2[i].innerText = "逾時";
                 } else {
-                  classUnit0[i].innerText = "超過50次上限";
+                  fastSelectIcons[i].classList.add("loadingIcon");
+                  classUnit0[i].innerText = stateData.fastSelect[i][1];
+                  fastSelectCount1[i].innerText = "成功";
+                  classUnit1[i].innerText =
+                    allPKG -
+                    stateData.fastSelect[i][1] -
+                    stateData.fastSelect[i][2];
+                  fastSelectCount2[i].innerText = "等待";
+                  classUnit2[i].innerText = stateData.fastSelect[i][2];
+                  fastSelectCount3[i].innerText = "逾時";
                 }
-              } else {
-                fastSelectIcons[i].setAttribute("src", "./icon/bx-x.svg");
-                fastSelectCount0[i].innerText = "未啟用";
-                fastSelectCount1[i].innerText = "";
-                fastSelectCount2[i].innerText = "";
-                fastSelectCount3[i].innerText = "";
-                classUnit0[i].innerText = "";
-                classUnit1[i].innerText = "";
-                classUnit2[i].innerText = "";
               }
-            }
-          })
-          .catch(function (err) {
-            console.log(err);
-          });
-        let preSelectIcon = document.getElementsByClassName("preSelectIcon");
-        let preSelectIconBox = document.getElementById("preSelectIconBox");
-        let preSelectText = document.getElementsByClassName("preSelectText");
-        let preSelectText1 = document.getElementsByClassName("preSelectText1");
-        let preSelectText2 = document.getElementsByClassName("preSelectText2");
-        let preSelectPromise = new Promise(function (resolve, reject) {
-          fs.readFile(
-            "./src/data/PreSelectPageSetting.json",
-            function (err, preSelectPageSettingSaved) {
-              if (err) {
-                reject(err);
-              } else {
-                console.log("load FSS");
-                //將二進制數據轉換為字串符
-                preSelectPageSettingSaved =
-                  preSelectPageSettingSaved.toString();
-
-                resolve(preSelectPageSettingSaved);
-              }
-            }
-          );
-        });
-        preSelectPromise.then(function (preSelectPageSettingSaved) {
-          //將字符串轉換為 JSON 對象
-          preSelectPageSettingSaved = JSON.parse(preSelectPageSettingSaved);
-          for (let i = 0; i < preSelectIcon.length; i++) {
-            preSelectIcon[i].setAttribute("src", "");
-            preSelectIcon[i].classList.remove("loadingIcon");
-            preSelectText[i].innerText = "";
-            preSelectText1[i].innerText = "";
-            preSelectText2[i].innerText = "";
-          }
-          if (preSelectPageSettingSaved["isSet"]) {
-            preSelectIconBox.classList.remove("iconActiveBox");
-            if (stateData.preSelect[0] == 2) {
-              preSelectIcon[0].setAttribute(
-                "src",
-                "./icon/bx-loader-circle.svg"
-              );
-              preSelectText[0].innerText = "等待執行";
-              preSelectIcon[0].classList.add("loadingIcon");
-            } else if (stateData.preSelect[0] == 3) {
-              preSelectIcon[0].setAttribute("src", "./icon/autorenew.svg");
-              preSelectText[0].innerText = "執行中";
-              preSelectText1[0].innerText = stateData.preSelect[1];
-              preSelectText2[0].innerText = "次";
-              preSelectIcon[0].classList.add("loadingIcon");
-
-              preSelectIcon[1].setAttribute("src", "./icon/playlist_add.svg");
-              preSelectText[1].innerText = "已加選";
-              preSelectText1[1].innerText = stateData.preSelect[2];
-              preSelectText2[1].innerText = "堂";
-
-              preSelectIcon[2].setAttribute(
-                "src",
-                "./icon/playlist_remove_24dp.svg"
-              );
-              preSelectText[2].innerText = "已退選";
-              preSelectText1[2].innerText = stateData.preSelect[3];
-              preSelectText2[2].innerText = "堂";
-
-              preSelectIcon[3].setAttribute("src", "./icon/report.svg");
-              preSelectText[3].innerText = "錯失/誤判";
-              preSelectText1[3].innerText = stateData.preSelect[4];
-              preSelectText2[3].innerText = "次";
+            } else if (stateData.fastSelect[i][0] == 3) {
+              classUnit0[i].innerText = "在第";
+              fastSelectCount1[i].innerText = stateData.fastSelect[i][1];
+              classUnit1[i].innerText = "次";
+              fastSelectCount2[i].innerText = "共";
+              classUnit2[i].innerText = stateData.fastSelect[i][2];
+              fastSelectCount3[i].innerText = "次";
             } else {
-              preSelectIcon[0].setAttribute("src", "./icon/bx-check.svg");
-              preSelectText[0].innerText = "已啟用";
+              classUnit0[i].innerText = "超過50次上限";
             }
           } else {
-            if (stateData.barPo == 100) {
-              preSelectIconBox.classList.add("iconActiveBox");
-            } else {
-              preSelectIconBox.classList.remove("iconActiveBox");
-            }
-            preSelectIcon[0].setAttribute("src", "./icon/bx-x.svg");
-            preSelectText[0].innerText = "未啟用";
+            fastSelectIcons[i].setAttribute("src", "./icon/bx-x.svg");
+            fastSelectCount0[i].innerText = "未啟用";
+            fastSelectCount1[i].innerText = "";
+            fastSelectCount2[i].innerText = "";
+            fastSelectCount3[i].innerText = "";
+            classUnit0[i].innerText = "";
+            classUnit1[i].innerText = "";
+            classUnit2[i].innerText = "";
           }
-        });
-
-        let settingPromise = new Promise(function (resolve, reject) {
-          console.log(1);
-          fs.readFile("./src/data/setting.json", function (err, settingData) {
-            if (err) {
-              console.log("no setting make new file");
-              stopAllTimer();
-              reject(err);
-            } else {
-              console.log("load setting");
-              //將二進制數據轉換為字串符
-              settingData = settingData.toString();
-
-              resolve(settingData);
-            }
-          });
-        });
-        settingPromise.then(function (settingData) {
-          settingSaved = JSON.parse(settingData);
-          let systemStatusText1 =
-            document.getElementsByClassName("systemStatusText");
-          let startBtmText = document.getElementById("startBtm").firstChild;
-          let stopBtmText = document.getElementById("stopBtm").firstChild;
-          if (settingSaved["activate"] == true) {
-            activate = true;
-            startBtmText.setAttribute("class", "startDown");
-            stopBtmText.setAttribute("class", "stopUp");
-            systemStatusText1[1].innerText = "運行中";
-            systemStatusText1[1].style.color = "#62ff00";
-          } else {
-            activate = false;
-            startBtmText.setAttribute("class", "startUp");
-            stopBtmText.setAttribute("class", "stopDown");
-            systemStatusText1[1].innerText = "待命中";
-            systemStatusText1[1].style.color = "#ed143d";
-          }
-        });
+        }
       })
       .catch(function (err) {
         console.log(err);
       });
+    let preSelectIcon = document.getElementsByClassName("preSelectIcon");
+    let preSelectIconBox = document.getElementById("preSelectIconBox");
+    let preSelectText = document.getElementsByClassName("preSelectText");
+    let preSelectText1 = document.getElementsByClassName("preSelectText1");
+    let preSelectText2 = document.getElementsByClassName("preSelectText2");
+    let preSelectPromise = new Promise(function (resolve, reject) {
+      fs.readFile(
+        "./src/data/PreSelectPageSetting.json",
+        function (err, preSelectPageSettingSaved) {
+          if (err) {
+            reject(err);
+          } else {
+            console.log("load FSS");
+            //將二進制數據轉換為字串符
+            preSelectPageSettingSaved = preSelectPageSettingSaved.toString();
+
+            resolve(preSelectPageSettingSaved);
+          }
+        }
+      );
+    });
+    preSelectPromise.then(function (preSelectPageSettingSaved) {
+      //將字符串轉換為 JSON 對象
+      preSelectPageSettingSaved = JSON.parse(preSelectPageSettingSaved);
+      for (let i = 0; i < preSelectIcon.length; i++) {
+        preSelectIcon[i].setAttribute("src", "");
+        preSelectIcon[i].classList.remove("loadingIcon");
+        preSelectText[i].innerText = "";
+        preSelectText1[i].innerText = "";
+        preSelectText2[i].innerText = "";
+      }
+      if (preSelectPageSettingSaved["isSet"]) {
+        preSelectIconBox.classList.remove("iconActiveBox");
+        if (stateData.preSelect[0] == 2) {
+          preSelectIcon[0].setAttribute("src", "./icon/bx-loader-circle.svg");
+          preSelectText[0].innerText = "等待執行";
+          preSelectIcon[0].classList.add("loadingIcon");
+        } else if (stateData.preSelect[0] == 3) {
+          preSelectIcon[0].setAttribute("src", "./icon/autorenew.svg");
+          preSelectText[0].innerText = "執行中";
+          preSelectText1[0].innerText = stateData.preSelect[1];
+          preSelectText2[0].innerText = "次";
+          preSelectIcon[0].classList.add("loadingIcon");
+
+          preSelectIcon[1].setAttribute("src", "./icon/playlist_add.svg");
+          preSelectText[1].innerText = "已加選";
+          preSelectText1[1].innerText = stateData.preSelect[2];
+          preSelectText2[1].innerText = "堂";
+
+          preSelectIcon[2].setAttribute(
+            "src",
+            "./icon/playlist_remove_24dp.svg"
+          );
+          preSelectText[2].innerText = "已退選";
+          preSelectText1[2].innerText = stateData.preSelect[3];
+          preSelectText2[2].innerText = "堂";
+
+          preSelectIcon[3].setAttribute("src", "./icon/report.svg");
+          preSelectText[3].innerText = "錯失/誤判";
+          preSelectText1[3].innerText = stateData.preSelect[4];
+          preSelectText2[3].innerText = "次";
+        } else {
+          preSelectIcon[0].setAttribute("src", "./icon/bx-check.svg");
+          preSelectText[0].innerText = "已啟用";
+        }
+      } else {
+        if (stateData.barPo == 100) {
+          preSelectIconBox.classList.add("iconActiveBox");
+        } else {
+          preSelectIconBox.classList.remove("iconActiveBox");
+        }
+        preSelectIcon[0].setAttribute("src", "./icon/bx-x.svg");
+        preSelectText[0].innerText = "未啟用";
+      }
+    });
+
+    let settingPromise = new Promise(function (resolve, reject) {
+      console.log(1);
+      fs.readFile("./src/data/setting.json", function (err, settingData) {
+        if (err) {
+          console.log("no setting make new file");
+          stopAllTimer();
+          reject(err);
+        } else {
+          console.log("load setting");
+          //將二進制數據轉換為字串符
+          settingData = settingData.toString();
+
+          resolve(settingData);
+        }
+      });
+    });
+    settingPromise.then(function (settingData) {
+      settingSaved = JSON.parse(settingData);
+      let systemStatusText1 =
+        document.getElementsByClassName("systemStatusText");
+      let startBtmText = document.getElementById("startBtm").firstChild;
+      let stopBtmText = document.getElementById("stopBtm").firstChild;
+      if (settingSaved["activate"] == true) {
+        activate = true;
+        startBtmText.setAttribute("class", "startDown");
+        stopBtmText.setAttribute("class", "stopUp");
+        systemStatusText1[1].innerText = "運行中";
+        systemStatusText1[1].style.color = "#62ff00";
+      } else {
+        activate = false;
+        startBtmText.setAttribute("class", "startUp");
+        stopBtmText.setAttribute("class", "stopDown");
+        systemStatusText1[1].innerText = "待命中";
+        systemStatusText1[1].style.color = "#ed143d";
+      }
+    });
   }
 }
 async function updateInternetStatus(host, data) {
@@ -2913,7 +2881,6 @@ async function updateTime() {
       }
 
       function titleCountDownF() {
-        console.log("titleCountDownF");
         let start = Date.now();
         let leftTime = sDay - Date.now();
         if (leftTime > 0) {
@@ -2928,7 +2895,7 @@ async function updateTime() {
           document.getElementById("leftHour").innerHTML = hours;
           document.getElementById("leftMinute").innerHTML = minutes;
           document.getElementById("leftSecond").innerHTML = seconds;
-          console.log(days + "d" + hours + "h" + minutes + "m" + seconds + "s");
+          //console.log(days + "d" + hours + "h" + minutes + "m" + seconds + "s");
         } else {
           document.getElementById("leftDay").innerHTML = "-";
           document.getElementById("leftHour").innerHTML = "-";
@@ -2937,16 +2904,15 @@ async function updateTime() {
           clearInterval(countDownTimer);
           countDownTimer = undefined;
         }
-        console.log(Date.now() - start);
       }
       titleCountDownF();
       titleCountDownTimer = setInterval(function () {
         titleCountDownF();
       }, 1000);
     } else {
-      if (typeof countDownTimer != undefined) {
-        clearInterval(countDownTimer);
-        countDownTimer = undefined;
+      if (typeof titleCountDownTimer != undefined) {
+        clearInterval(titleCountDownTimer);
+        titleCountDownTimer = undefined;
       }
     }
   });
@@ -3208,8 +3174,8 @@ ipc.on("myClass", function (evt, myClass) {
 ipc.on("appLocat", function (evt, appLocat) {
   console.log(appLocat);
 });
-ipc.on("updateState", function () {
-  updateControlCenterState();
+ipc.on("updateState", function (evt, nowState) {
+  updateControlCenterState(nowState);
   console.log("updateControlCenterState");
 });
 ipc.on("updateGoogleInternetStatus", function (evt, data) {
