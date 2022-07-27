@@ -96,6 +96,7 @@ async function updatedClassState() {
             function (err) {
               if (err) {
                 console.error(err);
+                reject();
               } else {
                 resolve();
                 console.log("write classFile...");
@@ -104,7 +105,9 @@ async function updatedClassState() {
           );
         });
       })
-      .catch();
+      .catch(function (err) {
+        reject(err);
+      });
   });
 }
 async function patrolActionPerformed() {

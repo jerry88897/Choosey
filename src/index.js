@@ -501,3 +501,8 @@ ipc.on("getTTUInternetStatus", async function () {
 ipc.on("getUserData", async function () {
   win.webContents.send("updateUserData", user);
 });
+ipc.on("updatePreSelectClassInfo", async function () {
+  preSelectPageAction.updatedClassState().then(function () {
+    win.webContents.send("updatePreSelectClassInfo", user);
+  });
+});

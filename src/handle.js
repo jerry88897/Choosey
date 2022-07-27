@@ -2333,6 +2333,8 @@ async function preSelectClassPage() {
   let saveImg = document.createElement("img");
   let readyDiv = document.createElement("div");
   let readyImg = document.createElement("img");
+  let reFreshDiv = document.createElement("div");
+  let reFreshImg = document.createElement("img");
   actionDiv.setAttribute("class", "actionDiv");
   fs.readFile("./src/data/PreSelectPage.json", function (err, myClass) {
     let preSelectThisClassDivArray = [];
@@ -2533,6 +2535,9 @@ async function preSelectClassPage() {
       readyDiv.setAttribute("class", "ready");
       readyImg.setAttribute("class", "icon");
       readyImg.setAttribute("src", "./icon/playlist_remove_24dp.svg");
+      reFreshDiv.setAttribute("class", "ready");
+      reFreshImg.setAttribute("class", "icon");
+      reFreshImg.setAttribute("src", "./icon/refresh.svg");
       if (preSelectClassPageReady) {
         readyImg.setAttribute("src", "./icon/playlist_add_check_24dp.svg");
       } else {
@@ -2540,6 +2545,8 @@ async function preSelectClassPage() {
       }
       viewTypeDiv.appendChild(viewTypeImg);
       actionDiv.appendChild(viewTypeDiv);
+      reFreshDiv.appendChild(reFreshImg);
+      actionDiv.appendChild(reFreshDiv);
       saveDiv.appendChild(saveImg);
       actionDiv.appendChild(saveDiv);
       readyDiv.appendChild(readyImg);
@@ -2591,6 +2598,9 @@ async function preSelectClassPage() {
           viewTypeImg.setAttribute("src", "./icon/view_module_white_24dp.svg");
         }
         preSelectClassPage();
+      });
+      reFreshDiv.addEventListener("click", async function () {
+        ipc.send("updatePreSelectClassInfo");
       });
       readyDiv.addEventListener("click", async function () {
         if (preSelectClassPageReady) {
@@ -3174,4 +3184,8 @@ ipc.on("preSelectPagePlay", function () {
 });
 ipc.on("updateUserData", function (evt, userData) {
   updateUserData(userData);
+});
+ipc.on("updatePreSelectClassInfo", function (evt, userData) {
+  preSelectClassPage();
+  showPreSelectClassAtPreSelectPage();
 });
