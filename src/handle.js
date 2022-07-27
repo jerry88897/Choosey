@@ -1152,11 +1152,11 @@ async function fastSelect() {
         for (let j = 0; j < 4; j++) {
           flexTableHead = document.createElement("div"); // TABLE HEADER.
           if (j < 2) {
-            flexTableHead.setAttribute("class", "fheader fheaderTime");
-          } else if (j == 2) {
-            flexTableHead.setAttribute("class", "fheader fheaderClass");
-          } else {
             flexTableHead.setAttribute("class", "fheader fheaderButton");
+          } else if (j == 2) {
+            flexTableHead.setAttribute("class", "fheader fheaderTime");
+          } else {
+            flexTableHead.setAttribute("class", "fheader fheaderClass");
           }
 
           flexTableHead.innerText = tableHead2[j];
