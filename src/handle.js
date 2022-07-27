@@ -1,3 +1,4 @@
+const console = require("console");
 const { getElementById } = require("domutils");
 const electron = require("electron");
 const ipc = electron.ipcRenderer;
@@ -86,6 +87,7 @@ async function showControlCenter(evt, ntpTimeDiff) {
   let setting = {
     selectStartDate: "2022-01-27T10:30",
     activate: false,
+    key: "",
   };
   let timeHead = [
     "localTime",
@@ -195,6 +197,11 @@ async function showControlCenter(evt, ntpTimeDiff) {
       <div class="timeName">運算延遲 :</div>
       <div class="timeNum systemDelay">-</div>
       <div class="timeSeg">毫秒</div>
+    </div>
+    <div class="timeBox">
+      <div class="timeName">授權金鑰 :</div>
+      <div class="authKeyState" id="authKeyState"></div>
+      <div class="authKeyState" id="authKeyDate"></div>
     </div>
   </div>
 </div>`;
@@ -684,7 +691,7 @@ async function showControlCenter(evt, ntpTimeDiff) {
           timeNumList[4][3].innerText = " ";
         }
       }
-      timeNumList[2][0].innerText = ntpTimeDiff * -1;
+      timeNumList[2][0].innerText = (ntpTimeDiff * -1).toFixed(2);
       timeNumList[5][0].innerText = Date.now() - calculateStart;
     }
     countDownF();
@@ -708,7 +715,7 @@ async function updateControlCenterState() {
     "已回應",
     "無回應",
   ];
-  if (typeof document.getElementsByClassName("flowChartBox") != undefined) {
+  if (document.getElementsByClassName("flowChartBox").length == 1) {
     let statePromise = new Promise(function (resolve, reject) {
       console.log(1);
       fs.readFile("./src/data/state.json", function (err, stateData) {
@@ -746,6 +753,34 @@ async function updateControlCenterState() {
           preLoadIconBox.classList.add("iconActiveBox");
         } else {
           preLoadIconBox.classList.add("iconActiveBox");
+        }
+
+        let authKeyState = document.getElementById("authKeyState");
+        let authKeyDate = document.getElementById("authKeyDate");
+        if (stateData["authKeyState"] == 4) {
+          authKeyState.innerText = "已授權";
+          authKeyDate.innerText = stateData["authKeyDate"] + "前 有效";
+          authKeyState.style.color = "#62ff00";
+        } else if (stateData["authKeyState"] == 3) {
+          authKeyState.innerText = "驗證失敗";
+          authKeyDate.innerText = "被授權人與目前登入不符";
+          authKeyState.style.color = "#ed143d";
+        } else if (stateData["authKeyState"] == 2) {
+          authKeyState.innerText = "金鑰過期";
+          authKeyDate.innerText = stateData["authKeyDate"] + "前 有效";
+          authKeyState.style.color = "#ed143d";
+        } else if (stateData["authKeyState"] == 1) {
+          authKeyState.innerText = "驗證失敗";
+          authKeyDate.innerText = "本機與網路時間誤差過大";
+          authKeyState.style.color = "#ed143d";
+        } else if (stateData["authKeyState"] == 0) {
+          authKeyState.innerText = "驗證失敗";
+          authKeyDate.innerText = "金鑰錯誤";
+          authKeyState.style.color = "#ed143d";
+        } else if (stateData["authKeyState"] == -1) {
+          authKeyState.innerText = "無法驗證";
+          authKeyDate.innerText = "請檢查網路連線";
+          authKeyState.style.color = "#ed143d";
         }
 
         let fastSelectList;
@@ -957,6 +992,43 @@ async function updateControlCenterState() {
             preSelectText[0].innerText = "未啟用";
           }
         });
+
+        let settingPromise = new Promise(function (resolve, reject) {
+          console.log(1);
+          fs.readFile("./src/data/setting.json", function (err, settingData) {
+            if (err) {
+              console.log("no setting make new file");
+              stopAllTimer();
+              reject(err);
+            } else {
+              console.log("load setting");
+              //將二進制數據轉換為字串符
+              settingData = settingData.toString();
+
+              resolve(settingData);
+            }
+          });
+        });
+        settingPromise.then(function (settingData) {
+          settingSaved = JSON.parse(settingData);
+          let systemStatusText1 =
+            document.getElementsByClassName("systemStatusText");
+          let startBtmText = document.getElementById("startBtm").firstChild;
+          let stopBtmText = document.getElementById("stopBtm").firstChild;
+          if (settingSaved["activate"] == true) {
+            activate = true;
+            startBtmText.setAttribute("class", "startDown");
+            stopBtmText.setAttribute("class", "stopUp");
+            systemStatusText1[1].innerText = "運行中";
+            systemStatusText1[1].style.color = "#62ff00";
+          } else {
+            activate = false;
+            startBtmText.setAttribute("class", "startUp");
+            stopBtmText.setAttribute("class", "stopDown");
+            systemStatusText1[1].innerText = "待命中";
+            systemStatusText1[1].style.color = "#ed143d";
+          }
+        });
       })
       .catch(function (err) {
         console.log(err);
@@ -964,7 +1036,7 @@ async function updateControlCenterState() {
   }
 }
 async function updateInternetStatus(host, data) {
-  if (typeof document.getElementById("InternetBox") != undefined) {
+  if (document.getElementById("InternetBox") != null) {
     console.log(data);
     let typeList = [];
     let hostValue = document.getElementsByClassName("InternetStatusFromValue");
@@ -2874,9 +2946,9 @@ async function showSetting() {
   await cleanFrame();
   await cleanRightFrame();
   let tableHead = ["項目", "設定"];
-  let settingName = ["選課開始時間"];
-  let settingjsonName = ["selectStartDate"];
-  let settingType = ["datetime-local"];
+  let settingName = ["選課開始時間", "授權金鑰"];
+  let settingjsonName = ["selectStartDate", "key"];
+  let settingType = ["datetime-local", "text"];
   let table = document.createElement("table");
   let actionDiv = document.createElement("div");
   actionDiv.setAttribute("class", "actionDiv");
@@ -2885,6 +2957,8 @@ async function showSetting() {
   table.className = "mtable";
   let setting = {
     selectStartDate: "2022-01-27T10:30",
+    activate: false,
+    key: "",
   };
   let settingPromise = new Promise(function (resolve, reject) {
     console.log(1);
@@ -2942,7 +3016,9 @@ async function showSetting() {
       input.className = "preInput userInput";
       input.value = setting[settingjsonName[i]];
       input.id = settingType[i] + i;
-
+      if (i == 1) {
+        input.style.width = "90%";
+      }
       td.appendChild(input);
       tr.appendChild(td);
     }

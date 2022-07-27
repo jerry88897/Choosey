@@ -13,7 +13,7 @@ const preSelectPage = require("./preSelectPage");
 const preSelectPageAction = require("./preSelectPageAction");
 const fastSelect = require("./fastSelect");
 const iconv = require("iconv-lite");
-const { Console } = require("console");
+const { Console, time } = require("console");
 const screen = require("electron").screen;
 
 let win;
@@ -435,6 +435,7 @@ ipc.on("login", async function (e, data) {
   console.log(data);
   user.id = data.id;
   user.ps = data.ps;
+  timer.setUserId(user.id);
   let resoult = await getWeb.login(data);
   timer.setGetWeb(getWeb);
   console.log("!!" + resoult);

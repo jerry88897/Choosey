@@ -3,6 +3,13 @@ const ntpClient = require("ntp-client");
 const NtpTimeSync = require("ntp-time-sync").NtpTimeSync;
 const sender = require("./sendSelect");
 const ipc = require("electron").ipcMain;
+const {
+  generateKeyPairSync,
+  sign,
+  verify,
+  publicEncrypt,
+  privateDecrypt,
+} = require("crypto");
 const options = {
   // list of NTP time servers, optionally including a port (defaults to 123)
   servers: [
@@ -19,12 +26,13 @@ const options = {
 };
 const timeSync = NtpTimeSync.getInstance(options);
 
-let timeDiff;
+let lastTimeDiff;
 let allTimer = [];
 let resendTimer;
 let preSelectList;
 
 let getWeb;
+let userId = "";
 let preLoadTimer;
 let preLoadClass = [];
 let fastSelectTimer = [];
@@ -48,6 +56,8 @@ let nowState = {
   isFastSelectFinish: false,
   preSelect: [0, 0, 0, 0, 0],
   barPo: 0,
+  authKeyState: 0,
+  authKeyDate: "",
 };
 
 module.exports = {
@@ -75,6 +85,10 @@ module.exports = {
   },
   setGetWeb: function (getWebS) {
     getWeb = getWebS;
+    return 0;
+  },
+  setUserId: function (UserId) {
+    userId = UserId;
     return 0;
   },
   setPreSelectPageAction: function (preSelectPage) {
@@ -119,9 +133,11 @@ async function getNTPTime() {
         console.log("current system time", new Date());
         console.log("real time", result.now);
         console.log("offset in milliseconds", result.offset);
+        lastTimeDiff = result.offset;
         resolve(result.offset);
       })
       .catch(function (err) {
+        lastTimeDiff = null;
         console.log(err);
         reject(err);
       });
@@ -151,45 +167,81 @@ function checkToRestartTimer() {
       //將字符串轉換為 JSON 對象
       settingSaved = JSON.parse(settingData);
       let sDay = Date.parse(settingSaved["selectStartDate"]);
-      if (settingSaved["activate"] == true) {
-        if (sDay - Date.now() <= 0) {
-          if (typeof preLoadTimer != undefined) {
-            clearTimeout(preLoadTimer);
-          }
-          nowState.barPo = 100;
-          nowState.preload = 3;
-          nowState.isFastSelectFinish = true;
+      check()
+        .then(function () {
+          nowState.authKeyState = 4;
           upDateState();
-          checkToStartPreSelectPageAction();
-        } else if (sDay - Date.now() <= 70 * 1000) {
-          if (typeof preLoadTimer != undefined) {
-            clearTimeout(preLoadTimer);
+          if (settingSaved["activate"] == true) {
+            if (sDay - Date.now() <= 0) {
+              if (typeof preLoadTimer != undefined) {
+                clearTimeout(preLoadTimer);
+              }
+              nowState.barPo = 100;
+              nowState.preload = 3;
+              nowState.isFastSelectFinish = true;
+              upDateState();
+              checkToStartPreSelectPageAction();
+            } else if (sDay - Date.now() <= 70 * 1000) {
+              if (typeof preLoadTimer != undefined) {
+                clearTimeout(preLoadTimer);
+              }
+              nowState.barPo = 0;
+              nowState.isFastSelectFinish = false;
+              upDateState();
+              preLoadFastSelectTimer(settingSaved).then(function () {
+                console.log("preLoadedFastSelectTimer");
+                setFastSelectTimer(settingSaved);
+              });
+            } else if (sDay - Date.now() > 70 * 1000) {
+              nowState.preload = 1;
+              nowState.barPo = 0;
+              nowState.isFastSelectFinish = false;
+              upDateState();
+              if (typeof preLoadTimer != undefined) {
+                clearTimeout(preLoadTimer);
+              }
+              preLoadTimer = setTimeout(function () {
+                preLoadFastSelectTimer(settingSaved).then(function () {
+                  console.log("preLoadedFastSelectTimer");
+                  setFastSelectTimer(settingSaved);
+                });
+              }, sDay - Date.now() - 60 * 1000);
+            }
+          } else {
+            stopAllTimer();
           }
-          nowState.barPo = 0;
-          nowState.isFastSelectFinish = false;
-          upDateState();
-          preLoadFastSelectTimer(settingSaved).then(function () {
-            console.log("preLoadedFastSelectTimer");
-            setFastSelectTimer(settingSaved);
-          });
-        } else if (sDay - Date.now() > 70 * 1000) {
-          nowState.preload = 1;
-          nowState.barPo = 0;
-          nowState.isFastSelectFinish = false;
-          upDateState();
-          if (typeof preLoadTimer != undefined) {
-            clearTimeout(preLoadTimer);
-          }
-          preLoadTimer = setTimeout(function () {
-            preLoadFastSelectTimer(settingSaved).then(function () {
-              console.log("preLoadedFastSelectTimer");
-              setFastSelectTimer(settingSaved);
-            });
-          }, sDay - Date.now() - 60 * 1000);
-        }
-      } else {
-        stopAllTimer();
-      }
+        })
+        .catch(function (err) {
+          nowState = {
+            preload: 0,
+            fastSelect: [
+              [0, 0, 0],
+              [0, 0, 0],
+              [0, 0, 0],
+              [0, 0, 0],
+              [0, 0, 0],
+            ],
+            isFastSelectFinish: false,
+            preSelect: [0, 0, 0, 0, 0],
+            barPo: 0,
+            authKeyState: 0,
+            authKeyDate: 0,
+          };
+          check_LastNtp();
+          console.log(err);
+          settingSaved["activate"] = false;
+          fs.writeFile(
+            "./src/data/setting.json",
+            JSON.stringify(settingSaved),
+            function (err) {
+              if (err) {
+                console.log(err);
+              } else {
+                console.log("make new setting file complete.");
+              }
+            }
+          );
+        });
     })
     .catch(function (error) {
       console.log(error);
@@ -532,7 +584,10 @@ async function stopAllTimer() {
     isFastSelectFinish: false,
     preSelect: [0, 0, 0, 0, 0],
     barPo: 0,
+    authKeyState: 0,
+    authKeyDate: "",
   };
+  check_LastNtp();
   upDateState();
   console.log("launchCancel");
 }
@@ -640,8 +695,163 @@ async function stopPreSelectPageAction() {
   if (preSelectPageTimer != undefined) clearInterval(preSelectPageTimer);
   nowState.preSelect = [0, 0, 0, 0, 0];
 }
+async function check() {
+  return new Promise(function (resolve, reject) {
+    getNTPTime()
+      .then(function (timeDiff) {
+        if (Math.abs(timeDiff) <= 3600000) {
+          let settingPromise = new Promise(function (resolve, reject) {
+            console.log(1);
+            fs.readFile("./src/data/setting.json", function (err, settingData) {
+              if (err) {
+                console.log("no setting make new file");
+                reject(err);
+              } else {
+                console.log("load setting");
+                //將二進制數據轉換為字串符
+                settingData = settingData.toString();
+                resolve(settingData);
+              }
+            });
+          });
+          settingPromise
+            .then(function (settingData) {
+              settingSaved = JSON.parse(settingData);
+              let sDay = Date.parse(settingSaved["selectStartDate"]);
+              const myPublic = fs.readFileSync(
+                "./src/pem/myPublic.pem",
+                "utf8"
+              );
+              const userPrivate = fs.readFileSync(
+                "./src/pem/userPrivate.pem",
+                "utf8"
+              );
+              let key = settingSaved["key"];
+              const enc = Buffer.from(key.substring(0, 172), "base64");
+              const signature = Buffer.from(
+                key.substring(172, key.length),
+                "base64"
+              );
+              const isValid = verify("sha256", enc, myPublic, signature);
+              if (isValid) {
+                const dec = privateDecrypt(userPrivate, enc);
+                let keyDateString = dec.toString();
+                console.log(">>>>>>>>>" + keyDateString);
+                const [id, date] = keyDateString.split(",");
+                nowState.authKeyDate = date;
+                if (id == userId) {
+                  if (Date.parse(date) - sDay > 0) {
+                    nowState.authKeyState = 4;
+                    upDateState();
+                    resolve();
+                  } else {
+                    nowState.authKeyState = 2;
+                    upDateState();
+                    reject();
+                  }
+                } else {
+                  nowState.authKeyState = 3;
+                  upDateState();
+                  reject();
+                }
+              } else {
+                nowState.authKeyState = 0;
+                upDateState();
+                reject();
+              }
+            })
+            .catch(function (err) {
+              nowState.authKeyState = 0;
+              upDateState();
+              reject();
+            });
+        } else {
+          nowState.authKeyState = 1;
+          upDateState();
+          reject();
+        }
+      })
+      .catch(function (err) {
+        console.log(err);
+        nowState.authKeyState = -1;
+        upDateState();
+        reject();
+      });
+  });
+}
+async function check_LastNtp() {
+  if (lastTimeDiff != null) {
+    if (Math.abs(lastTimeDiff) <= 3600000) {
+      let settingPromise = new Promise(function (resolve, reject) {
+        console.log(1);
+        fs.readFile("./src/data/setting.json", function (err, settingData) {
+          if (err) {
+            console.log("no setting make new file");
+            reject(err);
+          } else {
+            console.log("load setting");
+            //將二進制數據轉換為字串符
+            settingData = settingData.toString();
+            resolve(settingData);
+          }
+        });
+      });
+      settingPromise
+        .then(function (settingData) {
+          settingSaved = JSON.parse(settingData);
+          let sDay = Date.parse(settingSaved["selectStartDate"]);
+          const myPublic = fs.readFileSync("./src/pem/myPublic.pem", "utf8");
+          const userPrivate = fs.readFileSync(
+            "./src/pem/userPrivate.pem",
+            "utf8"
+          );
+          let key = settingSaved["key"];
+          const enc = Buffer.from(key.substring(0, 172), "base64");
+          const signature = Buffer.from(
+            key.substring(172, key.length),
+            "base64"
+          );
+          const isValid = verify("sha256", enc, myPublic, signature);
+          if (isValid) {
+            const dec = privateDecrypt(userPrivate, enc);
+            let keyDateString = dec.toString();
+            console.log(">>>>>>>>>" + keyDateString);
+            const [id, date] = keyDateString.split(",");
+            nowState.authKeyDate = date;
+            if (id == userId) {
+              if (Date.parse(date) - sDay > 0) {
+                nowState.authKeyState = 4;
+                upDateState();
+              } else {
+                nowState.authKeyState = 2;
+                upDateState();
+              }
+            } else {
+              nowState.authKeyState = 3;
+              upDateState();
+            }
+          } else {
+            nowState.authKeyState = 0;
+            upDateState();
+          }
+        })
+        .catch(function (err) {
+          nowState.authKeyState = 0;
+          upDateState();
+        });
+    } else {
+      nowState.authKeyState = 1;
+      upDateState();
+    }
+  } else {
+    console.log("lastTimeDiff too large");
+    nowState.authKeyState = -1;
+    upDateState();
+  }
+}
 ipc.on("getNowState", async function (e) {
   upDateState();
+  check_LastNtp();
 });
 ipc.on("stopPreSelectPageTimer", async function (e) {
   stopPreSelectPageAction();
