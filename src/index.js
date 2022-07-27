@@ -498,4 +498,6 @@ ipc.on("getTTUInternetStatus", async function () {
       console.log(err);
     });
 });
-//npm start
+ipc.on("getUserData", async function () {
+  win.webContents.send("updateUserData", user);
+});

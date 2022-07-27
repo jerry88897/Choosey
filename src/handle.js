@@ -18,7 +18,17 @@ const preSelectClass = document.getElementById("preSelectClass");
 const fastSelectClass = document.getElementById("fastSelectClass");
 const setting = document.getElementById("setting");
 
-window.addEventListener("load", ipc.send("getControlCenter"), false);
+window.addEventListener(
+  "load",
+  function () {
+    ipc.send("getControlCenter");
+    ipc.send("getUserData");
+  },
+  false
+);
+
+let userName = "";
+let userClassAndNo = "";
 
 let _second = 1000;
 let _minute = _second * 60;
@@ -3069,6 +3079,15 @@ async function showSetting() {
   });
 }
 
+async function updateUserData(userData) {
+  let userName = document.getElementById("userName");
+  let userClassAndNo = document.getElementById("userClassAndNo");
+  if (userData.name !== "") {
+    userName.innerText = userData.name;
+    userClassAndNo.innerText = userData.id;
+  }
+}
+
 preSelectClass.addEventListener("click", async function () {
   isInPreSelectPage = true;
   updateTime();
@@ -3202,4 +3221,7 @@ ipc.on("updateTTUInternetStatus", function (evt, data) {
 ipc.on("preSelectPagePlay", function () {
   updateControlCenterState();
   console.log("updateControlCenterState");
+});
+ipc.on("updateUserData", function (evt, userData) {
+  updateUserData(userData);
 });

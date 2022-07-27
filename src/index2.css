@@ -35,6 +35,10 @@
   --small-font-size: 0.9rem;
 }
 
+img {
+  -webkit-user-drag: none;
+}
+
 body {
   overflow: hidden;
   user-select: none;
@@ -109,7 +113,7 @@ header ul li a {
 }
 
 .sidebar.open {
-  width: 172px;
+  width: 170px;
 }
 
 .sidebar .logo-details {
@@ -288,7 +292,7 @@ header ul li a {
 .sidebar li.profile {
   position: fixed;
   height: 60px;
-  width: 78px;
+  width: 80px;
   left: 0;
   bottom: -8px;
   background: #1d1b31;

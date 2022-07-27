@@ -165,10 +165,10 @@ function checkToRestartTimer() {
   settingPromise
     .then(function (settingData) {
       //將字符串轉換為 JSON 對象
-      settingSaved = JSON.parse(settingData);
-      let sDay = Date.parse(settingSaved["selectStartDate"]);
       check()
         .then(function () {
+          settingSaved = JSON.parse(settingData);
+          let sDay = Date.parse(settingSaved["selectStartDate"]);
           nowState.authKeyState = 4;
           upDateState();
           if (settingSaved["activate"] == true) {
@@ -212,6 +212,7 @@ function checkToRestartTimer() {
           }
         })
         .catch(function (err) {
+          settingSaved = JSON.parse(settingData);
           nowState = {
             preload: 0,
             fastSelect: [
@@ -225,7 +226,7 @@ function checkToRestartTimer() {
             preSelect: [0, 0, 0, 0, 0],
             barPo: 0,
             authKeyState: 0,
-            authKeyDate: 0,
+            authKeyDate: "",
           };
           check_LastNtp();
           console.log(err);
