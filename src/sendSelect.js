@@ -18,7 +18,7 @@ async function sendFastSelect(data, number) {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        "http://10.40.60.202/",
+        "http://10.40.60.201/",
         //"https://www.google.com",
         {
           headers: {

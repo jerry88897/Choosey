@@ -52,59 +52,64 @@ async function updatedClassState() {
     let parserNowPoint = parser.pointParser(getNowPoint);
     parserNowPoint.then(function (point) {
       point = parseInt(parseFloat(point) * 10);
-      let readFileProm = new Promise(function (resolve, reject) {
-        fs.readFile("./src/data/PreSelectPage.json", function (err, classList) {
-          if (err) {
-          } else {
-            classList = classList.toString();
-            classList = JSON.parse(classList);
-            updatedClass = classList;
-            for (let i = 0; i < classList.length; i++) {
-              allPromise.push(
-                new Promise(function (resolve, reject) {
-                  let response = getWeb.GetClassClass(
-                    depNo.get(classList[i]["DepNo"]),
-                    classList[i]["SelClassNo"]
-                  );
-                  let watchClass = parser.classClassParser(
-                    response,
-                    classList[i]["DepNo"],
-                    classList[i]["SelClassNo"]
-                  );
-                  watchClass.then(function (data) {
-                    for (let j = 0; j < data.length; j++) {
-                      if (data[j]["id"] === classList[i]["id"]) {
-                        updatedClass[i]["action"] = data[j]["action"];
-                        updatedClass[i]["student"] = data[j]["student"];
-                        updatedClass[i]["overflow"] = data[j]["overflow"];
-                        resolve(i);
-                        break;
-                      }
-                    }
-                  });
-                })
-              );
-              if (i == classList.length - 1) resolve();
-            }
-          }
-        });
-      });
-      readFileProm.then(function () {
-        Promise.all(allPromise).then(function () {
-          fs.writeFile(
+      if (isNaN(point)) {
+        let readFileProm = new Promise(function (resolve, reject) {
+          fs.readFile(
             "./src/data/PreSelectPage.json",
-            JSON.stringify(updatedClass),
-            function (err) {
+            function (err, classList) {
               if (err) {
-                console.error(err);
               } else {
-                resolve();
-                console.log("write classFile...");
+                classList = classList.toString();
+                classList = JSON.parse(classList);
+                updatedClass = classList;
+                for (let i = 0; i < classList.length; i++) {
+                  allPromise.push(
+                    new Promise(function (resolve, reject) {
+                      let response = getWeb.GetClassClass(
+                        depNo.get(classList[i]["DepNo"]),
+                        classList[i]["SelClassNo"]
+                      );
+                      let watchClass = parser.classClassParser(
+                        response,
+                        classList[i]["DepNo"],
+                        classList[i]["SelClassNo"]
+                      );
+                      watchClass.then(function (data) {
+                        for (let j = 0; j < data.length; j++) {
+                          if (data[j]["id"] === classList[i]["id"]) {
+                            updatedClass[i]["action"] = data[j]["action"];
+                            updatedClass[i]["student"] = data[j]["student"];
+                            updatedClass[i]["overflow"] = data[j]["overflow"];
+                            resolve(i);
+                            break;
+                          }
+                        }
+                      });
+                    })
+                  );
+                  if (i == classList.length - 1) resolve();
+                }
               }
             }
           );
         });
-      });
+        readFileProm.then(function () {
+          Promise.all(allPromise).then(function () {
+            fs.writeFile(
+              "./src/data/PreSelectPage.json",
+              JSON.stringify(updatedClass),
+              function (err) {
+                if (err) {
+                  console.error(err);
+                } else {
+                  resolve();
+                  console.log("write classFile...");
+                }
+              }
+            );
+          });
+        });
+      }
     });
   });
 }

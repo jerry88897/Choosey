@@ -37,6 +37,7 @@ let preLoadTimer;
 let preLoadClass = [];
 let fastSelectTimer = [];
 let fastSelectReportCount = 0;
+let noFastSelectTimer;
 let repeatSelectTimer;
 let repeatSelectInterval;
 let intervalCount = 0;
@@ -72,9 +73,6 @@ module.exports = {
     stopAllTimer();
     return 0;
   },
-  deletPreSelectTimer: function () {
-    return deletPreSelectTimer();
-  },
   loadState: function () {
     loadState();
     return 0;
@@ -104,9 +102,9 @@ module.exports = {
     return 0;
   },
   upDatePreSelectPageReport: function (add, remove, miss) {
-    nowState.preSelect[1] = add;
-    nowState.preSelect[2] = remove;
-    nowState.preSelect[3] = miss;
+    nowState.preSelect[2] = add;
+    nowState.preSelect[3] = remove;
+    nowState.preSelect[4] = miss;
     upDateState();
     return 0;
   },
@@ -247,7 +245,7 @@ function checkToRestartTimer() {
       console.log(error);
     });
 }
-async function preLoadFastSelectTimer(settingSaved) {
+function preLoadFastSelectTimer(settingSaved) {
   return new Promise(function (resolve, reject) {
     nowState.preload = 2;
     nowState.preSelect[0] = 2;
@@ -280,7 +278,10 @@ async function preLoadFastSelectTimer(settingSaved) {
         let sDay = Date.parse(settingSaved["selectStartDate"]);
         for (let i = 0; i < fastSelectList["fastSelectBlock"].length; i++) {
           let classString = "";
-          if (fastSelectList["fastSelectBlock"][i]["enable"] == true) {
+          if (
+            fastSelectList["fastSelectBlock"][i]["enable"] == true &&
+            fastSelectList["fastSelectBlock"][i]["list"].length != 0
+          ) {
             let classCount = 0;
             for (
               let j = 0;
@@ -421,129 +422,13 @@ function setFastSelectTimer(settingSaved) {
         }, sDay - Date.now());
       }
     }
-  });
-}
-async function setPreSelectTimer(getWeb) {
-  let readPreSelect = new Promise(function (resolve, reject) {
-    fs.readFile(
-      "./src/data/preSelect.json",
-      function (err, preSelectListSaved) {
-        if (err) {
-          console.log(err);
-          reject();
-        } else {
-          console.log("load PRS");
-          //將二進制數據轉換為字串符
-          preSelectListSaved = preSelectListSaved.toString();
-          //將字符串轉換為 JSON 對象
-          preSelectList = JSON.parse(preSelectListSaved);
-          resolve("success");
-        }
-      }
-    );
-  });
-  let readSetting = new Promise(function (resolve, reject) {
-    fs.readFile("./src/data/setting.json", function (err, settingSaved) {
-      if (err) {
-        console.log(err);
-        reject();
-      } else {
-        console.log("load setting");
-        //將二進制數據轉換為字串符
-        settingSaved = settingSaved.toString();
-        //將字符串轉換為 JSON 對象
-        setting = JSON.parse(settingSaved);
-        resolve("success");
-      }
-    });
-  });
-  Promise.all([readPreSelect, readSetting]).then(() => {
-    console.log("setting time");
-    let sDay = Date.parse(setting["selectStartDate"]);
-    let leftTime = sDay - Date.now();
-    for (let i = 0; i < 4; i++) {
-      if (preSelectList["preSelectBlock"][i].enable == true) {
-        console.log("set");
-        allTimer.push(
-          setTimeout(function () {
-            console.log(i);
-            sender.setCookie(getWeb.getCookie());
-            if (preSelectList["preSelectBlock"][i]["list"][0].length > 2) {
-              console.log(
-                "send" +
-                  preSelectList["preSelectBlock"][i]["list"][0].replace(
-                    /[\r\n]+/gm,
-                    "%0D%0A"
-                  )
-              );
-              sender.sendFastSelect(
-                preSelectList["preSelectBlock"][i]["list"][0].replace(
-                  /[\r\n]+/gm,
-                  "%0D%0A"
-                )
-              );
-            }
-            if (preSelectList["preSelectBlock"][i]["list"][1].length > 2) {
-              console.log(
-                "send" +
-                  preSelectList["preSelectBlock"][i]["list"][1].replace(
-                    /[\r\n]+/gm,
-                    "%0D%0A"
-                  )
-              );
-              sender.sendFastSelect(
-                preSelectList["preSelectBlock"][i]["list"][1].replace(
-                  /[\r\n]+/gm,
-                  "%0D%0A"
-                )
-              );
-            }
-          }, leftTime + preSelectList["preSelectBlock"][i].trigger * 1000)
-        );
-      }
-    }
-    if (preSelectList["preSelectBlock"][4].enable == true) {
-      console.log("set");
-      allTimer.push(
-        setTimeout(function () {
-          resendTimer = setInterval(function () {
-            sender.setCookie(getWeb.getCookie());
-            console.log(
-              "send" +
-                preSelectList["preSelectBlock"][4]["list"][0].replace(
-                  /[\r\n]+/gm,
-                  "%0D%0A"
-                )
-            );
-            let senderPromise = sender.sendFastSelectResend(
-              preSelectList["preSelectBlock"][4]["list"][0].replace(
-                /[\r\n]+/gm,
-                "%0D%0A"
-              ),
-              preSelectList["preSelectBlock"][4].trigger * 1000
-            );
-            senderPromise
-              .then(function () {
-                clearInterval(resendTimer);
-                console.log("accecp");
-              })
-              .catch((fail) => {
-                console.log("try again");
-              });
-          }, preSelectList["preSelectBlock"][4].trigger * 1000);
-        }, leftTime)
-      );
+    if (preLoadClass.length == 0) {
+      noFastSelectTimer = setTimeout(function () {
+        checkIfFastSelectFinish();
+      }, sDay - Date.now());
+      resolve();
     }
   });
-}
-
-async function deletPreSelectTimer() {
-  await clearTimer();
-
-  try {
-    clearInterval(resendTimer);
-  } catch (error) {}
-  allTimer = [];
 }
 async function checkIfFastSelectFinish() {
   if (preLoadClass.length == fastSelectReportCount) {
