@@ -121,7 +121,6 @@ async function updatedClassState() {
 }
 async function patrolActionPerformed() {
   return new Promise((resolve, reject) => {
-    //preSelectPageTimer = setInterval(function () {
     let allPromise = [];
     let lastPromise;
     let updatedClass;
@@ -129,8 +128,7 @@ async function patrolActionPerformed() {
     let parserNowPoint = parser.pointParser(getNowPoint);
     parserNowPoint.then(function (point) {
       point = parseInt(parseFloat(point) * 10);
-      //if (!isNaN(point)) {
-      if (isNaN(point)) {
+      if (!isNaN(point)) {
         let spacePoint = maxPoint - point;
         let readFileProm = new Promise(function (resolve, reject) {
           fs.readFile(
@@ -224,8 +222,8 @@ async function patrolActionPerformed() {
                   updatedClass[item]["overflow"] === false &&
                   spacePoint < updatedClass[item]["point"]
                 ) {
-                  let tryCount = tryAddHistory.get(waitToAdd[i]["id"]);
-                  if (typeof tryCount == undefined) {
+                  let tryCount = tryAddHistory.get(updatedClass[item]["id"]);
+                  if (typeof tryCount == "undefined") {
                     tryCount = 0;
                   }
                   if (tryCount < 3) {
@@ -242,7 +240,7 @@ async function patrolActionPerformed() {
                     }
                   } else if (tryCount == 3) {
                     addMiss++;
-                    tryAddHistory.set(waitToAdd[i]["id"], tryCount + 1);
+                    tryAddHistory.set(waitToAdd[item]["id"], tryCount + 1);
                   }
                 } else if (
                   updatedClass[item]["action"] === 2 &&
@@ -286,14 +284,15 @@ async function patrolActionPerformed() {
                         waitToRemove.shift();
                       }
                       let tryCount = tryAddHistory.get(waitToAdd[i]["id"]);
-                      if (typeof tryCount == undefined) {
+                      if (typeof tryCount == "undefined") {
                         tryCount = 0;
                       }
                       tryCount++;
                       tryAddHistory.set(waitToAdd[i]["id"], tryCount);
                       Promise.all(delClassPromise).then(function () {
-                        point += waitToAdd[i]["point"];
                         getWeb.sendAddClass(waitToAdd[i]["id"]);
+                        point -= retreatPoint;
+                        point += waitToAdd[i]["point"];
                         selectActionCount++;
                       });
                       break;
@@ -343,7 +342,7 @@ async function patrolActionPerformed() {
                         waitToRemove.unshift(freeClass[k]);
                       }
                       let tryCount = tryAddHistory.get(waitToAdd[i]["id"]);
-                      if (typeof tryCount == undefined) {
+                      if (typeof tryCount == "undefined") {
                         tryCount = 0;
                       }
                       tryCount++;

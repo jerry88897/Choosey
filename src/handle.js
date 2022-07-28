@@ -2320,7 +2320,6 @@ let shadow;
 
 let showpreSelectClassType = 0;
 let preSelectClassPageReady = false;
-let preSelectClassPagePlay = false;
 async function preSelectClassPage() {
   await cleanFrame();
   let areaSettingJson;
@@ -2341,16 +2340,16 @@ async function preSelectClassPage() {
     let trArray = [];
     if (err) {
       console.log(err);
-      myclass = "[]";
+      myClass = "[]";
       //將字符串轉換為 JSON 對象
       try {
-        myclass = JSON.parse(myclass);
+        myClass = JSON.parse(myClass);
       } catch (error) {}
     } else {
-      myclass = myClass.toString();
+      myClass = myClass.toString();
       //將字符串轉換為 JSON 對象
       try {
-        myclass = JSON.parse(myclass);
+        myClass = JSON.parse(myClass);
       } catch (error) {}
     }
     let areaSetting = new Promise(function (resolve, reject) {
@@ -2391,7 +2390,7 @@ async function preSelectClassPage() {
           tHead.appendChild(th);
         }
         table.appendChild(tHead);
-        for (let element of myclass) {
+        for (let element of myClass) {
           tr = table.insertRow(-1);
           tr.className = "mtr";
           tr.setAttribute("draggable", "true");
@@ -2513,7 +2512,7 @@ async function preSelectClassPage() {
           tr.className = "mBtr";
           trSet.push(tdSet);
         }
-        for (let element of myclass) {
+        for (let element of myClass) {
           for (let time of element["time"]) {
             let day = time.day + 1;
             let seg = time.seg;
@@ -2584,7 +2583,7 @@ async function preSelectClassPage() {
           "click",
           async function () {
             console.log("remove");
-            ipc.send("preSelectPageRemoveClass", myclass[preSelectButton]);
+            ipc.send("preSelectPageRemoveClass", myClass[preSelectButton]);
           }
         );
       }
@@ -2656,7 +2655,7 @@ async function preSelectClassPage() {
         let classLockList = document.getElementsByClassName("classLock");
         let newSave = [];
         for (let i = 0; i < classList.length; i++) {
-          for (let element of myclass) {
+          for (let element of myClass) {
             if (element.id === classList[i].innerHTML) {
               element.isLock = classLockList[i].classList.contains("isLock");
               newSave.push(element);
@@ -2883,20 +2882,28 @@ async function updateTime() {
     let sDay = Date.parse(setting["selectStartDate"]);
     if (sDay > Date.now()) {
       function titleCountDownF() {
-        let start = Date.now();
-        let leftTime = sDay - Date.now();
-        let days = Math.floor(leftTime / _day);
-        leftTime -= days * _day;
-        let hours = Math.floor(leftTime / _hour);
-        leftTime -= hours * _hour;
-        let minutes = Math.floor(leftTime / _minute);
-        leftTime -= minutes * _minute;
-        let seconds = Math.floor(leftTime / _second);
-        document.getElementById("leftDay").innerHTML = days;
-        document.getElementById("leftHour").innerHTML = hours;
-        document.getElementById("leftMinute").innerHTML = minutes;
-        document.getElementById("leftSecond").innerHTML = seconds;
-        //console.log(days + "d" + hours + "h" + minutes + "m" + seconds + "s");
+        if (sDay > Date.now()) {
+          let start = Date.now();
+          let leftTime = sDay - Date.now();
+          let days = Math.floor(leftTime / _day);
+          leftTime -= days * _day;
+          let hours = Math.floor(leftTime / _hour);
+          leftTime -= hours * _hour;
+          let minutes = Math.floor(leftTime / _minute);
+          leftTime -= minutes * _minute;
+          let seconds = Math.floor(leftTime / _second);
+          document.getElementById("leftDay").innerHTML = days;
+          document.getElementById("leftHour").innerHTML = hours;
+          document.getElementById("leftMinute").innerHTML = minutes;
+          document.getElementById("leftSecond").innerHTML = seconds;
+          //console.log(days + "d" + hours + "h" + minutes + "m" + seconds + "s");
+        } else {
+          document.getElementById("leftDay").innerHTML = "-";
+          document.getElementById("leftHour").innerHTML = "-";
+          document.getElementById("leftMinute").innerHTML = "-";
+          document.getElementById("leftSecond").innerHTML = "-";
+          clearInterval(titleCountDownTimer);
+        }
       }
       titleCountDownF();
       titleCountDownTimer = setInterval(function () {

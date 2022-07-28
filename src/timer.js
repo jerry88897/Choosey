@@ -377,7 +377,7 @@ function setFastSelectTimer(settingSaved) {
           intervalCount = 0;
           sender.setCookie(getWeb.getCookie());
           repeatSelectInterval = setInterval(function () {
-            if (intervalCount < 10) {
+            if (intervalCount < 50) {
               console.log("To" + intervalCount);
               repeatSelectPromise.push(
                 sender.sendFastSelect(
@@ -546,7 +546,7 @@ async function checkToStartPreSelectPageAction() {
           nowState.preSelect[1]++;
         }
         upDateState();
-      }, 1000);
+      }, 600000);
       nowState.preSelect[0] = 3;
       upDateState();
     } else {
