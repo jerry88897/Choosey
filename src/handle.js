@@ -2600,6 +2600,7 @@ async function preSelectClassPage() {
         preSelectClassPage();
       });
       reFreshDiv.addEventListener("click", async function () {
+        loadingLogo();
         ipc.send("updatePreSelectClassInfo");
       });
       readyDiv.addEventListener("click", async function () {
@@ -3047,6 +3048,9 @@ async function updateUserData(userData) {
     userClassAndNo.innerText = userData.id;
   }
 }
+function loadingLogo() {
+  main_frame.innerHTML = `<img class="loadingLogo" src="./icon/iconSquare.png" />`;
+}
 
 preSelectClass.addEventListener("click", async function () {
   isInPreSelectPage = true;
@@ -3066,6 +3070,7 @@ controlCenter.addEventListener("click", async function () {
   ipc.send("getControlCenter");
 });
 classClass.addEventListener("click", async function () {
+  loadingLogo();
   isInPreSelectPage = false;
   ipc.send("getClassClass", SelDepNo, SelClassNo);
   updateTime();
@@ -3073,6 +3078,7 @@ classClass.addEventListener("click", async function () {
   console.log("getClassClass");
 });
 generalClass.addEventListener("click", async function () {
+  loadingLogo();
   isInPreSelectPage = false;
   ipc.send("getGeneralClass");
   updateTime();
