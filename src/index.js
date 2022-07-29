@@ -271,67 +271,6 @@ ipc.on("getClassClass", async function (e, SelDepNo, SelClassNo) {
     .catch((fail) => {
       console.log(fail);
     });
-
-  // myClass
-  //   .then(async function (success) {
-  //     allMyClass = success;
-  //     for (let i = 0; i < allMyClass.length; i++) {
-  //       //for (let i = 0; i < 2; i++) {
-  //       allPromise.push(
-  //         new Promise(function (resolve, reject) {
-  //           console.log("parser RE " + allMyClass[i]["id"]);
-  //           response = getWeb.getMyClassDate(allMyClass[i]["id"]);
-  //           let addClassTime = parser.myClassDateParser(response);
-  //           addClassTime
-  //             .then(async function (success) {
-  //               allMyClass[i]["time"] = success;
-  //               console.log("111111");
-  //               resolve();
-  //             })
-  //             .catch((fail) => {
-  //               console.log(fail);
-  //             });
-  //         })
-  //       );
-  //     }
-  //   })
-  //   .then((success) => {
-  //     Promise.all(allPromise).then(function (values) {
-  //       console.log("2222222");
-  //       let makeFilePromise = makeJson.ClassClassToJson(allMyClass);
-  //       makeFilePromise
-  //         .then(async function (success) {
-  //           classClassListparser
-  //             .then(async function (data) {
-  //               let selected = data[data.length - 1];
-  //               data.pop();
-  //               if (typeof selected == "undefined") {
-  //                 selected = data[0];
-  //               }
-  //               win.webContents.send(
-  //                 "readyToShowClassClass",
-  //                 SelDepNo,
-  //                 selected,
-  //                 data
-  //               );
-  //               console.log("readyToShowClassClass");
-  //             })
-  //             .catch((fail) => {
-  //               console.log(fail);
-  //             });
-  //         })
-  //         .catch((fail) => {
-  //           console.log(fail);
-  //         });
-
-  //       let currentPath = process.cwd();
-  //       console.log("@@" + currentPath);
-  //       win.webContents.send("appLocat", currentPath);
-  //     });
-  //   })
-  //   .catch((fail) => {
-  //     console.log(fail);
-  //   });
 });
 ipc.on("getGeneralClass", async function (e) {
   console.log("getGeneralClass");
@@ -505,4 +444,18 @@ ipc.on("updatePreSelectClassInfo", async function () {
   preSelectPageAction.updatedClassState().then(function () {
     win.webContents.send("updatePreSelectClassInfo", user);
   });
+});
+ipc.on("doToThisClass", async function (e, data, page) {
+  let [action, id] = data.split("_");
+  if (action == "s") {
+    getWeb.sendAddClass(id).then(function () {
+      win.webContents.send("reLoadPage", page);
+      console.log("add" + id);
+    });
+  } else if (action == "d") {
+    getWeb.sendDelClass(id).then(function () {
+      win.webContents.send("reLoadPage", page);
+      console.log("des" + id);
+    });
+  }
 });

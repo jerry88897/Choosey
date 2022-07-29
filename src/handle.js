@@ -1323,6 +1323,7 @@ async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
   SelDepNo = SelectedDepNo;
   SelClassNo = SelectedClassNo;
   backclassList = classList;
+  let selectThisClassButton = [];
   let actionDiv = document.createElement("div");
   let table = document.createElement("table");
   let tHead = document.createElement("thead");
@@ -1421,8 +1422,12 @@ async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
               "src",
               "./icon/add_circle_outline_white_24dp.svg"
             );
+            selectThisClassDiv.setAttribute("id", "s_" + element[tableKey[1]]);
+            selectThisClassButton.push(selectThisClassDiv);
           } else if (element[tableKey[0]] == 2) {
             selectThisClass.setAttribute("src", "./icon/cancel_white_24dp.svg");
+            selectThisClassDiv.setAttribute("id", "d_" + element[tableKey[1]]);
+            selectThisClassButton.push(selectThisClassDiv);
           } else {
             selectThisClassDiv.setAttribute("class", "classNoActionDiv");
             selectThisClass.setAttribute(
@@ -1651,6 +1656,11 @@ async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
           ipc.send("getClassClass", SelDepNo, element.id);
         });
       }
+      for (let element of selectThisClassButton) {
+        element.addEventListener("click", async function () {
+          ipc.send("doToThisClass", this.id, "cc");
+        });
+      }
       viewTypeDiv.addEventListener("click", async function () {
         console.log("change");
         if (showClassClassType == 0) {
@@ -1667,6 +1677,7 @@ async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
 }
 async function showGeneralClass() {
   await cleanFrame();
+  let selectThisClassButton = [];
   let actionDiv = document.createElement("div");
   let table = document.createElement("table");
   let tHead = document.createElement("thead");
@@ -1729,8 +1740,12 @@ async function showGeneralClass() {
               "src",
               "./icon/add_circle_outline_white_24dp.svg"
             );
+            selectThisClassDiv.setAttribute("id", "s_" + element[tableKey[1]]);
+            selectThisClassButton.push(selectThisClassDiv);
           } else if (element[tableKey[0]] == 2) {
             selectThisClass.setAttribute("src", "./icon/cancel_white_24dp.svg");
+            selectThisClassDiv.setAttribute("id", "d_" + element[tableKey[1]]);
+            selectThisClassButton.push(selectThisClassDiv);
           } else {
             selectThisClassDiv.setAttribute("class", "classNoActionDiv");
             selectThisClass.setAttribute(
@@ -1878,6 +1893,11 @@ async function showGeneralClass() {
             }
           }
         );
+      }
+      for (let element of selectThisClassButton) {
+        element.addEventListener("click", async function () {
+          ipc.send("doToThisClass", this.id, "gc");
+        });
       }
       viewTypeDiv.addEventListener("click", async function () {
         console.log("change");
@@ -2322,6 +2342,7 @@ let showpreSelectClassType = 0;
 let preSelectClassPageReady = false;
 async function preSelectClassPage() {
   await cleanFrame();
+  let selectThisClassButton = [];
   let areaSettingJson;
   let table = document.createElement("table");
   let tHead = document.createElement("thead");
@@ -2410,8 +2431,12 @@ async function preSelectClassPage() {
               "src",
               "./icon/add_circle_outline_white_24dp.svg"
             );
+            selectThisClassDiv.setAttribute("id", "s_" + element[tableKey[1]]);
+            selectThisClassButton.push(selectThisClassDiv);
           } else if (element[tableKey[0]] == 2) {
             selectThisClass.setAttribute("src", "./icon/cancel_white_24dp.svg");
+            electThisClassDiv.setAttribute("id", "d_" + element[tableKey[1]]);
+            selectThisClassButton.push(selectThisClassDiv);
           } else {
             selectThisClassDiv.setAttribute("class", "classNoActionDiv");
             selectThisClass.setAttribute(
@@ -2649,6 +2674,11 @@ async function preSelectClassPage() {
           saveImg.setAttribute("src", "./icon/bx-save.svg");
         });
       }
+      for (let element of selectThisClassButton) {
+        element.addEventListener("click", async function () {
+          ipc.send("doToThisClass", this.id, "pc");
+        });
+      }
       saveDiv.addEventListener("click", async function () {
         console.log("save");
         let classList = document.getElementsByClassName("candidate");
@@ -2689,6 +2719,7 @@ async function showMyClass() {
   await cleanFrame();
   await cleanRightFrame();
   showPreSelectClass();
+  let selectThisClassButton = [];
   let table = document.createElement("table");
   let tHead = document.createElement("thead");
   let actionDiv = document.createElement("div");
@@ -2730,8 +2761,12 @@ async function showMyClass() {
             "src",
             "./icon/add_circle_outline_white_24dp.svg"
           );
+          selectThisClassDiv.setAttribute("id", "s_" + element[tableKey[1]]);
+          selectThisClassButton.push(selectThisClassDiv);
         } else if (element[tableKey[0]] == 2) {
           selectThisClass.setAttribute("src", "./icon/cancel_white_24dp.svg");
+          selectThisClassDiv.setAttribute("id", "d_" + element[tableKey[1]]);
+          selectThisClassButton.push(selectThisClassDiv);
         } else {
           selectThisClassDiv.setAttribute("class", "classNoActionDiv");
           selectThisClass.setAttribute(
@@ -2830,6 +2865,11 @@ async function showMyClass() {
     let placeHolder = document.createElement("div");
     placeHolder.setAttribute("class", "placeHolder");
     main_frame.appendChild(placeHolder);
+    for (let element of selectThisClassButton) {
+      element.addEventListener("click", async function () {
+        ipc.send("doToThisClass", this.id, "mc");
+      });
+    }
     viewTypeDiv.addEventListener("click", async function () {
       console.log("change");
       if (showMyClassType == 0) {
@@ -3059,11 +3099,41 @@ function loadingLogo() {
   main_frame.innerHTML = `<img class="loadingLogo" src="./icon/iconSquare.png" />`;
 }
 
-preSelectClass.addEventListener("click", async function () {
+async function loadClassClass() {
+  loadingLogo();
+  isInPreSelectPage = false;
+  ipc.send("getClassClass", SelDepNo, SelClassNo);
+  updateTime();
+  showPreSelectClass();
+  console.log("getClassClass");
+}
+
+async function loadGeneralClass() {
+  loadingLogo();
+  isInPreSelectPage = false;
+  ipc.send("getGeneralClass");
+  updateTime();
+  showPreSelectClass();
+  console.log("getGeneralClass");
+}
+
+async function loadMyClass() {
+  loadingLogo();
+  isInPreSelectPage = false;
+  ipc.send("getMyClass");
+  updateTime();
+  console.log("getMyClass");
+}
+
+async function loadPreSelectClassPage() {
   isInPreSelectPage = true;
   updateTime();
   preSelectClassPage();
   showPreSelectClassAtPreSelectPage();
+}
+
+preSelectClass.addEventListener("click", async function () {
+  loadPreSelectClassPage();
 });
 fastSelectClass.addEventListener("click", async function () {
   isInPreSelectPage = false;
@@ -3076,38 +3146,15 @@ controlCenter.addEventListener("click", async function () {
   isInPreSelectPage = false;
   ipc.send("getControlCenter");
 });
-classClass.addEventListener("click", async function () {
-  loadingLogo();
-  isInPreSelectPage = false;
-  ipc.send("getClassClass", SelDepNo, SelClassNo);
-  updateTime();
-  showPreSelectClass();
-  console.log("getClassClass");
+classClass.addEventListener("click", function () {
+  loadClassClass();
 });
 generalClass.addEventListener("click", async function () {
-  loadingLogo();
-  isInPreSelectPage = false;
-  ipc.send("getGeneralClass");
-  updateTime();
-  showPreSelectClass();
-  console.log("getGeneralClass");
+  loadGeneralClass();
 });
 
 getMyClass.addEventListener("click", async function () {
-  isInPreSelectPage = false;
-  ipc.send("getMyClass");
-  updateTime();
-  console.log("getMyClass");
-  //showMyClass();
-  /*tableSwitch.addEventListener('click', async function () {
-        console.log(tableSwitch.checked);
-        myClassTableType = tableSwitch.checked;
-        if (myClassTableType == false) {
-
-        } else {
-
-        }
-    })*/
+  loadMyClass();
 });
 
 setting.addEventListener("click", async function () {
@@ -3168,11 +3215,6 @@ ipc.on("readyToShow", function (evt, myClass) {
   showMyClass();
 });
 
-// menu.addEventListener('click', async function () {
-//     sidebar.classList.toggle("active");
-//     console.log("open");
-// })
-
 ipc.on("myClass", function (evt, myClass) {
   console.log(myClass);
   main_frame.innerHTML = myClass;
@@ -3201,4 +3243,16 @@ ipc.on("updateUserData", function (evt, userData) {
 ipc.on("updatePreSelectClassInfo", function (evt, userData) {
   preSelectClassPage();
   showPreSelectClassAtPreSelectPage();
+});
+ipc.on("reLoadPage", function (evt, page) {
+  if (page == "cc") {
+    loadClassClass();
+  } else if (page == "gc") {
+    loadGeneralClass();
+  } else if (page == "mc") {
+    loadMyClass();
+  } else if (page == "pc") {
+    loadPreSelectClassPage();
+    console.log("loadPreSelectClassPage()");
+  }
 });
