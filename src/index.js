@@ -1,6 +1,8 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const { electron } = require("process");
+const fs = require("fs");
+const fsp = require("fs").promises;
 
 const { dialog } = require("electron");
 const ipc = require("electron").ipcMain;
@@ -15,6 +17,8 @@ const fastSelect = require("./fastSelect");
 const iconv = require("iconv-lite");
 const { Console, time } = require("console");
 const screen = require("electron").screen;
+
+const fastSelectText = `{"isLock":false,"fastSelectBlock":[{"id":0,"enable":false,"trigger":0,"list":[]},{"id":1,"enable":false,"trigger":0,"list":[]},{"id":2,"enable":false,"trigger":0,"list":[]},{"id":3,"enable":false,"trigger":0,"list":[]},{"id":4,"enable":false,"trigger":0,"list":[]}]}`;
 
 let win;
 let user = {
@@ -89,7 +93,7 @@ const createWindow = () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on("ready", () => {
+app.on("ready", async function (e) {
   timer.loadState();
   let date = timer.getNTPTime();
   date
@@ -317,24 +321,27 @@ ipc.on("getGeneralClass", async function (e) {
       console.log(fail);
     });
 });
-ipc.on("addPreSelectClass", async function (e, preSelectThisClass) {
+ipc.on("addPreSelectClass", async function (e, preSelectThisClass, callFrom) {
   await preSelect.addPreSelectClass(preSelectThisClass);
-  win.webContents.send("updatePreSelectClass");
+  win.webContents.send("updatePreSelectClass", callFrom);
   console.log("addPreSelectClass");
 });
-ipc.on("removePreSelectClass", async function (e, removeThisClass) {
+ipc.on("removePreSelectClass", async function (e, removeThisClass, callFrom) {
   await preSelect.removePreSelectClass(removeThisClass);
-  win.webContents.send("updatePreSelectClass");
-});
-ipc.on("removePreSelectClassAndUpdate", async function (e, removeThisClass) {
-  await preSelect.removePreSelectClass(removeThisClass);
-  win.webContents.send("updatePreSelectClassAndMain");
+  win.webContents.send("updatePreSelectClass", callFrom);
 });
 ipc.on(
-  "preSelectPageRemovePreSelectClass",
-  async function (e, removeThisClass) {
+  "removePreSelectClassAndUpdate",
+  async function (e, removeThisClass, callFrom) {
     await preSelect.removePreSelectClass(removeThisClass);
-    win.webContents.send("updatePreSelectClassInPreSelectPage");
+    win.webContents.send("updatePreSelectClassAndMain", callFrom);
+  }
+);
+ipc.on(
+  "preSelectPageRemovePreSelectClass",
+  async function (e, removeThisClass, callFrom) {
+    await preSelect.removePreSelectClass(removeThisClass);
+    win.webContents.send("updatePreSelectClassInPreSelectPage", callFrom);
   }
 );
 ipc.on("preSelectPageRemoveClass", async function (e, removeThisClass) {

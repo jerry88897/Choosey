@@ -475,7 +475,7 @@ async function loadState() {
             }
           }
         );
-        resolve(nowState);
+        resolve(JSON.stringify(nowState));
       } else {
         console.log("load state");
         //將二進制數據轉換為字串符

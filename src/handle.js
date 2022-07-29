@@ -16,6 +16,7 @@ const generalClass = document.getElementById("generalClass");
 const getMyClass = document.getElementById("getMyClass");
 const preSelectClass = document.getElementById("preSelectClass");
 const fastSelectClass = document.getElementById("fastSelectClass");
+const info = document.getElementById("info");
 const setting = document.getElementById("setting");
 
 window.addEventListener(
@@ -905,7 +906,7 @@ async function updateControlCenterState(stateData) {
         "./src/data/PreSelectPageSetting.json",
         function (err, preSelectPageSettingSaved) {
           if (err) {
-            reject(err);
+            resolve(`{"isSet":false,"isPlay":false}`);
           } else {
             console.log("load FSS");
             //將二進制數據轉換為字串符
@@ -976,8 +977,7 @@ async function updateControlCenterState(stateData) {
       fs.readFile("./src/data/setting.json", function (err, settingData) {
         if (err) {
           console.log("no setting make new file");
-          stopAllTimer();
-          reject(err);
+          resolve(`"activate":false`);
         } else {
           console.log("load setting");
           //將二進制數據轉換為字串符
@@ -1320,6 +1320,7 @@ let backclassList;
 let showClassClassType = 0;
 async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
   await cleanFrame();
+  showPreSelectClass("cc");
   SelDepNo = SelectedDepNo;
   SelClassNo = SelectedClassNo;
   backclassList = classList;
@@ -1566,12 +1567,12 @@ async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
             let cart = document.getElementById(this.id.substring(1));
             if (this.id[0] === "1") {
               console.log("remove");
-              ipc.send("removePreSelectClass", myclass[preSelectButton]);
+              ipc.send("removePreSelectClass", myclass[preSelectButton], "cc");
               cart.src = "./icon/bx-cart-arrow-in.svg";
               this.id = "0" + this.id.substring(1);
             } else {
               console.log("add");
-              ipc.send("addPreSelectClass", myclass[preSelectButton]);
+              ipc.send("addPreSelectClass", myclass[preSelectButton], "cc");
               cart.src = "./icon/bx-cart-arrow-out.svg";
               this.id = "1" + this.id.substring(1);
             }
@@ -1677,6 +1678,7 @@ async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
 }
 async function showGeneralClass() {
   await cleanFrame();
+  showPreSelectClass("gc");
   let selectThisClassButton = [];
   let actionDiv = document.createElement("div");
   let table = document.createElement("table");
@@ -1882,12 +1884,12 @@ async function showGeneralClass() {
             let cart = document.getElementById(this.id.substring(1));
             if (this.id[0] === "1") {
               console.log("remove");
-              ipc.send("removePreSelectClass", myclass[preSelectButton]);
+              ipc.send("removePreSelectClass", myclass[preSelectButton], "gc");
               cart.src = "./icon/bx-cart-arrow-in.svg";
               this.id = "0" + this.id.substring(1);
             } else {
               console.log("add");
-              ipc.send("addPreSelectClass", myclass[preSelectButton]);
+              ipc.send("addPreSelectClass", myclass[preSelectButton], "gc");
               cart.src = "./icon/bx-cart-arrow-out.svg";
               this.id = "1" + this.id.substring(1);
             }
@@ -1913,7 +1915,7 @@ async function showGeneralClass() {
     });
   });
 }
-async function showPreSelectClass() {
+async function showPreSelectClass(callFrom) {
   await cleanRightFrame();
   let table = document.createElement("table");
   let tHead = document.createElement("thead");
@@ -1923,7 +1925,7 @@ async function showPreSelectClass() {
   fs.readFile("./src/data/shoppingCart.json", function (err, myClass) {
     let preSelectThisClassDivArray = [];
     if (err) {
-      return console.log(err);
+      myClass = "[]";
     }
     console.log("start");
     //將二進制數據轉換為字串符
@@ -2001,14 +2003,18 @@ async function showPreSelectClass() {
       preSelectThisClassDivArray[preSelectButton].addEventListener(
         "click",
         async function () {
-          console.log("remove");
-          ipc.send("removePreSelectClassAndUpdate", myclass[preSelectButton]);
+          console.log("remove" + callFrom);
+          ipc.send(
+            "removePreSelectClassAndUpdate",
+            myclass[preSelectButton],
+            callFrom
+          );
         }
       );
     }
     right_frame.appendChild(viewShoppingCartDiv);
     viewShoppingCartDiv.addEventListener("click", async function () {
-      showPreSelectClass();
+      showPreSelectClass(callFrom);
     });
   });
 }
@@ -2026,7 +2032,7 @@ async function showPreSelectClassAtPreSelectPage() {
     let myclass;
     if (err) {
       console.log(err);
-      myclass = "[]";
+      myClassData = "[]";
     } else {
       myclass = myClassData.toString();
     }
@@ -2149,7 +2155,8 @@ async function showPreSelectClassAtPreSelectPage() {
             console.log("remove");
             ipc.send(
               "preSelectPageRemovePreSelectClass",
-              myclass[preSelectButton]
+              myclass[preSelectButton],
+              "ps"
             );
           }
         );
@@ -2192,7 +2199,7 @@ async function showPreSelectClassAtFastSelectPage() {
     let myclass;
     if (err) {
       console.log(err);
-      myclass = "[]";
+      myClassData = "[]";
     } else {
       myclass = myClassData.toString();
     }
@@ -2307,7 +2314,8 @@ async function showPreSelectClassAtFastSelectPage() {
             console.log("remove");
             ipc.send(
               "preSelectPageRemovePreSelectClass",
-              myclass[preSelectButton]
+              myclass[preSelectButton],
+              "fs"
             );
           }
         );
@@ -2718,7 +2726,7 @@ let showMyClassType = 0;
 async function showMyClass() {
   await cleanFrame();
   await cleanRightFrame();
-  showPreSelectClass();
+  showPreSelectClass("mc");
   let selectThisClassButton = [];
   let table = document.createElement("table");
   let tHead = document.createElement("thead");
@@ -3104,7 +3112,6 @@ async function loadClassClass() {
   isInPreSelectPage = false;
   ipc.send("getClassClass", SelDepNo, SelClassNo);
   updateTime();
-  showPreSelectClass();
   console.log("getClassClass");
 }
 
@@ -3113,7 +3120,6 @@ async function loadGeneralClass() {
   isInPreSelectPage = false;
   ipc.send("getGeneralClass");
   updateTime();
-  showPreSelectClass();
   console.log("getGeneralClass");
 }
 
@@ -3156,7 +3162,294 @@ generalClass.addEventListener("click", async function () {
 getMyClass.addEventListener("click", async function () {
   loadMyClass();
 });
-
+info.addEventListener("click", async function () {
+  updateTime();
+  cleanRightFrame();
+  main_frame.innerHTML = `<div class="infoPanel">
+  <div class="infoDivBox">
+    <div class="infoBlock infoBlockM">
+      <div class="infoLineTitle">感謝您選用</div>
+      <img class="nameInLineTitle" src="./icon/name.png" />
+    </div>
+    <div class="infoBlock infoBlockM">
+      <div class="infoLine infoLineL">
+        這不是客套話<br />你本來可以載Chrome<br />開Edge懷舊<br />支持Firefox保護隱私<br />
+        甚至用IE上網...<br /><br />...如果你知道IE是什麼的話
+      </div>
+    </div>
+    <div class="infoBlock infoBlockM">
+      <div class="infoLine infoLineL">但你選擇了</div>
+      <img class="nameInLine" src="./icon/name.png" />
+      <div class="infoLine">我們超感謝的</div>
+    </div>
+    <div class="infoBlock infoBlockM">
+      <div class="infoLine infoLineL">
+        歡迎加入社群與我們分享您的想法
+      </div>
+    </div>
+    <div class="infoBlock infoBlockM">
+      <div class="infoLine infoLineL" style="margin-right: 20px">
+        官方Discord:
+      </div>
+      <a
+        href="https://discord.gg/29AbBJ48Hk"
+        target="_blank"
+        class="infoLine"
+      >
+        https://discord.gg/29AbBJ48Hk</a
+      >
+    </div>
+    <div class="infoBlock infoBlockM">
+      <div class="infoLine infoLineL" style="margin-right: 20px">
+        Email:
+      </div>
+      <div class="infoLine infoLineL">chooseydev@gmail.com</div>
+    </div>
+  </div>
+  <div class="infoDivBox">
+    <div class="infoBlock infoBlockL">
+      <div class="infoLineTitle">起源</div>
+    </div>
+    <div class="infoBlock infoBlockL">
+      <img class="nameInLine" src="./icon/name.png" />
+      <div class="infoLine infoLineL">
+        誕生於一次大四搶光專業選修，大三甚麼都修不到的選課初選，
+      </div>
+    </div>
+    <div class="infoBlock infoBlockL">
+      <div class="infoLine infoLineL">然而再早起一天搶線上加簽後，</div>
+    </div>
+    <div class="infoBlock infoBlockL">
+      <div class="infoLine infoLineL">才在之後發Email告知系上沒開加簽...</div>
+    </div>
+    <div class="infoBlock infoBlockL">
+      <div class="infoLine infoLineL">
+        於是一個大膽的想法就此誕生...
+      </div>
+    </div>
+    <div class="infoBlock">
+      <img class="email" src="./images/email.png" />
+      <img class="dev" src="./images/dev.png" />
+    </div>
+  </div>
+  <div class="infoDivBox">
+    <div class="infoBlock infoBlockL">
+      <div class="infoLineTitle">登入</div>
+    </div>
+    <div class="infoBlock">
+      <div class="infoLine infoLineL">
+        登入時請使用大同學生校園資訊系統之帳號密碼。<br />
+        本系統不負責驗證登入是否成功，但進入主畫面後可以查看登入狀態。<br />
+        為維護您的密碼安全，本系統不會儲存您的密碼，請自行輸入。
+      </div>
+    </div>
+    <div class="infoBlock">
+      <img class="screenShot" src="./images/loginPage.png" />
+    </div>
+  </div>
+  <div class="infoDivBox">
+    <div class="infoBlock infoBlockL">
+      <div class="infoLineTitle">主介面</div>
+    </div>
+    <div class="infoBlock">
+      <div class="infoLine infoLineL">
+        登入後會自動跳轉到主介面。<br />
+        分為左方的功能列、中間的主視窗、右方的輔助視窗，<br />
+        左方的功能列可以按最上方的三橫線按鈕收合或開啟。
+      </div>
+    </div>
+    <div class="infoBlock">
+      <img class="screenShot" src="./images/mainOpen.png" />
+    </div>
+  </div>
+  <div class="infoDivBox">
+    <div class="infoBlock infoBlockL">
+      <div class="infoLineTitle">控制中心</div>
+    </div>
+    <div class="infoBlock">
+      <div class="infoLine infoLineL">
+        控制中心會顯示所有重要的資訊<br />
+        <br />[時間及授權區塊]<br />
+        <div class="tab">
+          NTP時間: 使用Google、FaceBook等公司的校時服務，取得的時間。
+        </div>
+        <div class="tab">時間誤差: 本機時間-NTP時間，取得的差值。</div>
+        <div class="tab">
+          運算延遲: 從取得時間到計算完成後顯示，所花費的時間。
+        </div>
+        <div class="tab">
+          授權金鑰:
+          顯示目前金鑰的驗證狀態，如果您已取得金鑰，請至設定頁面輸入。
+        </div>
+        [流程顯示區塊]<br />
+        <div class="tab">
+          預載模組:
+          有別於前代產品，本系統會在選課時間前一分鐘，將快速選課資料從磁碟讀入記憶體，並在分割成每5堂1組後，設定快速選課的倒數計時器。
+        </div>
+        [網路狀態區塊]<br />
+        <div class="tab">
+          與Google、TTU系統連線，並記錄各階段的時間，主機右方的數字為送達大約所需的毫秒數，供快速選課數值設定參考。
+        </div>
+        [系統狀態區塊]<br />
+        <div class="tab">
+          顯示目前系統運行狀態，可使用下方按鈕啟動或終止。
+        </div>
+      </div>
+    </div>
+    <div class="infoBlock infoBlockM">
+      <img class="screenShot" src="./images/main.png" />
+    </div>
+  </div>
+  <div class="infoDivBox">
+    <div class="infoBlock infoBlockL">
+      <div class="infoLineTitle">各班課程</div>
+    </div>
+    <div class="infoBlock">
+      <div class="infoLine infoLineL">
+        上方按鈕可以選擇各系所及班級課程。<br />
+        右上按鈕可以在列表模式與課表模式間切換。<br />
+        若可以加退選，課程左方會有加號與叉號按鈕，<br />
+        可使用課程左方購物車按鈕，將課程加入或移出購物車。<br />
+        右方輔助視窗可以瀏覽目前購物車內容。<br />
+      </div>
+    </div>
+    <div class="infoBlock">
+      <img class="screenShot" src="./images/classClass.png" />
+    </div>
+  </div>
+  <div class="infoDivBox">
+    <div class="infoBlock infoBlockL">
+      <div class="infoLineTitle">通識課程</div>
+    </div>
+    <div class="infoBlock">
+      <div class="infoLine infoLineL">
+        右上按鈕可以在列表模式與課表模式間切換。<br />
+        若可以加退選，課程左方會有加號與叉號按鈕，<br />
+        可使用課程左方購物車按鈕，將課程加入或移出購物車。<br />
+        右方輔助視窗可以瀏覽目前購物車內容。<br />
+      </div>
+    </div>
+    <div class="infoBlock">
+      <img class="screenShot" src="./images/gClass.png" />
+    </div>
+  </div>
+  <div class="infoDivBox">
+    <div class="infoBlock infoBlockL">
+      <div class="infoLineTitle">觀測選課</div>
+    </div>
+    <div class="infoBlock">
+      <div class="infoLine infoLineL">
+        右上按鈕由上而下分別為:<br />
+        <div class="tab">在列表模式與課表模式間切換。</div>
+        <div class="tab">更新課程狀態。</div>
+        <div class="tab">存檔。</div>
+        <div class="tab">啟用/停用觀測選課。</div>
+        若可以加退選，課程左方會有加號與叉號按鈕，<br />
+        鎖定按鈕可以將課程鎖定，當觀測選課執行時，被鎖定的課一旦加選成功，就不會被列入可退選清單。<br />
+        可使用課程左方移出按鈕，將課程移出清單。<br />
+        拖動清單內的課程可以修改順序<br />
+        右方輔助視窗可以按綠色匯入按鈕，將課程匯入清單。<br /><br />
+      </div>
+    </div>
+    <div class="infoBlock">
+      <img class="screenShot" src="./images/pSelect.png" />
+    </div>
+    <div class="infoBlock">
+      <div class="infoLine infoLineL">
+        觀測選課有多種可能性:<br />
+        在學分未滿的情況下，會直接加選密碼學。
+        <img class="screenShot" src="./images/s1.png" />
+        在學分已滿的情況下，會退選WDB3D，然後再加選密碼學。
+        <img class="screenShot" src="./images/s2.png" />
+        在學分已滿的情況下，會退選音樂劇與財務報表，然後再加選密碼學。
+        <img class="screenShot" src="./images/s3.png" />
+        在學分已滿的情況下，會退選音樂劇與財務報表，留下應用電子，然後再加選密碼學。
+        <img class="screenShot" src="./images/s4.png" />
+      </div>
+    </div>
+  </div>
+  <div class="infoDivBox">
+    <div class="infoBlock infoBlockL">
+      <div class="infoLineTitle">快速選課</div>
+    </div>
+    <div class="infoBlock">
+      <div class="infoLine infoLineL">
+        右上按鈕為存檔按鈕。<br />
+        分為四個快速選課區域與一個重複送出區域，<br />
+        可以單獨設定是否啟用一個區域，<br />
+        右方輔助視窗可以按藍色滴管複製課程，再按清單左方插入按鈕匯入區塊。<br />
+        快速選課區域只會在指定的時間送出一次，每個區域上限20堂。<br />
+        重複送出區域會依照指定的間隔時間，不停送出直到伺服器回應，上限5堂，最多送出50次。<br /><br />
+        快速選課區域建議:
+        <div class="tab">1區 套用NTP與網路延遲</div>
+        <div class="tab">2區 套用網路延遲</div>
+        <div class="tab">3區 不套用延遲</div>
+        <div class="tab">4區 往後延0.5~2.5秒</div>
+        <br />
+        重複送出區域建議:
+        <div class="tab">放重要的課程，間隔選擇0.5~1秒，勿設定為0</div>
+      </div>
+    </div>
+    <div class="infoBlock">
+      <img class="screenShot" src="./images/fSelect.png" />
+    </div>
+  </div>
+  <div class="infoDivBox">
+    <div class="infoBlock infoBlockL">
+      <div class="infoLineTitle">中選課程</div>
+    </div>
+    <div class="infoBlock">
+      <div class="infoLine infoLineL">
+        右上按鈕可以在列表模式與課表模式間切換。<br />
+        若可以退選，課程左方會有叉號按鈕，<br />
+      </div>
+    </div>
+    <div class="infoBlock">
+      <img class="screenShot" src="./images/mClass.png" />
+    </div>
+  </div>
+  <div class="infoDivBox">
+    <div class="infoBlock infoBlockL">
+      <div class="infoLineTitle">設定</div>
+    </div>
+    <div class="infoBlock">
+      <div class="infoLine infoLineL">
+        右上為存檔按鈕。<br />
+        選課開始時間需設定下次的選課時間。<br />
+        授權金鑰請填入您取得的金鑰，存檔後可至控制中心查看金鑰狀態。<br />
+        授權未驗證通過將無法啟動系統。<br />
+        請注意!，金鑰與申請人綁定，無法轉讓他人，且具有效期限。
+      </div>
+    </div>
+    <div class="infoBlock">
+      <img class="screenShot" src="./images/setting.png" />
+    </div>
+    <div class="infoBlock">
+      <img class="screenShot" src="./images/setting2.png" />
+    </div>
+  </div>
+  <div class="infoDivBox">
+    <div class="infoBlock infoBlockL">
+      <div class="infoLineTitle">設定</div>
+    </div>
+    <div class="infoBlock">
+      <div class="infoLine infoLineL">
+        右上為存檔按鈕。<br />
+        選課開始時間需設定下次的選課時間。<br />
+        授權金鑰請填入您取得的金鑰，存檔後可至控制中心查看金鑰狀態。<br />
+        授權未驗證通過將無法啟動系統。<br />
+        請注意!，金鑰與申請人綁定，無法轉讓他人，且具有效期限。
+      </div>
+    </div>
+    <div class="infoBlock">
+      <img class="screenShot" src="./images/setting.png" />
+    </div>
+    <div class="infoBlock">
+      <img class="screenShot" src="./images/setting2.png" />
+    </div>
+  </div>
+</div>`;
+});
 setting.addEventListener("click", async function () {
   isInPreSelectPage = false;
   showSetting();
@@ -3183,18 +3476,29 @@ ipc.on(
     showGeneralClass();
   }
 );
-ipc.on("updatePreSelectClass", function (evt) {
+ipc.on("updatePreSelectClass", function (evt, callFrom) {
   console.log("showPreSelectClass");
-  showPreSelectClass();
+  showPreSelectClass(callFrom);
 });
-ipc.on("updatePreSelectClassAndMain", function (evt) {
-  console.log("showPreSelectClass");
-  showClassClass(SelDepNo, SelClassNo, backclassList);
-  showPreSelectClass();
+ipc.on("updatePreSelectClassAndMain", function (evt, callFrom) {
+  if (callFrom == "cc") {
+    console.log("cc");
+    showClassClass(SelDepNo, SelClassNo, backclassList);
+  } else if (callFrom == "gc") {
+    console.log("gc");
+    showGeneralClass();
+  } else if (callFrom == "mc") {
+    console.log("mc");
+    showMyClass();
+  }
 });
-ipc.on("updatePreSelectClassInPreSelectPage", function (evt) {
+ipc.on("updatePreSelectClassInPreSelectPage", function (evt, callFrom) {
   console.log("showPreSelectClass");
-  showPreSelectClassAtPreSelectPage();
+  if (callFrom == "ps") {
+    showPreSelectClassAtPreSelectPage();
+  } else if (callFrom == "fs") {
+    showPreSelectClassAtFastSelectPage();
+  }
 });
 ipc.on("updatePreSelectPage", function (evt) {
   if (isInPreSelectPage) {
