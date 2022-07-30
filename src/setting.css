@@ -50,3 +50,53 @@
         width: 90%;
     }
 }
+
+.disclaimerDiv {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    width: 60vw;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-top: 10px;
+    background-color: rgb(22 21 25);
+    border-radius: 15px;
+}
+
+.disclaimerTitle {
+    font-family: NotoSansTC-Regular;
+    color: white;
+    font-size: 35px;
+    text-align: center;
+    width: 100%;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    display: inline-block;
+}
+
+.disclaimerInfoDiv {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    width: 90%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.disclaimerInfo {
+    font-family: NotoSansTC-Regular;
+    color: white;
+    font-size: 20px;
+    text-align: left;
+    width: 100%;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    display: inline-block;
+    margin-bottom: 20px;
+}

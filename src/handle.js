@@ -2971,6 +2971,7 @@ async function showSetting() {
   actionDiv.setAttribute("class", "actionDiv");
   let saveDiv = document.createElement("div");
   let saveImg = document.createElement("img");
+  table.style.marginTop = "50px";
   table.className = "mtable";
   let setting = {
     selectStartDate: "2022-01-27T10:30",
@@ -3049,6 +3050,38 @@ async function showSetting() {
     main_frame.appendChild(table);
     main_frame.appendChild(actionDiv);
 
+    let disclaimerDiv = document.createElement("div");
+    disclaimerDiv.setAttribute("class", "disclaimerDiv");
+    disclaimerDiv.innerHTML = `<div class="disclaimerTitle">免責聲明</div>
+    <div class="disclaimerInfoDiv">
+      <div class="disclaimerInfo">
+        當您使用本程式，即表示您同意以下條款
+      </div>
+      <div class="disclaimerInfo">
+        一、
+        本程式所提供之所有資訊及其相關功能(以下簡稱「本產品服務」)目的為提供學術及研究應用，非供交易或營利之目的，透過本產品服務獲得之資料僅作為參考，基於前開資料之任何行為，使用者須自負風險，本程式開發人員亦不負任何責任。
+      </div>
+      <div class="disclaimerInfo">
+        二、
+        本程式開發人員不附具任何明示或默示之保證，包含但不限於本產品服務之，穩定、安全、不中斷、正確、完整或無錯誤、任何相關技術之未侵害他人權利之保證、符合特定效用等之默示保證。
+      </div>
+      <div class="disclaimerInfo">
+        三、
+        本程式開發人員不保證本產品服務不受病毒感染，若因上述原因而造成損失，使用者需自行承擔有關服務、維修及修正等費用。
+      </div>
+      <div class="disclaimerInfo">
+        五、
+        由於本產品服務之性質，可能被網站識別為惡意機器人程式，在任何情況下，本程式開發人員對下列情事均不負賠償責任，即使被告知該情事有可能發生時，<br />亦同：
+        <div class="tab">
+          1.帳號或密碼之被竊取、竄改、鎖定、毀損、滅失或洩漏；
+        </div>
+        <div class="tab">2.資料之滅失或毀損；</div>
+        <div class="tab">
+          3.直接、特殊、附帶或間接的傷害或其他衍生之經濟損害；
+        </div>
+      </div>
+    </div>`;
+    main_frame.appendChild(disclaimerDiv);
     saveDiv.addEventListener("click", async function () {
       for (let i = 0; i < settingName.length; i++) {
         setting[settingjsonName[i]] = document.getElementById(
