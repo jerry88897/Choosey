@@ -13,10 +13,6 @@
   src: url(./fonts/NotoSansTC-Light.otf);
 }
 
-@font-face {
-  font-family: "cubic11";
-  src: url(./fonts/Cubic_11_1.010_R.ttf);
-}
 
 :root {
   --first-color: #9873ff;
@@ -137,7 +133,8 @@ header ul li a {
   transition: all 0.5s ease;
 }
 
-.sidebar.open .logo-details .icon, .sidebar.open .logo-details .logo_name {
+.sidebar.open .logo-details .icon,
+.sidebar.open .logo-details .logo_name {
   opacity: 1;
 }
 
@@ -255,10 +252,10 @@ header ul li a {
 .sidebar li a .links_name {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
-   -khtml-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   color: #ffffff;
   font-size: 15px;
   font-weight: 400;
@@ -273,7 +270,8 @@ header ul li a {
   pointer-events: auto;
 }
 
-.sidebar li a:hover .links_name, .sidebar li a:hover i {
+.sidebar li a:hover .links_name,
+.sidebar li a:hover i {
   transition: all 0.5s ease;
   color: #11101d;
 }
@@ -399,7 +397,7 @@ header ul li a {
   height: 0;
 }
 
-.sidebar.open~ .home-section {
+.sidebar.open~.home-section {
   left: 278px;
   width: 50vw;
 }
@@ -509,7 +507,9 @@ header ul li a {
 }
 
 @keyframes swell {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate3d(0, -25px, 0);
   }
 

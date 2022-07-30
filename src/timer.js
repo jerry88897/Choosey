@@ -1,5 +1,4 @@
 const fs = require("fs");
-const ntpClient = require("ntp-client");
 const NtpTimeSync = require("ntp-time-sync").NtpTimeSync;
 const sender = require("./sendSelect");
 const ipc = require("electron").ipcMain;
@@ -27,9 +26,6 @@ const options = {
 const timeSync = NtpTimeSync.getInstance(options);
 
 let lastTimeDiff;
-let allTimer = [];
-let resendTimer;
-let preSelectList;
 
 let getWeb;
 let userId = "";
@@ -37,11 +33,9 @@ let preLoadTimer;
 let preLoadClass = [];
 let fastSelectTimer = [];
 let fastSelectReportCount = 0;
-let noFastSelectTimer;
 let repeatSelectTimer;
 let repeatSelectInterval;
 let intervalCount = 0;
-let setting;
 let win;
 let preSelectPageAction;
 let preSelectPageTimer;
@@ -142,28 +136,33 @@ async function getNTPTime() {
   });
 }
 
-function checkToRestartTimer() {
+async function checkToRestartTimer() {
   let settingSaved;
-  let settingPromise = new Promise(function (resolve, reject) {
+  let settingPromise = new Promise(async function (resolve, reject) {
     console.log(1);
-    fs.readFile("./src/data/setting.json", function (err, settingData) {
-      if (err) {
-        console.log("no setting make new file");
-        stopAllTimer();
-        reject(err);
-      } else {
+    fs.promises
+      .readFile("./src/data/setting.json")
+      .then(function (settingData) {
         console.log("load setting");
         //將二進制數據轉換為字串符
         settingData = settingData.toString();
 
         resolve(settingData);
-      }
-    });
+      })
+      .catch(function (err) {
+        console.log("no setting make new file");
+        stopAllTimer();
+        reject(err);
+      });
   });
   settingPromise
     .then(function (settingData) {
       //將字符串轉換為 JSON 對象
-      settingSaved = JSON.parse(settingData);
+      try {
+        settingSaved = JSON.parse(settingData);
+      } catch (err) {
+        settingSaved = JSON.parse(settingData);
+      }
       let sDay = Date.parse(settingSaved["selectStartDate"]);
       check()
         .then(function () {

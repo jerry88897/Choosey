@@ -1,13 +1,9 @@
 const console = require("console");
-const { getElementById } = require("domutils");
 const electron = require("electron");
 const ipc = electron.ipcRenderer;
 
 const fs = require("fs");
-const { resolve } = require("path");
 const titleCountDown = document.getElementById("titleCountDown");
-const menu = document.getElementById("menu");
-const sidebar = document.getElementById("sidebar");
 const main_frame = document.getElementById("main_frame");
 const right_frame = document.getElementById("right_frame");
 const controlCenter = document.getElementById("controlCenter");
@@ -28,15 +24,10 @@ window.addEventListener(
   false
 );
 
-let userName = "";
-let userClassAndNo = "";
-
 let _second = 1000;
 let _minute = _second * 60;
 let _hour = _minute * 60;
 let _day = _hour * 24;
-
-let myClassTableType = false;
 
 let isInPreSelectPage = false;
 

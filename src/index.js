@@ -1,6 +1,5 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
-const { electron } = require("process");
 const fs = require("fs");
 
 const { dialog } = require("electron");
@@ -13,8 +12,6 @@ const preSelect = require("./preSelect");
 const preSelectPage = require("./preSelectPage");
 const preSelectPageAction = require("./preSelectPageAction");
 const fastSelect = require("./fastSelect");
-const iconv = require("iconv-lite");
-const { Console, time } = require("console");
 const screen = require("electron").screen;
 
 const fastSelectText = `{"isLock":false,"fastSelectBlock":[{"id":0,"enable":false,"trigger":0,"list":[]},{"id":1,"enable":false,"trigger":0,"list":[]},{"id":2,"enable":false,"trigger":0,"list":[]},{"id":3,"enable":false,"trigger":0,"list":[]},{"id":4,"enable":false,"trigger":0,"list":[]}]}`;
