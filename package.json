@@ -1,8 +1,8 @@
 {
   "name": "choosey",
-  "productName": "choosey",
+  "productName": "Choosey",
   "version": "1.0.0",
-  "description": "",
+  "description": "A Word Leading Class Selector",
   "main": "src/index.js",
   "scripts": {
     "start": "electron-forge start",
@@ -12,16 +12,27 @@
     "lint": "echo \"No linting configured\""
   },
   "keywords": [],
-  "author": "jerry88897 <minishark26@gmail.com>",
+  "author": "jerry88897",
   "license": "MIT",
+  "build": {
+    "win": {
+      "target": "squirrel",
+      "icon": "./src/icon/Icon.ico"
+    }
+  },
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {
+        "packageManager": "npm",
+        "icon": "./src/icon/Icon.ico",
+        "asar": true
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "Choosey"
+            "name": "Choosey",
+            "setupIcon": "./src/icon/Icon.ico"
           }
         },
         {

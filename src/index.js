@@ -77,6 +77,7 @@ const createWindow = () => {
       webviewTag: true,
     },
   });
+  mainWindow.removeMenu();
   mainWindow.once("ready-to-show", () => {
     mainWindow.show();
   });
@@ -94,25 +95,60 @@ const createWindow = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", async function (e) {
-  timer.loadState();
-  let date = timer.getNTPTime();
-  date
-    .then(function (timeDiff) {
-      NTPTimeDiff = timeDiff;
-      createWindow();
-      setInterval(function () {
-        let date = timer.getNTPTime();
-        date.then(function (timeDiff) {
-          NTPTimeDiff = timeDiff;
-          win.webContents.send("updateNTP", NTPTimeDiff);
-        });
-      }, 25 * 60 * 1000);
-    })
-    .catch(function (err) {
-      dialog.showErrorBox("連線失敗", "無法連線至外部終端機，請檢查網路連線");
-      createWindow();
-      //app.quit();
-    });
+  if (require("electron-squirrel-startup")) return;
+  console.log("At dir " + __dirname);
+  let loc = process.cwd();
+  //dialog.showErrorBox("At dir", path.join(loc, "/src/data"));
+  try {
+    await fs.promises.access(path.join(loc, "/src/data"));
+  } catch (e) {
+    //dialog.showErrorBox("失敗", e.code);
+    await fs.promises.mkdir(path.join(loc, "/src/data"), { recursive: true });
+    await fs.promises.writeFile(
+      path.join(loc, "/src/data/fastSelect.json"),
+      fastSelectText
+    );
+    await fs.promises.writeFile(
+      path.join(loc, "/src/data/PreSelectPage.json"),
+      "[]"
+    );
+    await fs.promises.writeFile(
+      path.join(loc, "/src/data/PreSelectPageSetting.json"),
+      `{"isSet":false,"isPlay":false}`
+    );
+    await fs.promises.writeFile(
+      path.join(loc, "/src/data/setting.json"),
+      `{"selectStartDate":"2022-01-27T10:30","activate":false,"key":""}`
+    );
+    await fs.promises.writeFile(
+      path.join(loc, "/src/data/shoppingCart.json"),
+      "[]"
+    );
+    await fs.promises.writeFile(
+      path.join(loc, "/src/data/state.json"),
+      `{"preload":0,"fastSelect":[[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]],"isFastSelectFinish":false,"preSelect":[0,0,0,0,0],"barPo":0,"authKeyState":0,"authKeyDate":""}`
+    );
+  } finally {
+    timer.loadState();
+    let date = timer.getNTPTime();
+    date
+      .then(function (timeDiff) {
+        NTPTimeDiff = timeDiff;
+        createWindow();
+        setInterval(function () {
+          let date = timer.getNTPTime();
+          date.then(function (timeDiff) {
+            NTPTimeDiff = timeDiff;
+            win.webContents.send("updateNTP", NTPTimeDiff);
+          });
+        }, 25 * 60 * 1000);
+      })
+      .catch(function (err) {
+        dialog.showErrorBox("連線失敗", "無法連線至外部終端機，請檢查網路連線");
+        createWindow();
+        //app.quit();
+      });
+  }
 });
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
