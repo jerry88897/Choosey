@@ -2,7 +2,6 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const { electron } = require("process");
 const fs = require("fs");
-const fsp = require("fs").promises;
 
 const { dialog } = require("electron");
 const ipc = require("electron").ipcMain;
@@ -77,7 +76,9 @@ const createWindow = () => {
       webviewTag: true,
     },
   });
-  mainWindow.removeMenu();
+  if (app.isPackaged) {
+    mainWindow.removeMenu();
+  }
   mainWindow.once("ready-to-show", () => {
     mainWindow.show();
   });
