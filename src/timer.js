@@ -2,13 +2,8 @@ const fs = require("fs");
 const NtpTimeSync = require("ntp-time-sync").NtpTimeSync;
 const sender = require("./sendSelect");
 const ipc = require("electron").ipcMain;
-const {
-  generateKeyPairSync,
-  sign,
-  verify,
-  publicEncrypt,
-  privateDecrypt,
-} = require("crypto");
+const path = require("path");
+const { verify, privateDecrypt } = require("crypto");
 const options = {
   // list of NTP time servers, optionally including a port (defaults to 123)
   servers: [
@@ -24,6 +19,15 @@ const options = {
   replyTimeout: 3000,
 };
 const timeSync = NtpTimeSync.getInstance(options);
+
+const myPublic = fs.readFileSync(
+  path.join(__dirname, "/pem/myPublic.pem"),
+  "utf8"
+);
+const userPrivate = fs.readFileSync(
+  path.join(__dirname, "/pem/userPrivate.pem"),
+  "utf8"
+);
 
 let lastTimeDiff;
 
@@ -582,14 +586,6 @@ async function check() {
             .then(function (settingData) {
               settingSaved = JSON.parse(settingData);
               let sDay = Date.parse(settingSaved["selectStartDate"]);
-              const myPublic = fs.readFileSync(
-                "./src/pem/myPublic.pem",
-                "utf8"
-              );
-              const userPrivate = fs.readFileSync(
-                "./src/pem/userPrivate.pem",
-                "utf8"
-              );
               let key = settingSaved["key"];
               const enc = Buffer.from(key.substring(0, 172), "base64");
               const signature = Buffer.from(
@@ -664,11 +660,6 @@ async function check_LastNtp() {
         .then(function (settingData) {
           settingSaved = JSON.parse(settingData);
           let sDay = Date.parse(settingSaved["selectStartDate"]);
-          const myPublic = fs.readFileSync("./src/pem/myPublic.pem", "utf8");
-          const userPrivate = fs.readFileSync(
-            "./src/pem/userPrivate.pem",
-            "utf8"
-          );
           let key = settingSaved["key"];
           const enc = Buffer.from(key.substring(0, 172), "base64");
           const signature = Buffer.from(
