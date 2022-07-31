@@ -3452,26 +3452,6 @@ info.addEventListener("click", async function () {
       <img class="screenShot" src="./images/setting2.png" />
     </div>
   </div>
-  <div class="infoDivBox">
-    <div class="infoBlock infoBlockL">
-      <div class="infoLineTitle">設定</div>
-    </div>
-    <div class="infoBlock">
-      <div class="infoLine infoLineL">
-        右上為存檔按鈕。<br />
-        選課開始時間需設定下次的選課時間。<br />
-        授權金鑰請填入您取得的金鑰，存檔後可至控制中心查看金鑰狀態。<br />
-        授權未驗證通過將無法啟動系統。<br />
-        請注意!，金鑰與申請人綁定，無法轉讓他人，且具有效期限。
-      </div>
-    </div>
-    <div class="infoBlock">
-      <img class="screenShot" src="./images/setting.png" />
-    </div>
-    <div class="infoBlock">
-      <img class="screenShot" src="./images/setting2.png" />
-    </div>
-  </div>
 </div>`;
 });
 setting.addEventListener("click", async function () {

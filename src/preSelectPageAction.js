@@ -128,7 +128,7 @@ async function patrolActionPerformed() {
     let parserNowPoint = parser.pointParser(getNowPoint);
     parserNowPoint.then(function (point) {
       point = parseInt(parseFloat(point) * 10);
-      if (!isNaN(point)) {
+      if (isNaN(point)) {
         let spacePoint = maxPoint - point;
         let readFileProm = new Promise(function (resolve, reject) {
           fs.readFile(
