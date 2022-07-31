@@ -14,6 +14,7 @@ const preSelectClass = document.getElementById("preSelectClass");
 const fastSelectClass = document.getElementById("fastSelectClass");
 const info = document.getElementById("info");
 const setting = document.getElementById("setting");
+const restart = document.getElementById("restart");
 
 window.addEventListener(
   "load",
@@ -3572,6 +3573,9 @@ setting.addEventListener("click", async function () {
   isInPreSelectPage = false;
   showSetting();
   updateTime();
+});
+restart.addEventListener("click", async function () {
+  ipc.send("restart");
 });
 ipc.on("readyToShowControlCenter", function (evt, ntpTimeDiff) {
   console.log("showControlCenter");

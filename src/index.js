@@ -500,3 +500,7 @@ ipc.on("doToThisClass", async function (e, data, page) {
     });
   }
 });
+ipc.on("restart", async function (e) {
+  app.relaunch();
+  app.quit();
+});
