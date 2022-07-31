@@ -1218,7 +1218,17 @@ async function fastSelect() {
 
         flexClassInfo = document.createElement("div"); //課程名稱
         flexClassInfo.className = "flexClassInfo className";
-        flexClassInfo.innerText = element["name"];
+        let classLink = document.createElement("a");
+        classLink.innerText = element["name"];
+        classLink.setAttribute(
+          "href",
+          "https://selquery.ttu.edu.tw/Main/syllabusview.php?SbjNo=" +
+            element[tableKey[1]]
+        );
+        classLink.setAttribute("target", "_blank");
+        classLink.style.color = "var(--word-color)";
+        classLink.style.textDecoration = "none";
+        flexClassInfo.appendChild(classLink);
         flexClass.appendChild(flexClassInfo);
 
         flexClassInfo = document.createElement("div"); //教師
@@ -1464,7 +1474,21 @@ async function showClassClass(SelectedDepNo, SelectedClassNo, classList) {
           for (let tabletd = 1; tabletd < 4; tabletd++) {
             let td = document.createElement("td");
             td.className = "mtd";
-            td.innerHTML = element[tableKey[tabletd]];
+            if (tabletd == 2) {
+              let classLink = document.createElement("a");
+              classLink.innerText = element[tableKey[tabletd]];
+              classLink.setAttribute(
+                "href",
+                "https://selquery.ttu.edu.tw/Main/syllabusview.php?SbjNo=" +
+                  element[tableKey[1]]
+              );
+              classLink.setAttribute("target", "_blank");
+              classLink.style.color = "var(--word-color)";
+              classLink.style.textDecoration = "none";
+              td.appendChild(classLink);
+            } else {
+              td.innerText = element[tableKey[tabletd]];
+            }
             tr.appendChild(td);
           }
           td = document.createElement("td");
@@ -1783,7 +1807,21 @@ async function showGeneralClass() {
           for (let tabletd = 1; tabletd < 4; tabletd++) {
             let td = document.createElement("td");
             td.className = "mtd";
-            td.innerHTML = element[tableKey[tabletd]];
+            if (tabletd == 2) {
+              let classLink = document.createElement("a");
+              classLink.innerText = element[tableKey[tabletd]];
+              classLink.setAttribute(
+                "href",
+                "https://selquery.ttu.edu.tw/Main/syllabusview.php?SbjNo=" +
+                  element[tableKey[1]]
+              );
+              classLink.setAttribute("target", "_blank");
+              classLink.style.color = "var(--word-color)";
+              classLink.style.textDecoration = "none";
+              td.appendChild(classLink);
+            } else {
+              td.innerText = element[tableKey[tabletd]];
+            }
             tr.appendChild(td);
           }
           td = document.createElement("td");
@@ -1956,7 +1994,21 @@ async function showPreSelectClass(callFrom) {
         for (let tabletd = 1; tabletd < 4; tabletd++) {
           let td = document.createElement("td");
           td.className = "sctd";
-          td.innerHTML = element[tableKey[tabletd]];
+          if (tabletd == 2) {
+            let classLink = document.createElement("a");
+            classLink.innerText = element[tableKey[tabletd]];
+            classLink.setAttribute(
+              "href",
+              "https://selquery.ttu.edu.tw/Main/syllabusview.php?SbjNo=" +
+                element[tableKey[1]]
+            );
+            classLink.setAttribute("target", "_blank");
+            classLink.style.color = "var(--word-color)";
+            classLink.style.textDecoration = "none";
+            td.appendChild(classLink);
+          } else {
+            td.innerText = element[tableKey[tabletd]];
+          }
           tr.appendChild(td);
         }
         td = document.createElement("td");
@@ -2106,7 +2158,21 @@ async function showPreSelectClassAtPreSelectPage() {
         for (let tabletd = 1; tabletd < 4; tabletd++) {
           let td = document.createElement("td");
           td.className = "sctd";
-          td.innerHTML = element[tableKey[tabletd]];
+          if (tabletd == 2) {
+            let classLink = document.createElement("a");
+            classLink.innerText = element[tableKey[tabletd]];
+            classLink.setAttribute(
+              "href",
+              "https://selquery.ttu.edu.tw/Main/syllabusview.php?SbjNo=" +
+                element[tableKey[1]]
+            );
+            classLink.setAttribute("target", "_blank");
+            classLink.style.color = "var(--word-color)";
+            classLink.style.textDecoration = "none";
+            td.appendChild(classLink);
+          } else {
+            td.innerText = element[tableKey[tabletd]];
+          }
           tr.appendChild(td);
         }
         td = document.createElement("td");
@@ -2265,7 +2331,21 @@ async function showPreSelectClassAtFastSelectPage() {
         for (let tabletd = 1; tabletd < 4; tabletd++) {
           let td = document.createElement("td");
           td.className = "sctd";
-          td.innerHTML = element[tableKey[tabletd]];
+          if (tabletd == 2) {
+            let classLink = document.createElement("a");
+            classLink.innerText = element[tableKey[tabletd]];
+            classLink.setAttribute(
+              "href",
+              "https://selquery.ttu.edu.tw/Main/syllabusview.php?SbjNo=" +
+                element[tableKey[1]]
+            );
+            classLink.setAttribute("target", "_blank");
+            classLink.style.color = "var(--word-color)";
+            classLink.style.textDecoration = "none";
+            td.appendChild(classLink);
+          } else {
+            td.innerText = element[tableKey[tabletd]];
+          }
           tr.appendChild(td);
         }
         td = document.createElement("td");
@@ -2478,7 +2558,21 @@ async function preSelectClassPage() {
           for (let tabletd = 2; tabletd < 4; tabletd++) {
             let td = document.createElement("td");
             td.className = "mtd";
-            td.innerHTML = element[tableKey[tabletd]];
+            if (tabletd == 2) {
+              let classLink = document.createElement("a");
+              classLink.innerText = element[tableKey[tabletd]];
+              classLink.setAttribute(
+                "href",
+                "https://selquery.ttu.edu.tw/Main/syllabusview.php?SbjNo=" +
+                  element[tableKey[1]]
+              );
+              classLink.setAttribute("target", "_blank");
+              classLink.style.color = "var(--word-color)";
+              classLink.style.textDecoration = "none";
+              td.appendChild(classLink);
+            } else {
+              td.innerText = element[tableKey[tabletd]];
+            }
             tr.appendChild(td);
           }
           td = document.createElement("td");
@@ -2783,7 +2877,21 @@ async function showMyClass() {
         for (let tabletd = 1; tabletd < 4; tabletd++) {
           let td = document.createElement("td");
           td.className = "mtd";
-          td.innerHTML = element[tableKey[tabletd]];
+          if (tabletd == 2) {
+            let classLink = document.createElement("a");
+            classLink.innerText = element[tableKey[tabletd]];
+            classLink.setAttribute(
+              "href",
+              "https://selquery.ttu.edu.tw/Main/syllabusview.php?SbjNo=" +
+                element[tableKey[1]]
+            );
+            classLink.setAttribute("target", "_blank");
+            classLink.style.color = "var(--word-color)";
+            classLink.style.textDecoration = "none";
+            td.appendChild(classLink);
+          } else {
+            td.innerText = element[tableKey[tabletd]];
+          }
           tr.appendChild(td);
         }
         td = document.createElement("td");
@@ -3263,7 +3371,7 @@ info.addEventListener("click", async function () {
     <div class="infoBlock">
       <div class="infoLine infoLineL">
         登入時請使用大同學生校園資訊系統之帳號密碼。<br />
-        本系統不負責驗證登入是否成功，但進入主畫面後可以查看登入狀態。<br />
+        本系統不負責驗證登入是否成功，但進入主畫面後可以查看各班課程或工具列展開有顯示姓名，即為登入成功。<br />
         為維護您的密碼安全，本系統不會儲存您的密碼，請自行輸入。
       </div>
     </div>
@@ -3279,7 +3387,7 @@ info.addEventListener("click", async function () {
       <div class="infoLine infoLineL">
         登入後會自動跳轉到主介面。<br />
         分為左方的功能列、中間的主視窗、右方的輔助視窗，<br />
-        左方的功能列可以按最上方的三橫線按鈕收合或開啟。
+        左方的功能列可以按最上方的三橫線按鈕收合或開啟，開啟後下方會有您的姓名及學號。
       </div>
     </div>
     <div class="infoBlock">
@@ -3332,6 +3440,7 @@ info.addEventListener("click", async function () {
       <div class="infoLine infoLineL">
         上方按鈕可以選擇各系所及班級課程。<br />
         右上按鈕可以在列表模式與課表模式間切換。<br />
+        各班課程以及購物車內，點擊課程名稱可以顯示課程內容，<br />
         若可以加退選，課程左方會有加號與叉號按鈕，<br />
         可使用課程左方購物車按鈕，將課程加入或移出購物車。<br />
         右方輔助視窗可以瀏覽目前購物車內容。<br />
@@ -3348,6 +3457,7 @@ info.addEventListener("click", async function () {
     <div class="infoBlock">
       <div class="infoLine infoLineL">
         右上按鈕可以在列表模式與課表模式間切換。<br />
+        通識課程以及購物車內，點擊課程名稱可以顯示課程內容，<br />
         若可以加退選，課程左方會有加號與叉號按鈕，<br />
         可使用課程左方購物車按鈕，將課程加入或移出購物車。<br />
         右方輔助視窗可以瀏覽目前購物車內容。<br />
@@ -3368,6 +3478,7 @@ info.addEventListener("click", async function () {
         <div class="tab">更新課程狀態。</div>
         <div class="tab">存檔。</div>
         <div class="tab">啟用/停用觀測選課。</div>
+        觀測選課以及購物車內，點擊課程名稱可以顯示課程內容，<br />
         若可以加退選，課程左方會有加號與叉號按鈕，<br />
         鎖定按鈕可以將課程鎖定，當觀測選課執行時，被鎖定的課一旦加選成功，就不會被列入可退選清單。<br />
         可使用課程左方移出按鈕，將課程移出清單。<br />
@@ -3399,6 +3510,7 @@ info.addEventListener("click", async function () {
     <div class="infoBlock">
       <div class="infoLine infoLineL">
         右上按鈕為存檔按鈕。<br />
+        快速選課以及購物車內，點擊課程名稱可以顯示課程內容，<br />
         分為四個快速選課區域與一個重複送出區域，<br />
         可以單獨設定是否啟用一個區域，<br />
         右方輔助視窗可以按藍色滴管複製課程，再按清單左方插入按鈕匯入區塊。<br />
@@ -3424,7 +3536,9 @@ info.addEventListener("click", async function () {
     </div>
     <div class="infoBlock">
       <div class="infoLine infoLineL">
+        本頁面顯示您已選課成功之課程。<br />
         右上按鈕可以在列表模式與課表模式間切換。<br />
+        點擊課程名稱可以顯示課程內容，<br />
         若可以退選，課程左方會有叉號按鈕，<br />
       </div>
     </div>
