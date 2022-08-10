@@ -338,7 +338,6 @@ async function pointParser(response) {
           outText = outText.replace(/\s+/g, "");
         } else if (tagname === "td") {
           word = 0;
-          td++;
         }
       },
     },

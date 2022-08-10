@@ -282,10 +282,18 @@ function preLoadFastSelectTimer(settingSaved) {
             let classCount = 0;
             for (
               let j = 0;
-              j <= fastSelectList["fastSelectBlock"][i]["list"].length;
+              j < fastSelectList["fastSelectBlock"][i]["list"].length;
               j++
             ) {
-              if (classCount == 5) {
+              classString =
+                classString +
+                fastSelectList["fastSelectBlock"][i]["list"][j]["id"] +
+                "%0D%0A";
+              classCount++;
+              if (
+                classCount == 5 ||
+                j == fastSelectList["fastSelectBlock"][i]["list"].length - 1
+              ) {
                 let classPkg = {
                   block: 0,
                   trigger: 0,
@@ -298,30 +306,6 @@ function preLoadFastSelectTimer(settingSaved) {
                 preLoadClass.push(classPkg);
                 classCount = 0;
                 classString = "";
-                classString =
-                  classString +
-                  fastSelectList["fastSelectBlock"][i]["list"][j]["id"] +
-                  "%0D%0A";
-                classCount++;
-              } else if (
-                j == fastSelectList["fastSelectBlock"][i]["list"].length
-              ) {
-                let classPkg = {
-                  block: 0,
-                  trigger: 0,
-                  classString: "",
-                };
-                classPkg.block = i;
-                classPkg.trigger =
-                  fastSelectList["fastSelectBlock"][i]["trigger"];
-                classPkg.classString = classString;
-                preLoadClass.push(classPkg);
-              } else {
-                classString =
-                  classString +
-                  fastSelectList["fastSelectBlock"][i]["list"][j]["id"] +
-                  "%0D%0A";
-                classCount++;
               }
             }
           }
@@ -482,9 +466,7 @@ async function loadState() {
       } else {
         console.log("load state");
         //將二進制數據轉換為字串符
-        let stateString = stateData.toString();
-
-        resolve(stateString);
+        resolve(stateData.toString());
       }
     });
   });

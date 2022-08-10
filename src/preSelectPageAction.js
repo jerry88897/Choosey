@@ -44,6 +44,7 @@ let tryAddHistory = new Map();
 let selectActionCount = 0;
 let deSelectActionCount = 0;
 let addMiss = 0;
+let lastDay = new Date(Date.now());
 async function updatedClassState() {
   return new Promise((resolve, reject) => {
     let lastPromise;
@@ -126,9 +127,14 @@ async function patrolActionPerformed() {
     let updatedClass;
     let getNowPoint = getWeb.getMyClass();
     let parserNowPoint = parser.pointParser(getNowPoint);
+    let nowDay = new Date(Date.now());
+    if (lastDay.getDate() != nowDay.getDate()) {
+      tryAddHistory = new Map();
+      lastDay = new Date(Date.now());
+    }
     parserNowPoint.then(function (point) {
       point = parseInt(parseFloat(point) * 10);
-      if (isNaN(point)) {
+      if (!isNaN(point)) {
         let spacePoint = maxPoint - point;
         let readFileProm = new Promise(function (resolve, reject) {
           fs.readFile(
@@ -200,22 +206,34 @@ async function patrolActionPerformed() {
                     updatedClass[item]["point"]
                 );
                 if (updatedClass[item]["action"] === 1) {
+                  let tryCount = tryAddHistory.get(updatedClass[item]["id"]);
+                  if (typeof tryCount == "undefined") {
+                    tryCount = 0;
+                  }
                   let classPoint = parseInt(
                     parseFloat(updatedClass[item]["point"]) * 10
                   );
-                  if (classPoint + point <= maxPoint) {
-                    point += classPoint;
-                    getWeb.sendAddClass(updatedClass[item]["id"]);
-                    selectActionCount++;
-                  } else {
-                    let waitToAddClass = {
-                      id: "",
-                      point: "",
-                      priority: item,
-                    };
-                    waitToAddClass.id = updatedClass[item]["id"];
-                    waitToAddClass.point = updatedClass[item]["point"];
-                    waitToAdd.push(waitToAddClass);
+                  if (tryCount < 3) {
+                    if (classPoint + point <= maxPoint) {
+                      point += classPoint;
+                      getWeb.sendAddClass(updatedClass[item]["id"]);
+                      selectActionCount++;
+                    } else {
+                      let waitToAddClass = {
+                        id: "",
+                        point: "",
+                        priority: item,
+                      };
+                      waitToAddClass.id = updatedClass[item]["id"];
+                      waitToAddClass.point = updatedClass[item]["point"];
+                      waitToAdd.push(waitToAddClass);
+                    }
+                    if (tryCount > 1) {
+                      addMiss++;
+                    }
+                  } else if (tryCount == 3) {
+                    addMiss++;
+                    tryAddHistory.set(waitToAdd[item]["id"], tryCount + 1);
                   }
                 } else if (
                   updatedClass[item]["action"] === 0 &&
