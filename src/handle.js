@@ -2515,7 +2515,7 @@ async function preSelectClassPage() {
             selectThisClassButton.push(selectThisClassDiv);
           } else if (element[tableKey[0]] == 2) {
             selectThisClass.setAttribute("src", "./icon/cancel_white_24dp.svg");
-            electThisClassDiv.setAttribute("id", "d_" + element[tableKey[1]]);
+            selectThisClassDiv.setAttribute("id", "d_" + element[tableKey[1]]);
             selectThisClassButton.push(selectThisClassDiv);
           } else {
             selectThisClassDiv.setAttribute("class", "classNoActionDiv");
