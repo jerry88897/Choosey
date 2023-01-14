@@ -39,9 +39,15 @@ async function pasteSelectClass(CopiedPreSelectClass, fastSelectNo) {
             fastSelectSave["fastSelectBlock"][fastSelectNo]["list"].length <
             limit
           ) {
-            fastSelectSave["fastSelectBlock"][fastSelectNo]["list"].push(
-              CopiedPreSelectClass
-            );
+            for (
+              let copyClassNo = 0;
+              copyClassNo < CopiedPreSelectClass.length;
+              copyClassNo++
+            ) {
+              fastSelectSave["fastSelectBlock"][fastSelectNo]["list"].push(
+                CopiedPreSelectClass[copyClassNo]
+              );
+            }
           }
           let fastSelectSaved = new Promise(function (resolve, reject) {
             console.log(1);

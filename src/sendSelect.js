@@ -6,8 +6,8 @@ module.exports = {
   sendFastSelect: function (data, number) {
     return sendFastSelect(data, number);
   },
-  sendFastSelectResend: function (data, delay) {
-    return sendFastSelectResend(data);
+  sendFastSelectAndRes: function (data, number) {
+    return sendFastSelectAndRes(data, number);
   },
   setCookie: function (newCookie) {
     cookie = newCookie;
@@ -43,7 +43,7 @@ async function sendFastSelect(data, number) {
       });
   });
 }
-async function sendFastSelectResend(data, delay) {
+async function sendFastSelectAndRes(data, number) {
   return new Promise((resolve, reject) => {
     axios
       .post(
@@ -60,11 +60,11 @@ async function sendFastSelectResend(data, delay) {
         },
         {
           withCredentials: true,
-          timeout: delay,
+          timeout: 10000,
         }
       )
       .then(function (response) {
-        resolve();
+        resolve([number, response]);
       })
       .catch(function (error) {
         reject();

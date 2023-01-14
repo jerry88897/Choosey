@@ -21,6 +21,9 @@ module.exports = {
   pointParser: function (response) {
     return pointParser(response);
   },
+  alertParser: function (response) {
+    return alertParser(response);
+  },
 };
 async function classClassListParser(response) {
   let areaCount = 0;
@@ -557,5 +560,38 @@ async function gradeParser(response) {
       .catch((fail) => {
         console.log(fail);
       });
+  });
+}
+async function alertParser(response) {
+  let inJs = false;
+  let findAlert = false;
+  const MyClassParser = new htmlparser2.Parser(
+    {
+      onopentag(name, attribs) {
+        if (name === "script" && attribs.language === "JavaScript") {
+          inJs = true;
+        }
+      },
+      ontext(text) {
+        if (inJs && text.search("alert") !== -1) {
+          findAlert = true;
+        }
+      },
+      onclosetag(tagname) {
+        if (tagname === "html") {
+          console.log("That's it!");
+        } else if (tagname === "script") {
+          inJs = false;
+        }
+      },
+    },
+    {
+      decodeEntities: true,
+    }
+  );
+  return new Promise((resolve, reject) => {
+    MyClassParser.write(iconv.decode(Buffer.from(response.data), "big5"));
+    MyClassParser.end();
+    resolve(findAlert);
   });
 }

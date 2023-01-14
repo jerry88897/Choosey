@@ -125,7 +125,7 @@ if (!gotTheLock) {
       );
       await fs.promises.writeFile(
         path.join(loc, "/src/data/setting.json"),
-        `{"selectStartDate":"2022-01-27T10:30","activate":false,"key":""}`
+        `{"selectStartDate":"2023-01-17T10:30","activate":false,"key":""}`
       );
       await fs.promises.writeFile(
         path.join(loc, "/src/data/shoppingCart.json"),

@@ -1,5 +1,5 @@
 const fs = require("fs");
-let copiedClass = "";
+let copiedClass = [];
 module.exports = {
   addPreSelectClass: function (aClass) {
     return addPreSelectClass(aClass);

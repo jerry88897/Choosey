@@ -3,6 +3,7 @@ const NtpTimeSync = require("ntp-time-sync").NtpTimeSync;
 const sender = require("./sendSelect");
 const ipc = require("electron").ipcMain;
 const path = require("path");
+const parser = require("./parser");
 const { verify, privateDecrypt } = require("crypto");
 const options = {
   // list of NTP time servers, optionally including a port (defaults to 123)
@@ -43,6 +44,7 @@ let intervalCount = 0;
 let win;
 let preSelectPageAction;
 let preSelectPageTimer;
+let noFastSelectTimer;
 let nowState = {
   preload: 0,
   fastSelect: [
@@ -322,7 +324,7 @@ function setFastSelectTimer(settingSaved) {
   console.log("setting fastSelectTimer");
   let sDay = Date.parse(settingSaved["selectStartDate"]);
   return new Promise(function (resolve, reject) {
-    let repeatSelectPromise = [];
+    //let repeatSelectPromise = [];
     nowState.barPo = 50;
     nowState.isFastSelectFinish = false;
     upDateState();
@@ -356,6 +358,7 @@ function setFastSelectTimer(settingSaved) {
           }, sDay - Date.now() + preLoadClass[i].trigger * 1000)
         );
       } else {
+        let serverConfirm = false;
         nowState.fastSelect[preLoadClass[i].block][0] = 1;
         upDateState();
         repeatSelectTimer = setTimeout(function () {
@@ -366,28 +369,50 @@ function setFastSelectTimer(settingSaved) {
           repeatSelectInterval = setInterval(function () {
             if (intervalCount < 50) {
               console.log("To" + intervalCount);
-              repeatSelectPromise.push(
-                sender.sendFastSelect(
-                  preLoadClass[i].classString,
-                  intervalCount + 1
-                )
+              // repeatSelectPromise.push(
+              //   sender.sendFastSelect(
+              //     preLoadClass[i].classString,
+              //     intervalCount + 1
+              //   )
+              // );
+              let repeatSelectPromise = sender.sendFastSelectAndRes(
+                preLoadClass[i].classString,
+                intervalCount + 1
               );
               nowState.fastSelect[preLoadClass[i].block][2] += 1;
               upDateState();
               intervalCount++;
-              Promise.any(repeatSelectPromise)
-                .then(function (number) {
-                  clearInterval(repeatSelectInterval);
-                  nowState.fastSelect[preLoadClass[i].block][0] = 3;
-                  nowState.fastSelect[preLoadClass[i].block][1] = number;
-                  upDateState();
-                  fastSelectReportCount++;
-                  checkIfFastSelectFinish();
-                  console.log("To" + intervalCount + "at" + number);
+              repeatSelectPromise
+                .then(function (data) {
+                  let alertFound = parser.alertParser(data[1]);
+                  alertFound.then(function (hasAlert) {
+                    if (hasAlert) {
+                      clearInterval(repeatSelectInterval);
+                      nowState.fastSelect[preLoadClass[i].block][0] = 3;
+                      nowState.fastSelect[preLoadClass[i].block][1] = data[0];
+                      upDateState();
+                      fastSelectReportCount++;
+                      checkIfFastSelectFinish();
+                      console.log("To" + intervalCount + "at" + data[0]);
+                    }
+                  });
                 })
                 .catch(function (error) {
                   console.log(+intervalCount + "timeOut");
                 });
+              // Promise.any(repeatSelectPromise)
+              //   .then(function (number) {
+              //     clearInterval(repeatSelectInterval);
+              //     nowState.fastSelect[preLoadClass[i].block][0] = 3;
+              //     nowState.fastSelect[preLoadClass[i].block][1] = number;
+              //     upDateState();
+              //     fastSelectReportCount++;
+              //     checkIfFastSelectFinish();
+              //     console.log("To" + intervalCount + "at" + number);
+              //   })
+              //   .catch(function (error) {
+              //     console.log(+intervalCount + "timeOut");
+              //   });
             } else {
               nowState.fastSelect[preLoadClass[i].block][0] = 4;
               upDateState();
@@ -418,6 +443,7 @@ async function checkIfFastSelectFinish() {
 async function stopAllTimer() {
   clearTimeout(preLoadTimer);
   clearTimeout(preLoadTimer);
+  clearTimeout(noFastSelectTimer);
   for (let i = 0; i < fastSelectTimer.length; i++) {
     clearTimeout(fastSelectTimer[i]);
   }

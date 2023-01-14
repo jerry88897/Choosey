@@ -88,7 +88,7 @@ async function showControlCenter(evt, ntpTimeDiff) {
   titleCountDown.innerHTML = "";
   newNTPTimeDiff = ntpTimeDiff;
   let setting = {
-    selectStartDate: "2022-01-27T10:30",
+    selectStartDate: "2023-01-17T10:30",
     activate: false,
     key: "",
   };
@@ -2252,7 +2252,7 @@ async function showPreSelectClassAtFastSelectPage() {
   let miniTableHead = ["動作", "課程代碼", "課程名稱", "教師", "類別", "學分"];
   fs.readFile("./src/data/shoppingCart.json", function (err, myClassData) {
     let preSelectThisClassDivArray = [];
-    let copyThisClassDivArray = [];
+    let copyThisClassCheckboxArray = [];
     let copyThisClassArray = [];
     let myclass;
     if (err) {
@@ -2300,7 +2300,7 @@ async function showPreSelectClassAtFastSelectPage() {
         let td = document.createElement("td");
         let preSelectThisClass = document.createElement("img");
         let preSelectThisClassDiv = document.createElement("div");
-        let copyThisClass = document.createElement("img");
+        let copyThisClass = document.createElement("input");
         let copyThisClassDiv = document.createElement("div");
         let classActionBox = document.createElement("div");
         preSelectThisClass.setAttribute("src", "./icon/bx-cart-arrow-out.svg");
@@ -2309,11 +2309,11 @@ async function showPreSelectClassAtFastSelectPage() {
         preSelectThisClassDiv.appendChild(preSelectThisClass);
         preSelectThisClassDiv.setAttribute("class", "classActionDiv");
         preSelectThisClassDivArray.push(preSelectThisClassDiv);
-        copyThisClass.setAttribute("src", "./icon/bxs-eyedropper.svg");
+        copyThisClass.setAttribute("type", "checkbox");
         copyThisClassDiv.setAttribute("id", "e" + element[tableKey[1]]);
         copyThisClass.setAttribute("class", "classAction");
         copyThisClassDiv.appendChild(copyThisClass);
-        copyThisClassDiv.setAttribute("class", "classActionDiv");
+        //copyThisClassDiv.setAttribute("class", "classActionDiv");
         let isIn = false;
         for (let i = 0; i < preSelectlist.length; i++) {
           if (preSelectlist[i].id === element.id) {
@@ -2322,7 +2322,7 @@ async function showPreSelectClassAtFastSelectPage() {
           }
         }
         copyThisClassArray.push(element);
-        copyThisClassDivArray.push(copyThisClassDiv);
+        copyThisClassCheckboxArray.push(copyThisClass);
         classActionBox.appendChild(copyThisClassDiv);
         classActionBox.appendChild(preSelectThisClassDiv);
         classActionBox.setAttribute("class", "classActionBox");
@@ -2394,17 +2394,24 @@ async function showPreSelectClassAtFastSelectPage() {
       }
       for (
         let copySelectButton = 0;
-        copySelectButton < copyThisClassDivArray.length;
+        copySelectButton < copyThisClassCheckboxArray.length;
         copySelectButton++
       ) {
-        copyThisClassDivArray[copySelectButton].addEventListener(
+        copyThisClassCheckboxArray[copySelectButton].addEventListener(
           "click",
-          async function () {
+          function () {
+            let copyThisClassArrayBuffer = [];
             console.log("copied");
-            ipc.send(
-              "copyPreSelectClass",
-              copyThisClassArray[copySelectButton]
-            );
+            for (
+              let checkboxNo = 0;
+              checkboxNo < copyThisClassCheckboxArray.length;
+              checkboxNo++
+            ) {
+              if (copyThisClassCheckboxArray[checkboxNo].checked) {
+                copyThisClassArrayBuffer.push(copyThisClassArray[checkboxNo]);
+              }
+            }
+            ipc.send("copyPreSelectClass", copyThisClassArrayBuffer);
           }
         );
       }
@@ -3083,7 +3090,7 @@ async function showSetting() {
   table.style.marginTop = "50px";
   table.className = "mtable";
   let setting = {
-    selectStartDate: "2022-01-27T10:30",
+    selectStartDate: "2023-01-17T10:30",
     activate: false,
     key: "",
   };
@@ -3633,7 +3640,7 @@ ipc.on("updatePreSelectPage", function (evt) {
 ipc.on("updateFastSelectPage", function (evt) {
   console.log("showFastSelectPage");
   fastSelect();
-  showPreSelectClassAtFastSelectPage();
+  //showPreSelectClassAtFastSelectPage();
 });
 
 ipc.on("readyToShow", function (evt, myClass) {
