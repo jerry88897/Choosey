@@ -88,7 +88,7 @@ async function showControlCenter(evt, ntpTimeDiff) {
   titleCountDown.innerHTML = "";
   newNTPTimeDiff = ntpTimeDiff;
   let setting = {
-    selectStartDate: "2023-01-17T10:30",
+    selectStartDate: "2023-01-17T10:00",
     activate: false,
     key: "",
   };
@@ -3090,7 +3090,7 @@ async function showSetting() {
   table.style.marginTop = "50px";
   table.className = "mtable";
   let setting = {
-    selectStartDate: "2023-01-17T10:30",
+    selectStartDate: "2023-01-17T10:00",
     activate: false,
     key: "",
   };
