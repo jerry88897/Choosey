@@ -4,8 +4,8 @@
 </p>
 
 ![Choosey Build](https://img.shields.io/badge/build-passing-successimportant)
-![Choosey Tests](https://img.shields.io/badge/tests-8%20passed%2C%204%20failed-critical)
-![Choosey Downloads](https://img.shields.io/github/downloads/jerry88897/Choosey/total)
+![Choosey Tests](https://img.shields.io/badge/passed%20tests-18-success)
+![Choosey Downloads](https://img.shields.io/github/downloads/jerry88897/Choosey/total?color=success)
 ![Choosey license](https://img.shields.io/github/license/jerry88897/Choosey)
 [![Choosey Discord Invite](https://img.shields.io/discord/1002608305220362412?color=%237289DA&label=chat&logo=discord&logoColor=white)](https://discord.gg/29AbBJ48Hk)
 # Choosey - 先進的選課管理系統
