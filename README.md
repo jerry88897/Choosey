@@ -71,5 +71,10 @@ email也行 chooseydev@gmail.com
 感謝所有勇敢的測試人員<br />
 感謝所有陣亡人員的犧牲，造就了我們的進步<br />
 感謝美術總監對開發者無限的付出與支持
+
+<p align="center">
+    <img src="READMEimg/ChooseyPath.png">
+</p>
+
 ## License
 [GPL-3.0](https://github.com/jerry88897/Choosey/blob/main/LICENSE)
